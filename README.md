@@ -9,7 +9,7 @@
 # Hadafi هدَفي 
 
 ## 🌟 Introduction 
-**Hadafi هدَفي** is a mobile application designed to address the challenges faced by both students and training providers. It helps match students with the best training opportunities by providing personalized solutions that enhance their success.
+**Hadafi هدَفي** is a mobile application designed to address the challenges faced by both students and training providers.It helps match students with the best training opportunities by providing personalized solutions that enhance their success, while also assisting training providers in reaching suitable candidates.
 
 **Hadafi offers many powerful features, including:**
 - 🚀 **AI-powered CV enhancement tool**, helping students improve their CVs.
