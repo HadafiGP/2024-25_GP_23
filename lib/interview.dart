@@ -5,9 +5,9 @@
 
 import 'dart:async';
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
-import 'package:hadafi_application/consts.dart';
 import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class InterviewPage extends StatefulWidget {
   const InterviewPage({super.key});
@@ -18,7 +18,7 @@ class InterviewPage extends StatefulWidget {
 
 class _InterviewPageState extends State<InterviewPage> {
 final _openAI = OpenAI.instance.build(
-  token: openAI_api_interview_key,
+  token: dotenv.env['openAI_api_interview_key'] ?? '',
   baseOption: HttpSetup(
     receiveTimeout: const Duration(seconds: 20),  // Increase this to 20 seconds or more
     connectTimeout: const Duration(seconds: 20),  // Increase this to 20 seconds or more

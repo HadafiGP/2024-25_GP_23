@@ -1,1 +1,0 @@
-const openAI_api_interview_key= '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 ' ;
