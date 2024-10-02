@@ -33,47 +33,32 @@ final _openAI = OpenAI.instance.build(
       ChatUser(id: "2", firstName: "chat", lastName: "gpt");
   List<ChatMessage> _messages = <ChatMessage>[];
 
-  bool? _isLoading;
   Timer? _ITimer;
-  Duration IDuration = Duration(minutes: 15);
+  Duration IDuration = Duration(minutes: 5);
   bool waitForUserResponse=false;
   String? promptMsg;
+  bool sentRestartQuestion=false;
+  String feedback="";
+  bool isLastQuestion=false;
+  bool sentFeedback=false;
+  bool isWaiting=true;
 
 
 //Initate the first message:Asking about the COOP/Internship positoon
 @override
 void initState(){
-  _isLoading=false;
-  startInterview();
+  SEInterview();
   _handleInitialMessage(
     'You are a COOP/internship interviewer, please askwhat is the COOP/internship position the user is applying for. introduce yourself as Hadafi interview simulator. ',
   );
   super.initState();
 }
 
-//Set an interview for 15min
-void startInterview(){
-   _ITimer = Timer(IDuration, () {
-      setState(() {
-        _messages.insert(0, ChatMessage(
-          user: _chatGPTUser,
-          createdAt: DateTime.now(),
-          text: "The interview is over. Thank you for your time!",
-        ));
-      });
-    });
-}
-
-  @override
-  void dispose() {
-    _ITimer?.cancel();  
-    super.dispose();
-  }
 
 //Handle the response of the prompt.
 Future<void> _handleInitialMessage(String character) async {
   setState(() {
-    _isLoading = true;
+
   });
 
   final request = ChatCompleteText(
@@ -94,7 +79,6 @@ Future<void> _handleInitialMessage(String character) async {
 
   setState(() {
     _messages.insert(0, message);
-    _isLoading = false;
   });
   
   }
@@ -132,7 +116,40 @@ Future<void> _handleInitialMessage(String character) async {
   Future<void> getChatResponse(ChatMessage m) async {
     setState(() {
       _messages.insert(0, m);
-    });
+      isWaiting=false;
+      });
+
+
+    if (isLastQuestion) {
+      isLastQuestion = false;
+      interviewFeedback();
+      return;
+    }
+
+    if (sentFeedback) {
+      sentFeedback = false;
+      return;
+    }
+
+      if(sentRestartQuestion==true){
+        if(m.text.trim().toLowerCase() == "yes"){
+          restartInterview();
+        }
+        else if(m.text.trim().toLowerCase() == "no"){
+         setState(() {
+      _messages.insert(0, ChatMessage(
+        user: _chatGPTUser,
+        createdAt: DateTime.now(),
+        text: "Goodbye",
+      ));
+       });
+       return;
+           }
+        
+          sentRestartQuestion = false;  
+          return; 
+      }
+    
     
     // Convert the ChatMessage objects into the required Map<String, dynamic> format
     List<Map<String, dynamic>> _messagesHistory = _messages.reversed.map((m) {
@@ -154,7 +171,7 @@ Future<void> _handleInitialMessage(String character) async {
     final response = await _openAI.onChatCompletion(request: request);
 
     //Trigger the single question function.
-        if (m.text.isNotEmpty) {
+        if (m.text.isNotEmpty && isLastQuestion==false) {
     await _askQuestions(_messagesHistory); 
   }
     
@@ -162,6 +179,7 @@ Future<void> _handleInitialMessage(String character) async {
 
 //Make the chat ask the questions one at a time:take into consideration full history.
   Future<void> _askQuestions(List<Map<String, dynamic>> messagesHistory) async {
+    isWaiting=true;
 
 
     final request = ChatCompleteText(
@@ -184,6 +202,129 @@ Future<void> _handleInitialMessage(String character) async {
     setState(() {
       _messages.insert(0, message);
     });
+  }
+
+  //Set an interview for 15min
+void SEInterview(){
+
+
+   _ITimer = Timer(IDuration, () async{
+    
+    Timer.periodic(Duration(milliseconds: 100), (timer) async {
+      if(isWaiting==false){
+        timer.cancel();
+
+     List<Map<String, dynamic>> _messagesHistory = _messages.reversed.map((m) {
+      if (m.user == _currentUser) {
+        return {"role": "user", "content": m.text};
+      } else {
+        return {"role": "assistant", "content": m.text};
+      }
+    }).toList();
+
+     final request = ChatCompleteText(
+    
+      model: Gpt4ChatModel(),
+      messages: [
+        ..._messagesHistory,
+        Map.of({"role": "assistant", "content": "Based on the user previous response,ask a closing question and end the interview."})
+      ],
+      maxToken: 200,
+    );
+
+        final response = await _openAI.onChatCompletion(request: request);
+
+
+    ChatMessage message = ChatMessage(
+      user: _chatGPTUser,
+      createdAt: DateTime.now(),
+      text: response!.choices.first.message!.content.trim(),
+    );
+
+    setState(() {
+      _messages.insert(0, message);
+      isLastQuestion=true;
+    });
+
+    }
+
+    });
+
+
+   });
+}
+
+void interviewFeedback() async{
+    List<Map<String, dynamic>> _messagesHistory = _messages.reversed.map((m) {
+      if (m.user == _currentUser) {
+        return {"role": "user", "content": m.text};
+      } else {
+        return {"role": "assistant", "content": m.text};
+      }
+    }).toList();
+
+     final request = ChatCompleteText(
+    
+      model: Gpt4ChatModel(),
+      messages: [
+        ..._messagesHistory,
+        Map.of({"role": "assistant", "content": "Based on the user message history, provide a feedback on their interview answers"})
+      ],
+      maxToken: 200,
+    );
+
+        final response = await _openAI.onChatCompletion(request: request);
+
+
+    ChatMessage message = ChatMessage(
+      user: _chatGPTUser,
+      createdAt: DateTime.now(),
+      text: response!.choices.first.message!.content.trim(),
+    );
+
+    setState(() {
+      _messages.insert(0, message);
+      sentFeedback=true;
+    });
+
+    restartInterviewQuestion();
+   
+}
+
+
+  @override
+  void dispose() {
+    _ITimer?.cancel();  
+    super.dispose();
+  }
+
+  void restartInterviewQuestion() async{
+    setState(() {
+      _messages.insert(0, ChatMessage(
+        user: _chatGPTUser,
+        createdAt: DateTime.now(),
+        text: "This interview is over. Would you like to have an another interview? -Respond with yes or no-",
+      ));
+    });
+
+    sentRestartQuestion=true;
+
+
+  }
+
+  void restartInterview(){
+          setState(() {
+        _messages.insert(0, ChatMessage(
+          user: _chatGPTUser,
+          createdAt: DateTime.now(),
+          text: "Your interview will restart....",
+        ));
+        sentRestartQuestion = false;
+        _messages.clear(); 
+        _handleInitialMessage(
+        'You are a COOP/internship interviewer, please ask what is the COOP/internship position the user is applying for. introduce yourself as Hadafi interview simulator. ');
+        SEInterview();
+      });
   }
 
 }
