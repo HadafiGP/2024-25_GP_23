@@ -18,10 +18,10 @@ class InterviewPage extends StatefulWidget {
 
 class _InterviewPageState extends State<InterviewPage> {
 final _openAI = OpenAI.instance.build(
-  token: dotenv.env['openAI_api_interview_key'] ?? '', // this is the change that we applied to the code after encountring the push issues regarding API secrete key
+  token: dotenv.env['openAI_api_interview_key'] ?? '', 
   baseOption: HttpSetup(
-    receiveTimeout: const Duration(seconds: 20),  // Increase this to 20 seconds or more
-    connectTimeout: const Duration(seconds: 20),  // Increase this to 20 seconds or more
+    receiveTimeout: const Duration(seconds: 20),  
+    connectTimeout: const Duration(seconds: 20),  
   ),
   enableLog: true,
 );
@@ -42,6 +42,7 @@ final _openAI = OpenAI.instance.build(
   bool isLastQuestion=false;
   bool sentFeedback=false;
   bool isWaiting=true;
+  bool noMoreQuestions=true;
 
 
 //Initate the first message:Asking about the COOP/Internship positoon
@@ -119,18 +120,6 @@ Future<void> _handleInitialMessage(String character) async {
       isWaiting=false;
       });
 
-
-    if (isLastQuestion) {
-      isLastQuestion = false;
-      interviewFeedback();
-      return;
-    }
-
-    if (sentFeedback) {
-      sentFeedback = false;
-      return;
-    }
-
       if(sentRestartQuestion==true){
         if(m.text.trim().toLowerCase() == "yes"){
           restartInterview();
@@ -149,6 +138,18 @@ Future<void> _handleInitialMessage(String character) async {
           sentRestartQuestion = false;  
           return; 
       }
+
+
+    if (isLastQuestion) {
+      isLastQuestion = false;
+      interviewFeedback();
+      return;
+    }
+
+    if (sentFeedback) {
+      sentFeedback = false;
+      return;
+    }
     
     
     // Convert the ChatMessage objects into the required Map<String, dynamic> format
@@ -171,14 +172,14 @@ Future<void> _handleInitialMessage(String character) async {
     final response = await _openAI.onChatCompletion(request: request);
 
     //Trigger the single question function.
-        if (m.text.isNotEmpty && isLastQuestion==false) {
-    await _askQuestions(_messagesHistory); 
+  if (m.text.isNotEmpty && noMoreQuestions==false) {
+    await askQuestions(_messagesHistory); 
   }
     
   }
 
 //Make the chat ask the questions one at a time:take into consideration full history.
-  Future<void> _askQuestions(List<Map<String, dynamic>> messagesHistory) async {
+  Future<void> askQuestions(List<Map<String, dynamic>> messagesHistory) async {
     isWaiting=true;
 
 
@@ -207,6 +208,7 @@ Future<void> _handleInitialMessage(String character) async {
   //Set an interview for 15min
 void SEInterview(){
 
+    noMoreQuestions=false;
 
    _ITimer = Timer(IDuration, () async{
     
@@ -320,6 +322,7 @@ void interviewFeedback() async{
           text: "Your interview will restart....",
         ));
         sentRestartQuestion = false;
+        noMoreQuestions=true;
         _messages.clear(); 
         _handleInitialMessage(
         'You are a COOP/internship interviewer, please ask what is the COOP/internship position the user is applying for. introduce yourself as Hadafi interview simulator. ');
