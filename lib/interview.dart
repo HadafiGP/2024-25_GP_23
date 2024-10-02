@@ -18,7 +18,7 @@ class InterviewPage extends StatefulWidget {
 
 class _InterviewPageState extends State<InterviewPage> {
 final _openAI = OpenAI.instance.build(
-  token: dotenv.env['openAI_api_interview_key'] ?? '',
+  token: dotenv.env['openAI_api_interview_key'] ?? '', // this is the change that we applied to the code after encountring the push issues regarding API secrete key
   baseOption: HttpSetup(
     receiveTimeout: const Duration(seconds: 20),  // Increase this to 20 seconds or more
     connectTimeout: const Duration(seconds: 20),  // Increase this to 20 seconds or more
