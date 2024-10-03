@@ -30,11 +30,11 @@ final _openAI = OpenAI.instance.build(
   final ChatUser _currentUser =
       ChatUser(id: "1", firstName: "user", lastName: "user");
   final ChatUser _chatGPTUser =
-      ChatUser(id: "2", firstName: "chat", lastName: "gpt");
+      ChatUser(id: "2", firstName: "Hadafi", lastName: "");
   List<ChatMessage> _messages = <ChatMessage>[];
 
   Timer? _ITimer;
-  Duration IDuration = Duration(minutes: 5);
+  Duration IDuration = Duration(minutes: 2);
   bool waitForUserResponse=false;
   String? promptMsg;
   bool sentRestartQuestion=false;
@@ -43,6 +43,9 @@ final _openAI = OpenAI.instance.build(
   bool sentFeedback=false;
   bool isWaiting=true;
   bool noMoreQuestions=true;
+  
+  bool _isTyping = false; // Track if the chatbot is typing
+
 
 
 //Initate the first message:Asking about the COOP/Internship positoon
@@ -102,7 +105,7 @@ Future<void> _handleInitialMessage(String character) async {
         currentUser: _currentUser,
 
         messageOptions: const MessageOptions(
-          currentUserContainerColor: Colors.black,
+          currentUserContainerColor: Color(0xFF113F67),
           containerColor: Colors.cyan,
           textColor: Colors.white,
         ), //
@@ -110,7 +113,9 @@ Future<void> _handleInitialMessage(String character) async {
           getChatResponse(m);
         },
         messages: _messages,
+         typingUsers: _isTyping ? [_chatGPTUser] : [],
       ),
+
     );
   }
 
@@ -118,7 +123,9 @@ Future<void> _handleInitialMessage(String character) async {
     setState(() {
       _messages.insert(0, m);
       isWaiting=false;
+      _isTyping = true; 
       });
+ await Future.delayed(Duration(seconds: 2));
 
       if(sentRestartQuestion==true){
         if(m.text.trim().toLowerCase() == "yes"){
@@ -174,7 +181,10 @@ Future<void> _handleInitialMessage(String character) async {
     //Trigger the single question function.
   if (m.text.isNotEmpty && noMoreQuestions==false) {
     await askQuestions(_messagesHistory); 
+
+
   }
+    
     
   }
 
@@ -202,6 +212,7 @@ Future<void> _handleInitialMessage(String character) async {
 
     setState(() {
       _messages.insert(0, message);
+      _isTyping = false;
     });
   }
 
@@ -301,12 +312,15 @@ void interviewFeedback() async{
   }
 
   void restartInterviewQuestion() async{
+
     setState(() {
       _messages.insert(0, ChatMessage(
         user: _chatGPTUser,
         createdAt: DateTime.now(),
         text: "This interview is over. Would you like to have an another interview? -Respond with yes or no-",
+        
       ));
+      _isTyping = false;
     });
 
     sentRestartQuestion=true;
@@ -316,6 +330,7 @@ void interviewFeedback() async{
 
   void restartInterview(){
           setState(() {
+            _isTyping = false;
         _messages.insert(0, ChatMessage(
           user: _chatGPTUser,
           createdAt: DateTime.now(),
