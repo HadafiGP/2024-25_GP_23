@@ -30,11 +30,11 @@ final _openAI = OpenAI.instance.build(
   final ChatUser _currentUser =
       ChatUser(id: "1", firstName: "user", lastName: "user");
   final ChatUser _chatGPTUser =
-      ChatUser(id: "2", firstName: "Hadafi", lastName: "");
+      ChatUser(id: "2", firstName: "chat", lastName: "gpt");
   List<ChatMessage> _messages = <ChatMessage>[];
 
   Timer? _ITimer;
-  Duration IDuration = Duration(minutes: 2);
+  Duration IDuration = Duration(minutes: 5);
   bool waitForUserResponse=false;
   String? promptMsg;
   bool sentRestartQuestion=false;
@@ -42,10 +42,7 @@ final _openAI = OpenAI.instance.build(
   bool isLastQuestion=false;
   bool sentFeedback=false;
   bool isWaiting=true;
-  bool noMoreQuestions=true;
-  
-  bool _isTyping = false; // Track if the chatbot is typing
-
+  bool noMoreQuestions=false;
 
 
 //Initate the first message:Asking about the COOP/Internship positoon
@@ -105,7 +102,7 @@ Future<void> _handleInitialMessage(String character) async {
         currentUser: _currentUser,
 
         messageOptions: const MessageOptions(
-          currentUserContainerColor: Color(0xFF113F67),
+          currentUserContainerColor: Colors.black,
           containerColor: Colors.cyan,
           textColor: Colors.white,
         ), //
@@ -113,9 +110,7 @@ Future<void> _handleInitialMessage(String character) async {
           getChatResponse(m);
         },
         messages: _messages,
-         typingUsers: _isTyping ? [_chatGPTUser] : [],
       ),
-
     );
   }
 
@@ -123,9 +118,7 @@ Future<void> _handleInitialMessage(String character) async {
     setState(() {
       _messages.insert(0, m);
       isWaiting=false;
-      _isTyping = true; 
       });
- await Future.delayed(Duration(seconds: 2));
 
       if(sentRestartQuestion==true){
         if(m.text.trim().toLowerCase() == "yes"){
@@ -179,12 +172,10 @@ Future<void> _handleInitialMessage(String character) async {
     final response = await _openAI.onChatCompletion(request: request);
 
     //Trigger the single question function.
-  if (m.text.isNotEmpty && noMoreQuestions==false) {
+  if (m.text.isNotEmpty) {
+    print("iNSIDE await");
     await askQuestions(_messagesHistory); 
-
-
   }
-    
     
   }
 
@@ -192,12 +183,13 @@ Future<void> _handleInitialMessage(String character) async {
   Future<void> askQuestions(List<Map<String, dynamic>> messagesHistory) async {
     isWaiting=true;
 
+    if(noMoreQuestions==false){
 
-    final request = ChatCompleteText(
+          final request = ChatCompleteText(
       model: Gpt4ChatModel(),
       messages: [
         ...messagesHistory,
-        Map.of({"role": "assistant", "content": "Based on the user previous response, ask only one INTERVIEW question. Do not provide feedback only customize futher questions. Make sure to play the role of an interviewer and make flow logical"})
+        Map.of({"role": "assistant", "content": "Based on the user previous response, ask only one INTERVIEW question. Do not provide feedback only customize futher questions. Make sure to play the role of an interviewer and make flow logical. Keep in mind all users are recent graduates with limited experience"})
       ],
       maxToken: 200,
     );
@@ -211,20 +203,22 @@ Future<void> _handleInitialMessage(String character) async {
     );
 
     setState(() {
+          print("iNSIDE askQuestions");
       _messages.insert(0, message);
-      _isTyping = false;
     });
+
+    }
+
   }
 
   //Set an interview for 15min
 void SEInterview(){
 
-    noMoreQuestions=false;
 
    _ITimer = Timer(IDuration, () async{
-    
     Timer.periodic(Duration(milliseconds: 100), (timer) async {
       if(isWaiting==false){
+        noMoreQuestions=true;
         timer.cancel();
 
      List<Map<String, dynamic>> _messagesHistory = _messages.reversed.map((m) {
@@ -235,12 +229,12 @@ void SEInterview(){
       }
     }).toList();
 
+    print("iNSIDE SEInterview");
      final request = ChatCompleteText(
-    
       model: Gpt4ChatModel(),
       messages: [
         ..._messagesHistory,
-        Map.of({"role": "assistant", "content": "Based on the user previous response,ask a closing question and end the interview."})
+        Map.of({"role": "assistant", "content": "Based on the user previous responses,ask a closing QUESTON and end the interview. -Ensure it's a question-"})
       ],
       maxToken: 200,
     );
@@ -312,15 +306,12 @@ void interviewFeedback() async{
   }
 
   void restartInterviewQuestion() async{
-
     setState(() {
       _messages.insert(0, ChatMessage(
         user: _chatGPTUser,
         createdAt: DateTime.now(),
         text: "This interview is over. Would you like to have an another interview? -Respond with yes or no-",
-        
       ));
-      _isTyping = false;
     });
 
     sentRestartQuestion=true;
@@ -330,7 +321,6 @@ void interviewFeedback() async{
 
   void restartInterview(){
           setState(() {
-            _isTyping = false;
         _messages.insert(0, ChatMessage(
           user: _chatGPTUser,
           createdAt: DateTime.now(),
@@ -346,6 +336,4 @@ void interviewFeedback() async{
   }
 
 }
-
-
 
