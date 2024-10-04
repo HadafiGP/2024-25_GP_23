@@ -30,11 +30,11 @@ final _openAI = OpenAI.instance.build(
   final ChatUser _currentUser =
       ChatUser(id: "1", firstName: "user", lastName: "user");
   final ChatUser _chatGPTUser =
-      ChatUser(id: "2", firstName: "chat", lastName: "gpt");
+      ChatUser(id: "2", firstName: "Hadafi", lastName: "" , profileImage: "https://i.imgur.com/Be1jZ9c.jpeg");
   List<ChatMessage> _messages = <ChatMessage>[];
 
   Timer? _ITimer;
-  Duration IDuration = Duration(minutes: 5);
+  Duration IDuration = Duration(minutes: 2);
   bool waitForUserResponse=false;
   String? promptMsg;
   bool sentRestartQuestion=false;
@@ -89,7 +89,7 @@ Future<void> _handleInitialMessage(String character) async {
     return Scaffold(
       backgroundColor: Color(0xFFF3F9FB),
       appBar: AppBar(
-        backgroundColor: Color(0xFF1BAEC6),
+        backgroundColor:  Color(0xFF113F67),
         title: const Text(
           'Interview Simulator',
           style: TextStyle(
@@ -102,9 +102,10 @@ Future<void> _handleInitialMessage(String character) async {
         currentUser: _currentUser,
 
         messageOptions: const MessageOptions(
-          currentUserContainerColor: Colors.black,
-          containerColor: Colors.cyan,
+          currentUserContainerColor: Colors.cyan,
+          containerColor: Color(0xFF113F67),
           textColor: Colors.white,
+          
         ), //
         onSend: (ChatMessage m) {
           getChatResponse(m);

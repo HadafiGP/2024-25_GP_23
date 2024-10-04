@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       title: 'Hadafi',
       theme: ThemeData(
 
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.cyan),
+        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF113F67)),
         useMaterial3: true,
       ),
       home: InterviewPage(),
