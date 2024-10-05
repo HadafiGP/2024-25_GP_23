@@ -50,7 +50,7 @@ final _openAI = OpenAI.instance.build(
 void initState(){
   SEInterview();
   _handleInitialMessage(
-    'You are a COOP/internship interviewer, please askwhat is the COOP/internship position the user is applying for. introduce yourself as Hadafi interview simulator. ',
+    'You are a COOP/internship interviewer, please ask what is the COOP/internship position the user is applying for, and introduce yourself as Hadafi interview simulator. Reask the user if his text appears like gibberish or is not relevant to the question, without mentioning that the response was evaluated for relevance.',
   );
   super.initState();
 }
@@ -135,6 +135,16 @@ Future<void> _handleInitialMessage(String character) async {
        });
        return;
            }
+           else{
+             setState(() {
+      _messages.insert(0, ChatMessage(
+        user: _chatGPTUser,
+        createdAt: DateTime.now(),
+        text: "Please enter Yes or no only.",
+      ));
+       });
+       return;
+           }
         
           sentRestartQuestion = false;  
           return; 
@@ -190,7 +200,7 @@ Future<void> _handleInitialMessage(String character) async {
       model: Gpt4ChatModel(),
       messages: [
         ...messagesHistory,
-        Map.of({"role": "assistant", "content": "Based on the user previous response, ask only one INTERVIEW question. Do not provide feedback only customize futher questions. Make sure to play the role of an interviewer and make flow logical. Keep in mind all users are recent graduates with limited experience"})
+        Map.of({"role": "assistant", "content": "Utilize the user's message history to ask ONE interview question. You should not provide feedback; instead, reask the user if his text appears like gibberish or is not relevant to the question. Play the role of an interviewer, and keep in mind that all users are recent graduates with little work experience."})
       ],
       maxToken: 200,
     );
@@ -235,7 +245,7 @@ void SEInterview(){
       model: Gpt4ChatModel(),
       messages: [
         ..._messagesHistory,
-        Map.of({"role": "assistant", "content": "Based on the user previous responses,ask a closing QUESTON and end the interview. -Ensure it's a question-"})
+        Map.of({"role": "assistant", "content": "Using the user’s previous responses, ask a closing QUESTION. Ensure to write only a question, and clarify it's the last question."})
       ],
       maxToken: 200,
     );
@@ -252,6 +262,7 @@ void SEInterview(){
     setState(() {
       _messages.insert(0, message);
       isLastQuestion=true;
+          print("outside SEInterview");
     });
 
     }
@@ -271,12 +282,14 @@ void interviewFeedback() async{
       }
     }).toList();
 
+        print("iNSIDE interview Feedback");
+
      final request = ChatCompleteText(
     
       model: Gpt4ChatModel(),
       messages: [
         ..._messagesHistory,
-        Map.of({"role": "assistant", "content": "Based on the user message history, provide a feedback on their interview answers"})
+        Map.of({"role": "assistant", "content": "Use the user’s complete message history to provide a comprehensive feedback on the user's entire interview answers."})
       ],
       maxToken: 200,
     );
@@ -293,6 +306,7 @@ void interviewFeedback() async{
     setState(() {
       _messages.insert(0, message);
       sentFeedback=true;
+      print("outside interview Feedback");
     });
 
     restartInterviewQuestion();
@@ -331,7 +345,7 @@ void interviewFeedback() async{
         noMoreQuestions=true;
         _messages.clear(); 
         _handleInitialMessage(
-        'You are a COOP/internship interviewer, please ask what is the COOP/internship position the user is applying for. introduce yourself as Hadafi interview simulator. ');
+        'You are a COOP/internship interviewer, please ask what is the COOP/internship position the user is applying for, and introduce yourself as Hadafi interview simulator. Reask the user if his text appears like gibberish or is not relevant to the question, without mentioning that the response was evaluated for relevance.');
         SEInterview();
       });
   }
