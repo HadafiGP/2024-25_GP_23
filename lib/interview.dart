@@ -34,7 +34,7 @@ final _openAI = OpenAI.instance.build(
   List<ChatMessage> _messages = <ChatMessage>[];
 
   Timer? _ITimer;
-  Duration IDuration = Duration(minutes: 2);
+  Duration IDuration = Duration(minutes: 1);
   bool waitForUserResponse=false;
   String? promptMsg;
   bool sentRestartQuestion=false;
@@ -50,7 +50,8 @@ final _openAI = OpenAI.instance.build(
 void initState(){
   SEInterview();
   _handleInitialMessage(
-    'You are a COOP/internship interviewer, please ask what is the COOP/internship position the user is applying for, and introduce yourself as Hadafi interview simulator. Reask the user if his text appears like gibberish or is not relevant to the question, without mentioning that the response was evaluated for relevance.',
+    'Introduce yourself as "Hadafi COOP/internship interviewer", and please ask what is the COOP/internship position the user is applying for.' 
+    + ' Reask the user without notifying them if his text appears like gibberish, not relevant to the question, or doesn\'t sound like a real postion title',
   );
   super.initState();
 }
@@ -334,19 +335,22 @@ void interviewFeedback() async{
 
   }
 
-  void restartInterview(){
+  void restartInterview() {
           setState(() {
         _messages.insert(0, ChatMessage(
           user: _chatGPTUser,
           createdAt: DateTime.now(),
-          text: "Your interview will restart....",
+          text: "Your new interview will start now.",
         ));
+        Future.delayed(Duration(seconds: 2), () {
         sentRestartQuestion = false;
         noMoreQuestions=true;
         _messages.clear(); 
         _handleInitialMessage(
-        'You are a COOP/internship interviewer, please ask what is the COOP/internship position the user is applying for, and introduce yourself as Hadafi interview simulator. Reask the user if his text appears like gibberish or is not relevant to the question, without mentioning that the response was evaluated for relevance.');
+    'Introduce yourself as "Hadafi COOP/internship interviewer", and please ask what is the COOP/internship position the user is applying for.' 
+    + ' Reask the user without notifying them if his text appears like gibberish, not relevant to the question, or doesn\'t sound like a real postion title',);
         SEInterview();
+        });
       });
   }
 
