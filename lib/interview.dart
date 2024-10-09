@@ -20,8 +20,8 @@ class _InterviewPageState extends State<InterviewPage> {
   final _openAI = OpenAI.instance.build(
     token: dotenv.env['openAI_api_interview_key'] ?? '',
     baseOption: HttpSetup(
-      receiveTimeout: const Duration(seconds: 10),
-      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 15),
+      connectTimeout: const Duration(seconds: 15),
     ),
     enableLog: true,
   );
@@ -36,7 +36,7 @@ class _InterviewPageState extends State<InterviewPage> {
 
   List<ChatMessage> _messages = <ChatMessage>[];
   Timer? _ITimer;
-  Duration IDuration = Duration(minutes: 1);
+  Duration IDuration = Duration(minutes: 5);
   bool waitForUserResponse = false;
   String? promptMsg;
   bool sentRestartQuestion = false;
@@ -108,6 +108,17 @@ class _InterviewPageState extends State<InterviewPage> {
       setState(() {
         _messages.insert(0, message);
       });
+
+      ChatMessage stopMessage = ChatMessage(
+        user: _chatGPTUser,
+        createdAt: DateTime.now(),
+        text: 'If you want to stop the interview, just type "STOP".',
+      );
+
+    setState(() {
+      _messages.insert(0, stopMessage);
+    });
+
     } catch (e) {
       setState(() {
         connectionErrorMessage =
@@ -176,6 +187,15 @@ class _InterviewPageState extends State<InterviewPage> {
       _messages.insert(0, m);
       isWaiting = false;
     });
+
+    if (m.text.trim().toUpperCase() == "STOP") {
+    noMoreQuestions = true;
+    isLastQuestion = false;
+    isWaiting=true;
+    _ITimer?.cancel();
+    interviewFeedback(); 
+    return;
+  }
 
     if (sentRestartQuestion == true) {
       if (m.text.trim().toLowerCase() == "yes") {
@@ -254,6 +274,7 @@ class _InterviewPageState extends State<InterviewPage> {
 
   // Make the chat ask the questions one at a time
   Future<void> askQuestions(List<Map<String, dynamic>> messagesHistory) async {
+    print("inside askQuestions");
     isWaiting = true;
 
     if (!noMoreQuestions) {
@@ -285,6 +306,7 @@ class _InterviewPageState extends State<InterviewPage> {
 
   // Set an interview for 15 minutes
   void SEInterview() {
+    print("Inside SEInterview");
     _ITimer = Timer(IDuration, () async {
       Timer.periodic(Duration(milliseconds: 100), (timer) async {
         if (isWaiting == false) {
@@ -331,15 +353,37 @@ class _InterviewPageState extends State<InterviewPage> {
   }
 
   void interviewFeedback() async {
-    List<Map<String, dynamic>> _messagesHistory = _messages.reversed.map((m) {
-      if (m.user == _currentUser) {
-        return {"role": "user", "content": m.text};
-      } else {
-        return {"role": "assistant", "content": m.text};
+    print("Inside interviewFeedback");
+    List<Map<String, dynamic>> _messagesHistory = _messages.reversed.where((m) {
+    if (m.user == _currentUser && m.text.trim().toUpperCase() == "STOP") {
+      return false; 
       }
-    }).toList();
+    return true;
+  }).map((m) {
+    if (m.user == _currentUser) {
+      return {"role": "user", "content": m.text};
+    } else {
+      return {"role": "assistant", "content": m.text};
+    }}).toList();
 
-    final request = ChatCompleteText(
+
+    bool hasHistory = _messagesHistory.any((msg) => msg["role"] == "user");
+     int messageCount = _messagesHistory.where((msg) => msg["role"] == "user").length;
+    if (!hasHistory || messageCount==1) {
+    setState(() {
+      print("inside no history");
+      _messages.insert(
+        0,
+        ChatMessage(
+          user: _chatGPTUser,
+          createdAt: DateTime.now(),
+          text: "There are no interview answers to give feedback on.",
+        ),
+      );
+    });
+  }else{
+          print("inside  history");
+        final request = ChatCompleteText(
       model: Gpt4ChatModel(),
       messages: [
         ..._messagesHistory,
@@ -352,7 +396,7 @@ class _InterviewPageState extends State<InterviewPage> {
       maxToken: 200,
     );
 
-    final response = await _openAI.onChatCompletion(request: request);
+        final response = await _openAI.onChatCompletion(request: request);
 
     ChatMessage message = ChatMessage(
       user: _chatGPTUser,
@@ -363,7 +407,10 @@ class _InterviewPageState extends State<InterviewPage> {
     setState(() {
       _messages.insert(0, message);
       sentFeedback = true;
+      print("outside interview");
     });
+
+  }
 
     restartInterviewQuestion();
   }
@@ -375,6 +422,7 @@ class _InterviewPageState extends State<InterviewPage> {
   }
 
   void restartInterviewQuestion() async {
+        print("Inside restartInterviewQuestion");
     setState(() {
       _messages.insert(
           0,
@@ -390,6 +438,8 @@ class _InterviewPageState extends State<InterviewPage> {
   }
 
   void restartInterview() {
+    _ITimer?.cancel(); 
+    print("Inside restart");
     setState(() {
       _messages.insert(
           0,
@@ -400,7 +450,12 @@ class _InterviewPageState extends State<InterviewPage> {
           ));
       Future.delayed(Duration(seconds: 2), () {
         sentRestartQuestion = false;
-        noMoreQuestions = true;
+        noMoreQuestions = false;
+        sentRestartQuestion = false;
+        isLastQuestion = false; 
+        sentFeedback = false; 
+        sentFeedback = false;
+        isWaiting = true;
         _messages.clear();
         _handleInitialMessage(
           'Introduce yourself as "Hadafi COOP/internship interviewer", and please ask what is the COOP/internship position the user is applying for.' +
