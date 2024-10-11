@@ -44,7 +44,7 @@ class _InterviewPageState extends State<InterviewPage> {
   bool isWaiting = true;
   bool noMoreQuestions = false;
   String connectionErrorMessage = ''; // connection error tracking msg
-  bool isTyping = false; // typing indicator 
+  bool isTyping = false; // typing indicator
 
   Future<bool> checkConnectivity(BuildContext context) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
@@ -78,8 +78,8 @@ class _InterviewPageState extends State<InterviewPage> {
 
   // Handle the response of the prompt.
   Future<void> _handleInitialMessage(String character) async {
-    bool isConnected =
-        await checkConnectivity(context); // check connectivity before calling api
+    bool isConnected = await checkConnectivity(
+        context); // check connectivity before calling api
     if (!isConnected) {
       return;
     }
@@ -122,9 +122,8 @@ class _InterviewPageState extends State<InterviewPage> {
 
       setState(() {
         _messages.insert(0, stopMessage);
-        isTyping = false; // Stop typing indicator 
+        isTyping = false; // Stop typing indicator
       });
-
     } catch (e) {
       setState(() {
         connectionErrorMessage =
@@ -172,7 +171,8 @@ class _InterviewPageState extends State<InterviewPage> {
               currentUser: _currentUser,
               messageOptions: messageOptions,
               messages: _messages,
-              typingUsers: isTyping ? [_chatGPTUser] : [], // Display typing indicator
+              typingUsers:
+                  isTyping ? [_chatGPTUser] : [], // Display typing indicator
               onSend: (ChatMessage m) {
                 getChatResponse(m);
               },
@@ -238,7 +238,8 @@ class _InterviewPageState extends State<InterviewPage> {
         return;
       } else {
         setState(() {
-          isTyping = true; // Show typing indicator before Please enter Yes or no
+          isTyping =
+              true; // Show typing indicator before Please enter Yes or no
         });
 
         Future.delayed(Duration(seconds: 1), () {
@@ -250,7 +251,8 @@ class _InterviewPageState extends State<InterviewPage> {
                   createdAt: DateTime.now(),
                   text: "Please enter Yes or no only.",
                 ));
-            isTyping = false; // Stop typing indicator after Please enter Yes or no
+            isTyping =
+                false; // Stop typing indicator after Please enter Yes or no
           });
         });
 
@@ -299,7 +301,6 @@ class _InterviewPageState extends State<InterviewPage> {
       setState(() {
         isTyping = false; // Stop typing indicator after response
       });
-
     } catch (e) {
       setState(() {
         connectionErrorMessage =
@@ -326,7 +327,8 @@ class _InterviewPageState extends State<InterviewPage> {
           ...messagesHistory,
           Map.of({
             "role": "assistant",
-            "content": "Utilize the user's message history to ask ONE interview question. Reask the user if their text appears gibberish or irrelevant. Play the role of an interviewer, keeping in mind that users are recent graduates with little work experience."
+            "content":
+                "Utilize the user's message history to ask ONE interview question. Reask the user if their text appears gibberish or irrelevant. Play the role of an interviewer, keeping in mind that users are recent graduates with little work experience."
           })
         ],
         maxToken: 200,
@@ -403,68 +405,69 @@ class _InterviewPageState extends State<InterviewPage> {
     });
 
     List<Map<String, dynamic>> _messagesHistory = _messages.reversed.where((m) {
-    if (m.user == _currentUser && m.text.trim().toUpperCase() == "STOP") {
-      return false; 
-    }
-    return true;
-  }).map((m) {
-    if (m.user == _currentUser) {
-      return {"role": "user", "content": m.text};
-    } else {
-      return {"role": "assistant", "content": m.text};
-    }}).toList();
-
+      if (m.user == _currentUser && m.text.trim().toUpperCase() == "STOP") {
+        return false;
+      }
+      return true;
+    }).map((m) {
+      if (m.user == _currentUser) {
+        return {"role": "user", "content": m.text};
+      } else {
+        return {"role": "assistant", "content": m.text};
+      }
+    }).toList();
 
     bool hasHistory = _messagesHistory.any((msg) => msg["role"] == "user");
-    int messageCount = _messagesHistory.where((msg) => msg["role"] == "user").length;
-    if (!hasHistory || messageCount==1) {
-    setState(() {
-      print("inside no history");
+    int messageCount =
+        _messagesHistory.where((msg) => msg["role"] == "user").length;
+    if (!hasHistory || messageCount == 1) {
+      setState(() {
+        print("inside no history");
 
-      // Show typing indicator before "There are no interview answers"
-      isTyping = true;
+        // Show typing indicator before "There are no interview answers"
+        isTyping = true;
 
-      _messages.insert(
-        0,
-        ChatMessage(
-          user: _chatGPTUser,
-          createdAt: DateTime.now(),
-          text: "There are no interview answers to give feedback on.",
-        ),
+        _messages.insert(
+          0,
+          ChatMessage(
+            user: _chatGPTUser,
+            createdAt: DateTime.now(),
+            text: "There are no interview answers to give feedback on.",
+          ),
+        );
+        isTyping =
+            false; // Stop typing indicator after "There are no interview answers"
+      });
+    } else {
+      print("inside history");
+      final request = ChatCompleteText(
+        model: Gpt4ChatModel(),
+        messages: [
+          ..._messagesHistory,
+          Map.of({
+            "role": "assistant",
+            "content":
+                "Use the user’s complete message history to provide a comprehensive feedback on the user's entire interview answers."
+          })
+        ],
+        maxToken: 200,
       );
-      isTyping = false; // Stop typing indicator after "There are no interview answers"
-    });
-  }else{
-          print("inside history");
-        final request = ChatCompleteText(
-      model: Gpt4ChatModel(),
-      messages: [
-        ..._messagesHistory,
-        Map.of({
-          "role": "assistant",
-          "content":
-              "Use the user’s complete message history to provide a comprehensive feedback on the user's entire interview answers."
-        })
-      ],
-      maxToken: 200,
-    );
 
-        final response = await _openAI.onChatCompletion(request: request);
+      final response = await _openAI.onChatCompletion(request: request);
 
-    ChatMessage message = ChatMessage(
-      user: _chatGPTUser,
-      createdAt: DateTime.now(),
-      text: response!.choices.first.message!.content.trim(),
-    );
+      ChatMessage message = ChatMessage(
+        user: _chatGPTUser,
+        createdAt: DateTime.now(),
+        text: response!.choices.first.message!.content.trim(),
+      );
 
-    setState(() {
-      _messages.insert(0, message);
-      sentFeedback = true;
-      isTyping = false; // Stop typing indicator after feedback
-      print("outside interview");
-    });
-
-  }
+      setState(() {
+        _messages.insert(0, message);
+        sentFeedback = true;
+        isTyping = false; // Stop typing indicator after feedback
+        print("outside interview");
+      });
+    }
 
     restartInterviewQuestion();
   }
@@ -476,7 +479,7 @@ class _InterviewPageState extends State<InterviewPage> {
   }
 
   void restartInterviewQuestion() async {
-        print("Inside restartInterviewQuestion");
+    print("Inside restartInterviewQuestion");
 
     // Show typing indicator before "Would you like to have another interview?"
     setState(() {
@@ -500,7 +503,7 @@ class _InterviewPageState extends State<InterviewPage> {
   }
 
   void restartInterview() {
-    _ITimer?.cancel(); 
+    _ITimer?.cancel();
     print("Inside restart");
 
     // Show typing indicator before "Your new interview will start now."
@@ -527,8 +530,8 @@ class _InterviewPageState extends State<InterviewPage> {
         sentRestartQuestion = false;
         noMoreQuestions = false;
         sentRestartQuestion = false;
-        isLastQuestion = false; 
-        sentFeedback = false; 
+        isLastQuestion = false;
+        sentFeedback = false;
         sentFeedback = false;
         isWaiting = true;
         _messages.clear();
