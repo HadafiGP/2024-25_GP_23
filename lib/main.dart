@@ -7,15 +7,18 @@ import 'package:hadafi_application/welcome.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Replace with your actual Firebase project configuration
-  final firebaseConfig = FirebaseOptions(
-    apiKey: "AIzaSyA4_z4iyrS6YTZRx_n0qGe5sFSmcimhQUE",
-    appId: "1:402403413533:android:a54f32f299f122b68e00f4",
-    messagingSenderId: "402403413533",
-    projectId: "hadafi-21420",
-  );
-  await Firebase.initializeApp(options: firebaseConfig);
   await dotenv.load(fileName: ".env");
+  
+  // load firebase configuration from .env 
+  final firebaseConfig = FirebaseOptions(
+    apiKey: dotenv.env['FIREBASE_API_KEY']!,
+    appId: dotenv.env['FIREBASE_APP_ID']!,
+    messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID']!,
+    projectId: dotenv.env['FIREBASE_PROJECT_ID']!,
+  );
+
+  await Firebase.initializeApp(options: firebaseConfig);
+  
   await checkFirestoreConnection();
 
   runApp(const MyApp());
@@ -33,7 +36,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF113F67)),
         useMaterial3: true,
       ),
-      home: WelcomeScreen(),
+      home:WelcomeScreen(),
     );
   }
 }
