@@ -1,24 +1,5 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(TrainingProviderApp());
-}
-
-class TrainingProviderApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Training Provider App',
-      theme: ThemeData(
-        primaryColor: Color(0xFF096499),
-        scaffoldBackgroundColor: Color(0xFFF3F9FB),
-      ),
-      home: TrainingProviderHomePage(), // Default home page for training provider
-    );
-  }
-}
-
 class TrainingProviderHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -55,7 +36,8 @@ class TrainingProviderHomePage extends StatelessWidget {
               },
               child: Text(
                 'Post New Opportunity',
-                style: TextStyle(color: Colors.white), // Set text color to white
+                style:
+                    TextStyle(color: Colors.white), // Set text color to white
               ),
             ),
             SizedBox(height: 20),
@@ -88,7 +70,8 @@ class TrainingProviderHomePage extends StatelessWidget {
                       ),
                       child: ListTile(
                         title: Text('Opportunity ${index + 1}'),
-                        subtitle: Text('Details about opportunity ${index + 1}'),
+                        subtitle:
+                            Text('Details about opportunity ${index + 1}'),
                         trailing: IconButton(
                           icon: Icon(Icons.delete, color: Colors.red),
                           onPressed: () {
@@ -127,13 +110,15 @@ class TrainingProviderHomePage extends StatelessWidget {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.person, color: Color(0xFF2F83C5)), // Profile icon
+              leading:
+                  Icon(Icons.person, color: Color(0xFF2F83C5)), // Profile icon
               title: Text('Profile'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ProviderProfilePage()),
+                  MaterialPageRoute(
+                      builder: (context) => ProviderProfilePage()),
                 );
               },
             ),
@@ -182,7 +167,8 @@ class _ProviderProfilePageState extends State<ProviderProfilePage> {
         iconTheme: IconThemeData(color: Colors.white), // White icon color
         actions: [
           IconButton(
-            icon: Icon(Icons.save, color: Colors.white), // Save icon color to white
+            icon: Icon(Icons.save,
+                color: Colors.white), // Save icon color to white
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text('Profile Updated'),
@@ -209,7 +195,8 @@ class _ProviderProfilePageState extends State<ProviderProfilePage> {
               });
             }),
             SizedBox(height: 16), // Consistent spacing
-            _buildEditableProfileField('Company Location:', companyLocation, (value) {
+            _buildEditableProfileField('Company Location:', companyLocation,
+                (value) {
               setState(() {
                 companyLocation = value;
               });
@@ -238,7 +225,8 @@ class _ProviderProfilePageState extends State<ProviderProfilePage> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.person, color: Color(0xFF2F83C5)), // Profile icon
+              leading:
+                  Icon(Icons.person, color: Color(0xFF2F83C5)), // Profile icon
               title: Text('Profile'),
               onTap: () {
                 Navigator.pop(context); // Close the drawer
@@ -251,7 +239,8 @@ class _ProviderProfilePageState extends State<ProviderProfilePage> {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => TrainingProviderHomePage()),
+                  MaterialPageRoute(
+                      builder: (context) => TrainingProviderHomePage()),
                 );
               },
             ),
@@ -272,10 +261,13 @@ class _ProviderProfilePageState extends State<ProviderProfilePage> {
     );
   }
 
-  Widget _buildEditableProfileField(String label, String initialValue, ValueChanged<String> onChanged) {
-    TextEditingController controller = TextEditingController(text: initialValue);
+  Widget _buildEditableProfileField(
+      String label, String initialValue, ValueChanged<String> onChanged) {
+    TextEditingController controller =
+        TextEditingController(text: initialValue);
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 8.0), // Add vertical margin for spacing
+      margin: EdgeInsets.symmetric(
+          vertical: 8.0), // Add vertical margin for spacing
       child: TextField(
         controller: controller,
         decoration: InputDecoration(

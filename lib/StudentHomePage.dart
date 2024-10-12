@@ -1,28 +1,9 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(HadafiApp());
-}
-
-class HadafiApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Hadafi App',
-      theme: ThemeData(
-        primaryColor: Color(0xFF096499),
-        scaffoldBackgroundColor: Color(0xFFF3F9FB),
-      ),
-      home: MainScreen(),
-    );
-  }
-}
-
 class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return HomePage();
+    return StudentHomePage(); // Changed to StudentHomePage
   }
 }
 
@@ -46,12 +27,14 @@ class HadafiDrawer extends StatelessWidget {
               ),
             ),
             _buildDrawerItem(context, Icons.person, 'Profile', ProfilePage()),
-            _buildDrawerItem(context, Icons.home, 'Home', HomePage()),
-            _buildDrawerItem(context, Icons.assignment, 'CV Enhancement Tool', null),
+            _buildDrawerItem(context, Icons.home, 'Home',
+                StudentHomePage()), // Changed to StudentHomePage
+            _buildDrawerItem(
+                context, Icons.assignment, 'CV Enhancement Tool', null),
             _buildDrawerItem(context, Icons.chat, 'Interview Simulator', null),
             _buildDrawerItem(context, Icons.feedback, 'Feedback', null),
             _buildDrawerItem(context, Icons.group, 'Communities', null),
-            _buildDrawerItem(context, Icons.favorite, 'Favorites List', null), // Favorites List button added here
+            _buildDrawerItem(context, Icons.favorite, 'Favorites List', null),
             Divider(),
             ListTile(
               leading: Icon(Icons.logout, color: Color(0xFF2F83C5)),
@@ -68,7 +51,8 @@ class HadafiDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildDrawerItem(BuildContext context, IconData icon, String title, Widget? page) {
+  Widget _buildDrawerItem(
+      BuildContext context, IconData icon, String title, Widget? page) {
     return ListTile(
       leading: Icon(icon, color: Color(0xFF2F83C5)),
       title: Text(title),
@@ -85,7 +69,8 @@ class HadafiDrawer extends StatelessWidget {
   }
 }
 
-class HomePage extends StatelessWidget {
+class StudentHomePage extends StatelessWidget {
+  // Changed from HomePage to StudentHomePage
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -180,7 +165,8 @@ class HomePage extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Color(0xFF096499), width: 2),
               boxShadow: [
-                BoxShadow(color: Colors.black12, blurRadius: 5, spreadRadius: 2),
+                BoxShadow(
+                    color: Colors.black12, blurRadius: 5, spreadRadius: 2),
               ],
             ),
             child: ListTile(
@@ -213,7 +199,8 @@ class OpportunitiesList extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: Color(0xFF096499), width: 2),
               boxShadow: [
-                BoxShadow(color: Colors.black12, blurRadius: 5, spreadRadius: 2),
+                BoxShadow(
+                    color: Colors.black12, blurRadius: 5, spreadRadius: 2),
               ],
             ),
             child: ListTile(
@@ -233,13 +220,20 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final TextEditingController _nameController = TextEditingController(text: "Jane Doe");
-  final TextEditingController _emailController = TextEditingController(text: "jane.doe@example.com");
-  final TextEditingController _gpaController = TextEditingController(text: "3.8");
-  final TextEditingController _majorController = TextEditingController(text: "Software Engineering");
-  final TextEditingController _skillsController = TextEditingController(text: "Dart, Flutter, Java");
-  final TextEditingController _certificatesController = TextEditingController(text: "AWS Certified Developer");
-  final TextEditingController _locationController = TextEditingController(text: "City, Country");
+  final TextEditingController _nameController =
+      TextEditingController(text: "Jane Doe");
+  final TextEditingController _emailController =
+      TextEditingController(text: "jane.doe@example.com");
+  final TextEditingController _gpaController =
+      TextEditingController(text: "3.8");
+  final TextEditingController _majorController =
+      TextEditingController(text: "Software Engineering");
+  final TextEditingController _skillsController =
+      TextEditingController(text: "Dart, Flutter, Java");
+  final TextEditingController _certificatesController =
+      TextEditingController(text: "AWS Certified Developer");
+  final TextEditingController _locationController =
+      TextEditingController(text: "City, Country");
 
   @override
   Widget build(BuildContext context) {

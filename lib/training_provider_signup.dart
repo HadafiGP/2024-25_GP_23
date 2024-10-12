@@ -24,8 +24,35 @@ class _TrainingProviderSignupScreenState
   final TextEditingController _companyNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
 
+  List<String> _selectedLocations = [];
+  List<String> _filteredCities = [];
   bool _isLoading = false;
+
+  List<String> _cities = [
+    'Abha',
+    'Al Ahsa',
+    'Al Khobar',
+    'Al Qassim',
+    'Dammam',
+    'Hail',
+    'Jeddah',
+    'Jizan',
+    'Jubail',
+    'Mecca',
+    'Medina',
+    'Najran',
+    'Riyadh',
+    'Tabuk',
+    'Taif',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredCities = _cities; // Initialize filtered cities
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,6 +141,10 @@ class _TrainingProviderSignupScreenState
                           return null;
                         },
                       ),
+                      const SizedBox(height: 15),
+
+                      // Location Selector
+                      _buildLocationSelector(),
                       const SizedBox(height: 25),
 
                       _isLoading
@@ -163,6 +194,98 @@ class _TrainingProviderSignupScreenState
     );
   }
 
+  // Location Selector widget for training providers
+  Widget _buildLocationSelector() {
+    return GestureDetector(
+      onTap: () {
+        _showLocationDialog();
+      },
+      child: AbsorbPointer(
+        child: TextFormField(
+          controller: _locationController,
+          decoration: InputDecoration(
+            labelText: 'Select Location',
+            suffixIcon: const Icon(Icons.arrow_drop_down),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          validator: (value) {
+            if (_selectedLocations.isEmpty) {
+              return 'Please select at least one location';
+            }
+            return null;
+          },
+        ),
+      ),
+    );
+  }
+
+  // Function to show location selection dialog
+  void _showLocationDialog() {
+    setState(() {
+      _filteredCities = _cities; // Ensure cities are loaded when dialog opens
+    });
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Column(
+                children: [
+                  Text('Select Locations'),
+                  SizedBox(height: 10),
+                  TextField(
+                    decoration: InputDecoration(
+                        labelText: 'Search Cities',
+                        prefixIcon: Icon(Icons.search)),
+                    onChanged: (value) {
+                      setState(() {
+                        _filteredCities = _cities
+                            .where((city) => city
+                                .toLowerCase()
+                                .contains(value.toLowerCase()))
+                            .toList();
+                      });
+                    },
+                  ),
+                ],
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: _filteredCities.map((city) {
+                    return CheckboxListTile(
+                      title: Text(city),
+                      value: _selectedLocations.contains(city),
+                      onChanged: (bool? value) {
+                        setState(() {
+                          if (value == true) {
+                            _selectedLocations.add(city);
+                          } else {
+                            _selectedLocations.remove(city);
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    _locationController.text = _selectedLocations.join(', ');
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   // Encrypt password using SHA-256
   String _encryptPassword(String password) {
     final bytes = utf8.encode(password);
@@ -198,6 +321,7 @@ class _TrainingProviderSignupScreenState
           'company_name': _companyNameController.text,
           'email': _emailController.text,
           'password': encryptedPassword, // Store encrypted password
+          'location': _selectedLocations, // Store selected locations
           'uid': user.uid,
           'role': 'training_provider', // Storing the user role
           'created_at': FieldValue.serverTimestamp(),
