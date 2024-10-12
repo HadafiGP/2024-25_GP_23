@@ -4,7 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hadafi_application/signup_widget.dart';
 import 'package:hadafi_application/StudentHomepage.dart';
 import 'package:crypto/crypto.dart';
-import 'dart:convert'; // For encoding to base64
+import 'dart:convert';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class StudentSignupScreen extends StatefulWidget {
   const StudentSignupScreen({Key? key}) : super(key: key);
@@ -24,13 +25,12 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _gpaController = TextEditingController();
   final TextEditingController _majorController = TextEditingController();
-
-  final TextEditingController _locationController =
-      TextEditingController(); // Controller for displaying selected locations
+  final TextEditingController _locationController = TextEditingController();
 
   List<String> _selectedLocations = [];
   List<String> _filteredCities = [];
   bool _isLoading = false;
+  double? _selectedGpaScale; // Store selected GPA scale
 
   List<String> _cities = [
     'Abha',
@@ -50,7 +50,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     'Taif',
   ];
 
-  // Dynamic lists for skills and certificates
+  // Lists for skills and certificates
   List<TextEditingController> _skillsControllers = [TextEditingController()];
   List<TextEditingController> _certificatesControllers = [
     TextEditingController()
@@ -59,7 +59,21 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   @override
   void initState() {
     super.initState();
-    _filteredCities = _cities; // Ensure that all cities appear initially
+    _filteredCities = _cities;
+  }
+
+  // Check for internet connection
+  Future<bool> _checkInternetConnection() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text("No internet connection. Please check and try again.")),
+      );
+      return false;
+    }
+    return true;
   }
 
   @override
@@ -67,20 +81,20 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     return SignupWidget(
       child: Column(
         children: [
-          const SizedBox(height: 150), // Space to show top background
+          const SizedBox(height: 125),
           Expanded(
             child: Container(
-              width: double.infinity, // Full width
+              width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
               decoration: BoxDecoration(
                 color: const Color(0xFFF3F9FB),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(30),
                   topRight: Radius.circular(30),
-                ), // Rounded corners only at the top
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.3), // Darker shadow
+                    color: Colors.black.withOpacity(0.3),
                     blurRadius: 15,
                     spreadRadius: 5,
                     offset: const Offset(0, -5),
@@ -118,7 +132,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                             return 'Please enter your email';
                           }
                           final emailRegex = RegExp(
-                              r'^[a-zA-Z0-9._]+@[a-zA-Z0-9]+\.[a-zA-Z]+');
+                              r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
                           if (!emailRegex.hasMatch(value)) {
                             return 'Please enter a valid email address';
                           }
@@ -129,11 +143,20 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                       _buildTextField('Password', _passwordController,
                           isPassword: true, validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
+                          return 'Please enter your password.';
                         }
-                        if (value.length < 6) {
-                          return 'Password must be at least 6 characters long';
+
+                        // Password constraints:
+                        final passwordValid = value.length >= 8 &&
+                            RegExp(r'[A-Z]').hasMatch(value) &&
+                            RegExp(r'[a-z]').hasMatch(value) &&
+                            RegExp(r'[0-9]').hasMatch(value) &&
+                            RegExp(r'[!@#\$&*~]').hasMatch(value);
+
+                        if (!passwordValid) {
+                          return 'The password must be at least 8 characters long, include \nuppercase/lowercase letters, and at least one number \nand special character.';
                         }
+
                         return null;
                       }),
                       const SizedBox(height: 15),
@@ -146,38 +169,110 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                       }),
                       const SizedBox(height: 15),
 
-                      // Dynamic Skills input
+// GPA Scale and GPA Field Placement
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment
+                            .start, // Align buttons to the left
+                        children: [
+                          // GPA Input Field
+                          _buildTextField(
+                            'GPA',
+                            _gpaController,
+                            validator: (value) {
+                              if (_selectedGpaScale == null) {
+                                return 'Please select a GPA scale';
+                              }
+
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your GPA';
+                              }
+
+                              final gpa = double.tryParse(value);
+                              if (gpa == null ||
+                                  gpa <= 0 ||
+                                  gpa > _selectedGpaScale!) {
+                                return 'Please enter a valid GPA up to ${_selectedGpaScale!.toStringAsFixed(2)}';
+                              }
+
+                              final gpaRegex = RegExp(r'^\d\.\d{2}$');
+                              if (!gpaRegex.hasMatch(value)) {
+                                return 'Please enter a valid GPA in the format (e.g., 4.80)';
+                              }
+
+                              return null;
+                            },
+                            enabled: _selectedGpaScale !=
+                                null, // Disable until scale is selected
+                          ),
+
+                          const SizedBox(height: 5),
+
+                          // GPA Scale Buttons
+                          Row(
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedGpaScale = 4.0;
+                                    _gpaController
+                                        .clear(); //Clear the GPA field if scale changes
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: _selectedGpaScale == 4.0
+                                      ? Color(0xFF113F67)
+                                      : Colors.grey,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 11, vertical: 10),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'GPA Scale 4.00',
+                                  style: TextStyle(
+                                      fontSize: 12, color: Colors.white),
+                                ),
+                              ),
+                              const SizedBox(width: 20),
+                              ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedGpaScale = 5.0;
+                                    _gpaController
+                                        .clear(); // Clear the GPA field if scale changes
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: _selectedGpaScale == 5.0
+                                      ? Color(0xFF113F67)
+                                      : Colors.grey,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 11, vertical: 10),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'GPA Scale 5.00',
+                                  style: TextStyle(
+                                      fontSize: 12, color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 15),
                       _buildDynamicFields(
                           'Skills', _skillsControllers, _addSkill),
                       const SizedBox(height: 15),
-
-                      // Dynamic Certificates input
                       _buildDynamicFields('Certificates',
                           _certificatesControllers, _addCertificate),
                       const SizedBox(height: 15),
-
-                      _buildTextField(
-                        'GPA',
-                        _gpaController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your GPA';
-                          }
-                          final gpaRegex = RegExp(r'^\d+(\.\d{2,})?$');
-                          if (!gpaRegex.hasMatch(value)) {
-                            return 'Please enter a valid GPA in the format (ex: 4.80)';
-                          }
-                          final gpa = double.tryParse(value);
-                          if (gpa == null || gpa <= 0) {
-                            return 'Please enter a valid GPA greater than 0';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 15),
                       _buildLocationSelector(),
                       const SizedBox(height: 25),
-
                       _isLoading
                           ? CircularProgressIndicator()
                           : ElevatedButton(
@@ -189,7 +284,8 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                                   vertical: 15,
                                 ),
                                 shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30)),
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
                               ),
                               child: Text(
                                 'Sign Up',
@@ -209,7 +305,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     );
   }
 
-  // Function to build dynamic input fields for skills and certificates
+  // Dynamic input fields for skills and certificates
   Widget _buildDynamicFields(
       String label, List<TextEditingController> controllers, Function() onAdd) {
     return Column(
@@ -238,7 +334,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                       },
                     ),
                   ),
-                  if (index > 0) // Allow removal only for additional fields
+                  if (index > 0) // Remove only for additional fields
                     IconButton(
                       icon: Icon(Icons.remove_circle),
                       onPressed: () {
@@ -253,8 +349,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
           },
         ),
         Row(
-          mainAxisAlignment:
-              MainAxisAlignment.start, // Align button to the left
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             TextButton.icon(
               onPressed: onAdd,
@@ -267,14 +362,14 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     );
   }
 
-  // Function to add new skill field
+  // Add new skill field
   void _addSkill() {
     setState(() {
       _skillsControllers.add(TextEditingController());
     });
   }
 
-  // Function to add new certificate field
+  // Add new certificate field
   void _addCertificate() {
     setState(() {
       _certificatesControllers.add(TextEditingController());
@@ -294,6 +389,10 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
       return; // If the form is not valid, return early and show errors
     }
 
+    if (!await _checkInternetConnection()) {
+      return; // Stop the process if there is no internet connection
+    }
+
     setState(() {
       _isLoading = true;
     });
@@ -301,7 +400,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     try {
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
-        email: _emailController.text,
+        email: _emailController.text.trim(),
         password: _passwordController.text,
       );
       User? user = userCredential.user;
@@ -319,17 +418,16 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
 
         // Store the role as 'student'
         await _firestore.collection('Student').doc(user.uid).set({
-          'name': _nameController.text,
-          'email': _emailController.text,
+          'name': _nameController.text.trim(),
+          'email': _emailController.text.trim(),
           'password': encryptedPassword, // Store encrypted password
-          'major': _majorController.text,
+          'major': _majorController.text.trim(),
           'skills': skills, // Save skills as array
           'certificates': certificates, // Save certificates as array
-          'gpa': _gpaController.text,
+          'gpa': _gpaController.text.trim(),
           'location': _selectedLocations,
           'uid': user.uid,
           'role': 'student', // Store the user role as 'student'
-          'created_at': FieldValue.serverTimestamp(),
         });
 
         Navigator.pushReplacement(context,
@@ -350,11 +448,14 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   }
 
   Widget _buildTextField(String label, TextEditingController controller,
-      {bool isPassword = false, String? Function(String?)? validator}) {
+      {bool isPassword = false,
+      bool enabled = true,
+      String? Function(String?)? validator}) {
     return TextFormField(
       controller: controller,
       obscureText: isPassword,
       validator: validator,
+      enabled: enabled,
       decoration: InputDecoration(
         labelText: label,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
@@ -374,7 +475,13 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
             suffixIcon: const Icon(Icons.arrow_drop_down),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
-          controller: _locationController, // Use the location controller
+          controller: _locationController,
+          validator: (value) {
+            if (_selectedLocations.isEmpty) {
+              return 'Please select at least one location';
+            }
+            return null;
+          },
         ),
       ),
     );
@@ -382,7 +489,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
 
   void _showLocationDialog() {
     setState(() {
-      _filteredCities = _cities; // Ensure cities are loaded when dialog opens
+      _filteredCities = _cities;
     });
 
     showDialog(
@@ -404,7 +511,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                         _filteredCities = _cities
                             .where((city) => city
                                 .toLowerCase()
-                                .startsWith(value.toLowerCase()))
+                                .contains(value.toLowerCase()))
                             .toList();
                       });
                     },
@@ -433,7 +540,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
               actions: [
                 ElevatedButton(
                   onPressed: () {
-                    // Update the location controller with the selected locations
                     _locationController.text = _selectedLocations.join(', ');
                     Navigator.of(context).pop();
                   },
