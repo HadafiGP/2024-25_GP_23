@@ -11,7 +11,7 @@ class TrainingProviderHomePage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: Image.asset(
-              'assets/images/LOGO.png', // Path to the logo
+              'Hadafi/images/LOGO.png', // Path to the logo
               fit: BoxFit.contain,
               height: 50, // Adjust logo size
             ),
@@ -104,7 +104,7 @@ class TrainingProviderHomePage extends StatelessWidget {
                 color: Color(0xFF096499),
               ),
               child: Image.asset(
-                'assets/images/LOGO.png',
+                'Hadafi/images/LOGO.png',
                 fit: BoxFit.contain,
                 height: 80,
               ),
@@ -219,7 +219,7 @@ class _ProviderProfilePageState extends State<ProviderProfilePage> {
                 color: Color(0xFF096499),
               ),
               child: Image.asset(
-                'assets/images/LOGO.png',
+                'Hadafi/images/LOGO.png',
                 fit: BoxFit.contain,
                 height: 80,
               ),

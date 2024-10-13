@@ -21,7 +21,7 @@ class HadafiDrawer extends StatelessWidget {
                 color: Color(0xFF096499),
               ),
               child: Image.asset(
-                'assets/images/LOGO.png',
+                'Hadafi/images/LOGO.png',
                 fit: BoxFit.contain,
                 height: 80,
               ),
@@ -81,7 +81,7 @@ class StudentHomePage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(1),
             child: Image.asset(
-              'assets/images/LOGO.png',
+              'Hadafi/images/LOGO.png',
               fit: BoxFit.contain,
               height: 300,
             ),
