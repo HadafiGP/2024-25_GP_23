@@ -15,7 +15,7 @@ class SignupWidget extends StatelessWidget {
       body: Stack(
         children: [
           Image.asset(
-            'Hadafi/images/signup_interface.png', // Background image
+            'Hadafi/images/signup_interface.png',
             fit: BoxFit.cover,
             width: double.infinity,
             height: double.infinity,

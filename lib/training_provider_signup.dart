@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'signup_widget.dart';
 import 'TrainingProviderHomePage.dart';
 import 'package:crypto/crypto.dart';
-import 'dart:convert'; // For encoding to base64
+import 'dart:convert';
 
 class TrainingProviderSignupScreen extends StatefulWidget {
   const TrainingProviderSignupScreen({super.key});
@@ -51,7 +51,7 @@ class _TrainingProviderSignupScreenState
   @override
   void initState() {
     super.initState();
-    _filteredCities = _cities; // Initialize filtered cities
+    _filteredCities = _cities;
   }
 
   @override
@@ -59,10 +59,10 @@ class _TrainingProviderSignupScreenState
     return SignupWidget(
       child: Column(
         children: [
-          const SizedBox(height: 150), // Space to show top background
+          const SizedBox(height: 150),
           Expanded(
             child: Container(
-              width: double.infinity, // Full width
+              width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
               decoration: BoxDecoration(
                 color: const Color(0xFFF3F9FB),
@@ -72,7 +72,7 @@ class _TrainingProviderSignupScreenState
                 ), // Rounded corners only at the top
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.3), // Darker shadow
+                    color: Colors.black.withOpacity(0.3),
                     blurRadius: 15,
                     spreadRadius: 5,
                     offset: const Offset(0, -5),
@@ -95,7 +95,7 @@ class _TrainingProviderSignupScreenState
                       ),
                       const SizedBox(height: 20),
 
-                      // Company Name Field
+                      //Company name field
                       _buildTextField(
                         'Company Name',
                         _companyNameController,
@@ -108,7 +108,7 @@ class _TrainingProviderSignupScreenState
                       ),
                       const SizedBox(height: 15),
 
-                      // Company Email Field
+                      //Company email field
                       _buildTextField(
                         'Company Email',
                         _emailController,
@@ -126,24 +126,29 @@ class _TrainingProviderSignupScreenState
                       ),
                       const SizedBox(height: 15),
 
-                      // Password Field
-                      _buildTextField(
-                        'Password',
-                        _passwordController,
-                        isPassword: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
-                          }
-                          if (value.length < 6) {
-                            return 'Password must be at least 6 characters long';
-                          }
-                          return null;
-                        },
-                      ),
+                      // Password field
+                      _buildTextField('Password', _passwordController,
+                          isPassword: true, validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password.';
+                        }
+
+                        // Password constraints:
+                        final passwordValid = value.length >= 8 &&
+                            RegExp(r'[A-Z]').hasMatch(value) &&
+                            RegExp(r'[a-z]').hasMatch(value) &&
+                            RegExp(r'[0-9]').hasMatch(value) &&
+                            RegExp(r'[!@#\$&*~]').hasMatch(value);
+
+                        if (!passwordValid) {
+                          return 'The password must be at least 8 characters long, include \nuppercase/lowercase letters, and at least one number \nand special character.';
+                        }
+
+                        return null;
+                      }),
                       const SizedBox(height: 15),
 
-                      // Location Selector
+                      // location selector
                       _buildLocationSelector(),
                       const SizedBox(height: 25),
 
@@ -180,7 +185,6 @@ class _TrainingProviderSignupScreenState
     );
   }
 
-  // Reusable TextField widget with validation
   Widget _buildTextField(String label, TextEditingController controller,
       {bool isPassword = false, String? Function(String?)? validator}) {
     return TextFormField(
@@ -194,7 +198,6 @@ class _TrainingProviderSignupScreenState
     );
   }
 
-  // Location Selector widget for training providers
   Widget _buildLocationSelector() {
     return GestureDetector(
       onTap: () {
@@ -219,10 +222,9 @@ class _TrainingProviderSignupScreenState
     );
   }
 
-  // Function to show location selection dialog
   void _showLocationDialog() {
     setState(() {
-      _filteredCities = _cities; // Ensure cities are loaded when dialog opens
+      _filteredCities = _cities;
     });
 
     showDialog(
@@ -286,17 +288,16 @@ class _TrainingProviderSignupScreenState
     );
   }
 
-  // Encrypt password using SHA-256
+  //encrypt password using SHA-256
   String _encryptPassword(String password) {
     final bytes = utf8.encode(password);
     final digest = sha256.convert(bytes);
     return digest.toString();
   }
 
-  // Store user data in Firestore and Firebase Authentication
   Future<void> _signUp() async {
     if (!_formKey.currentState!.validate()) {
-      return; // If the form is not valid, return early and show errors
+      return; //if the form is not valid return and show errors
     }
 
     setState(() {
@@ -304,7 +305,6 @@ class _TrainingProviderSignupScreenState
     });
 
     try {
-      // Create user in Firebase Authentication
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
         email: _emailController.text,
@@ -313,21 +313,18 @@ class _TrainingProviderSignupScreenState
       User? user = userCredential.user;
 
       if (user != null) {
-        // Encrypt password before saving it to Firestore
+        //encrypt password before saving it to Firestore
         String encryptedPassword = _encryptPassword(_passwordController.text);
 
-        // Store company information in Firestore (TrainingProvider collection)
         await _firestore.collection('TrainingProvider').doc(user.uid).set({
           'company_name': _companyNameController.text,
           'email': _emailController.text,
-          'password': encryptedPassword, // Store encrypted password
-          'location': _selectedLocations, // Store selected locations
+          'password': encryptedPassword, //store encrypted password
+          'location': _selectedLocations, //store selected locations
           'uid': user.uid,
-          'role': 'training_provider', // Storing the user role
-          'created_at': FieldValue.serverTimestamp(),
+          'role': 'training_provider', //storing the user role
         });
 
-        // Navigate to TrainingProviderHomePage (if created)
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(

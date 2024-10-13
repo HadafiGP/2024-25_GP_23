@@ -386,11 +386,11 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   // Store user data in Firestore and Firebase Authentication
   Future<void> _signUp() async {
     if (!_formKey.currentState!.validate()) {
-      return; // If the form is not valid, return early and show errors
+      return; //if the form is not valid return and show errors
     }
 
     if (!await _checkInternetConnection()) {
-      return; // Stop the process if there is no internet connection
+      return; //stop the process if there is no internet connection
     }
 
     setState(() {
@@ -406,28 +406,27 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
       User? user = userCredential.user;
 
       if (user != null) {
-        // Encrypt password before saving it to Firestore
+        //encrypt password before saving it to Firestore
         String encryptedPassword = _encryptPassword(_passwordController.text);
 
-        // Collect skills and certificates from dynamic input fields
+        //collect skills and certificates from dynamic input fields
         List<String> skills =
             _skillsControllers.map((controller) => controller.text).toList();
         List<String> certificates = _certificatesControllers
             .map((controller) => controller.text)
             .toList();
 
-        // Store the role as 'student'
         await _firestore.collection('Student').doc(user.uid).set({
           'name': _nameController.text.trim(),
           'email': _emailController.text.trim(),
-          'password': encryptedPassword, // Store encrypted password
+          'password': encryptedPassword, //store encrypted password
           'major': _majorController.text.trim(),
-          'skills': skills, // Save skills as array
-          'certificates': certificates, // Save certificates as array
+          'skills': skills, //save skills as array
+          'certificates': certificates, //save certificates as array
           'gpa': _gpaController.text.trim(),
           'location': _selectedLocations,
           'uid': user.uid,
-          'role': 'student', // Store the user role as 'student'
+          'role': 'student', //store the user role as 'student'
         });
 
         Navigator.pushReplacement(context,
