@@ -48,6 +48,41 @@ class _TrainingProviderSignupScreenState
     'Taif',
   ];
 
+// List of trusted domains for validation
+List<String> trustedDomains = [
+  // Government Institutions
+  'mc.gov.sa',       
+  'hrsd.gov.sa',     
+  'tvtc.gov.sa',     
+
+  // Educational Institutions
+  'ksu.edu.sa',      
+  'kau.edu.sa',      
+  'psu.edu.sa',      
+  'kfupm.edu.sa',    
+
+  // Private Sector & Large Corporations
+  'aramco.com',      
+  'sabic.com',       
+  'stc.com.sa',      
+  'almarai.com',     
+
+  // Public Sector Organizations
+  'monshaat.gov.sa', 
+  'scfhs.org.sa',    
+  'sdaia.gov.sa',    
+];
+
+// List of exception emails that are allowed
+List<String> exceptionEmails = [
+  'hend@gmail.com',
+  'hessaa@gmail.com',
+  'duna@gmail.com',
+  'jeje@gmail.com',
+  'lama@gmail.com',// Add more allowed exceptions here
+];
+
+
   @override
   void initState() {
     super.initState();
@@ -108,22 +143,32 @@ class _TrainingProviderSignupScreenState
                       ),
                       const SizedBox(height: 15),
 
-                      //Company email field
-                      _buildTextField(
-                        'Company Email',
-                        _emailController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your company email';
-                          }
-                          final emailRegex = RegExp(
-                              r'^[a-zA-Z0-9._]+@[a-zA-Z0-9]+\.[a-zA-Z]+');
-                          if (!emailRegex.hasMatch(value)) {
-                            return 'Please enter a valid email address';
-                          }
-                          return null;
-                        },
-                      ),
+                      // Company email field with both domain and exception email validation
+_buildTextField(
+  'Company Email',
+  _emailController,
+  validator: (value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your company email';
+    }
+
+    final emailRegex = RegExp(r'^[a-zA-Z0-9._]+@[a-zA-Z0-9]+\.[a-zA-Z]+');
+    if (!emailRegex.hasMatch(value)) {
+      return 'Please enter a valid email address';
+    }
+
+    // Extract the domain from the email
+    String domain = value.split('@').last;
+
+    // Check if the email is in the exception list or if the domain is trusted
+    if (!trustedDomains.contains(domain) && !exceptionEmails.contains(value)) {
+      return 'The email domain is not recognized as a trusted \n company domain.';
+    }
+
+    return null;
+  },
+),
+
                       const SizedBox(height: 15),
 
                       // Password field
