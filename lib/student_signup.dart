@@ -503,15 +503,22 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                   SizedBox(height: 10),
                   TextField(
                     decoration: InputDecoration(
-                        labelText: 'Search Cities',
-                        prefixIcon: Icon(Icons.search)),
+                      labelText: 'Search Cities',
+                      prefixIcon: Icon(Icons.search),
+                    ),
                     onChanged: (value) {
                       setState(() {
-                        _filteredCities = _cities
-                            .where((city) => city
-                                .toLowerCase()
-                                .contains(value.toLowerCase()))
-                            .toList();
+                        // If search field is empty, reset the filtered list to show all cities
+                        if (value.isEmpty) {
+                          _filteredCities = _cities;
+                        } else {
+                          // Filter cities starting with the typed letter(s)
+                          _filteredCities = _cities
+                              .where((city) => city
+                                  .toLowerCase()
+                                  .startsWith(value.toLowerCase()))
+                              .toList();
+                        }
                       });
                     },
                   ),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'signup_widget.dart';
-import 'TrainingProviderHomePage.dart';
+import 'package:hadafi_application/signup_widget.dart';
+import 'package:hadafi_application/TrainingProviderHomePage.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 
@@ -49,39 +49,38 @@ class _TrainingProviderSignupScreenState
   ];
 
 // List of trusted domains for validation
-List<String> trustedDomains = [
-  // Government Institutions
-  'mc.gov.sa',       
-  'hrsd.gov.sa',     
-  'tvtc.gov.sa',     
+  List<String> trustedDomains = [
+    // Government Institutions
+    'mc.gov.sa',
+    'hrsd.gov.sa',
+    'tvtc.gov.sa',
 
-  // Educational Institutions
-  'ksu.edu.sa',      
-  'kau.edu.sa',      
-  'psu.edu.sa',      
-  'kfupm.edu.sa',    
+    // Educational Institutions
+    'ksu.edu.sa',
+    'kau.edu.sa',
+    'psu.edu.sa',
+    'kfupm.edu.sa',
 
-  // Private Sector & Large Corporations
-  'aramco.com',      
-  'sabic.com',       
-  'stc.com.sa',      
-  'almarai.com',     
+    // Private Sector & Large Corporations
+    'aramco.com',
+    'sabic.com',
+    'stc.com.sa',
+    'almarai.com',
 
-  // Public Sector Organizations
-  'monshaat.gov.sa', 
-  'scfhs.org.sa',    
-  'sdaia.gov.sa',    
-];
+    // Public Sector Organizations
+    'monshaat.gov.sa',
+    'scfhs.org.sa',
+    'sdaia.gov.sa',
+  ];
 
 // List of exception emails that are allowed
-List<String> exceptionEmails = [
-  'hend@gmail.com',
-  'hessaa@gmail.com',
-  'duna@gmail.com',
-  'jeje@gmail.com',
-  'lama@gmail.com',// Add more allowed exceptions here
-];
-
+  List<String> exceptionEmails = [
+    'hend@gmail.com',
+    'hessaa@gmail.com',
+    'duna@gmail.com',
+    'jeje@gmail.com',
+    'lama@gmail.com',
+  ];
 
   @override
   void initState() {
@@ -144,30 +143,32 @@ List<String> exceptionEmails = [
                       const SizedBox(height: 15),
 
                       // Company email field with both domain and exception email validation
-_buildTextField(
-  'Company Email',
-  _emailController,
-  validator: (value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter your company email';
-    }
+                      _buildTextField(
+                        'Company Email',
+                        _emailController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your company email';
+                          }
 
-    final emailRegex = RegExp(r'^[a-zA-Z0-9._]+@[a-zA-Z0-9]+\.[a-zA-Z]+');
-    if (!emailRegex.hasMatch(value)) {
-      return 'Please enter a valid email address';
-    }
+                          final emailRegex = RegExp(
+                              r'^[a-zA-Z0-9._]+@[a-zA-Z0-9]+\.[a-zA-Z]+');
+                          if (!emailRegex.hasMatch(value)) {
+                            return 'Please enter a valid email address';
+                          }
 
-    // Extract the domain from the email
-    String domain = value.split('@').last;
+                          // Extract the domain from the email
+                          String domain = value.split('@').last;
 
-    // Check if the email is in the exception list or if the domain is trusted
-    if (!trustedDomains.contains(domain) && !exceptionEmails.contains(value)) {
-      return 'The email domain is not recognized as a trusted \n company domain.';
-    }
+                          // Check if the email is in the exception list or if the domain is trusted
+                          if (!trustedDomains.contains(domain) &&
+                              !exceptionEmails.contains(value)) {
+                            return 'The email domain is not recognized as a trusted \n company domain.';
+                          }
 
-    return null;
-  },
-),
+                          return null;
+                        },
+                      ),
 
                       const SizedBox(height: 15),
 
@@ -284,15 +285,22 @@ _buildTextField(
                   SizedBox(height: 10),
                   TextField(
                     decoration: InputDecoration(
-                        labelText: 'Search Cities',
-                        prefixIcon: Icon(Icons.search)),
+                      labelText: 'Search Cities',
+                      prefixIcon: Icon(Icons.search),
+                    ),
                     onChanged: (value) {
                       setState(() {
-                        _filteredCities = _cities
-                            .where((city) => city
-                                .toLowerCase()
-                                .contains(value.toLowerCase()))
-                            .toList();
+                        // If search field is empty, reset the filtered list to show all cities
+                        if (value.isEmpty) {
+                          _filteredCities = _cities;
+                        } else {
+                          // Filter cities starting with the typed letter(s)
+                          _filteredCities = _cities
+                              .where((city) => city
+                                  .toLowerCase()
+                                  .startsWith(value.toLowerCase()))
+                              .toList();
+                        }
                       });
                     },
                   ),

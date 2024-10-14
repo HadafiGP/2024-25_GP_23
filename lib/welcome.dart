@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hadafi_application/student_signup.dart';
 import 'package:hadafi_application/training_provider_signup.dart';
-import 'package:hadafi_application/welcome.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
