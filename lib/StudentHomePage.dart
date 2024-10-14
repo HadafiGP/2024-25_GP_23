@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hadafi_application/interview.dart';
 
 class MainScreen extends StatelessWidget {
   @override
@@ -18,7 +21,7 @@ class HadafiDrawer extends StatelessWidget {
           children: <Widget>[
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Color(0xFF096499),
+                color: Color(0xFF113F67),
               ),
               child: Image.asset(
                 'Hadafi/images/LOGO.png',
@@ -31,13 +34,18 @@ class HadafiDrawer extends StatelessWidget {
                 StudentHomePage()), // Changed to StudentHomePage
             _buildDrawerItem(
                 context, Icons.assignment, 'CV Enhancement Tool', null),
-            _buildDrawerItem(context, Icons.chat, 'Interview Simulator', null),
+            _buildDrawerItem(
+              context,
+              Icons.chat,
+              'Interview Simulator',
+              InterviewPage(),
+            ),
             _buildDrawerItem(context, Icons.feedback, 'Feedback', null),
             _buildDrawerItem(context, Icons.group, 'Communities', null),
             _buildDrawerItem(context, Icons.favorite, 'Favorites List', null),
             Divider(),
             ListTile(
-              leading: Icon(Icons.logout, color: Color(0xFF2F83C5)),
+              leading: Icon(Icons.logout, color: Color(0xFF113F67)),
               title: Text('Logout'),
               onTap: () {
                 Navigator.pop(context);
@@ -54,7 +62,7 @@ class HadafiDrawer extends StatelessWidget {
   Widget _buildDrawerItem(
       BuildContext context, IconData icon, String title, Widget? page) {
     return ListTile(
-      leading: Icon(icon, color: Color(0xFF2F83C5)),
+      leading: Icon(icon, color: Color(0xFF113F67)),
       title: Text(title),
       onTap: () {
         Navigator.pop(context);
@@ -76,7 +84,7 @@ class StudentHomePage extends StatelessWidget {
     return Scaffold(
       drawer: HadafiDrawer(),
       appBar: AppBar(
-        backgroundColor: Color(0xFF096499),
+        backgroundColor: Color(0xFF113F67),
         actions: [
           Padding(
             padding: const EdgeInsets.all(1),
@@ -111,7 +119,7 @@ class StudentHomePage extends StatelessWidget {
         style: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.bold,
-          color: Color(0xFF096499),
+          color: Color(0xFF113F67),
         ),
       ),
     );
@@ -127,9 +135,9 @@ class StudentHomePage extends StatelessWidget {
           child: Column(
             children: [
               TabBar(
-                labelColor: Color(0xFF096499),
+                labelColor: Color(0xFF113F67),
                 unselectedLabelColor: Colors.grey,
-                indicatorColor: Color(0xFF096499),
+                indicatorColor: Color(0xFF113F67),
                 tabs: [
                   Tab(text: 'Best Match'),
                   Tab(text: 'Other'),
@@ -163,7 +171,7 @@ class StudentHomePage extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Color(0xFF096499), width: 2),
+              border: Border.all(color: Color(0xFF113F67), width: 2),
               boxShadow: [
                 BoxShadow(
                     color: Colors.black12, blurRadius: 5, spreadRadius: 2),
@@ -197,7 +205,7 @@ class OpportunitiesList extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Color(0xFF096499), width: 2),
+              border: Border.all(color: Color(0xFF113F67), width: 2),
               boxShadow: [
                 BoxShadow(
                     color: Colors.black12, blurRadius: 5, spreadRadius: 2),
@@ -220,20 +228,54 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final TextEditingController _nameController =
-      TextEditingController(text: "Jane Doe");
-  final TextEditingController _emailController =
-      TextEditingController(text: "jane.doe@example.com");
-  final TextEditingController _gpaController =
-      TextEditingController(text: "3.8");
-  final TextEditingController _majorController =
-      TextEditingController(text: "Software Engineering");
-  final TextEditingController _skillsController =
-      TextEditingController(text: "Dart, Flutter, Java");
-  final TextEditingController _certificatesController =
-      TextEditingController(text: "AWS Certified Developer");
-  final TextEditingController _locationController =
-      TextEditingController(text: "City, Country");
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _gpaController = TextEditingController();
+  final TextEditingController _majorController = TextEditingController();
+  final TextEditingController _skillsController = TextEditingController();
+  final TextEditingController _certificatesController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStudentData(); // Load student data on profile page load
+  }
+
+  // Function to load student data from Firestore
+  Future<void> _loadStudentData() async {
+    try {
+      User? user = _auth.currentUser;
+
+      if (user != null) {
+        DocumentSnapshot doc =
+            await _firestore.collection('Student').doc(user.uid).get();
+
+        if (doc.exists) {
+          setState(() {
+            _nameController.text = doc['name'] ?? '';
+            _emailController.text = doc['email'] ?? '';
+            _gpaController.text = doc['gpa'] ?? '';
+            _majorController.text = doc['major'] ?? '';
+            _skillsController.text =
+                (doc['skills'] as List<dynamic>).join(', ') ?? '';
+            _certificatesController.text =
+                (doc['certificates'] as List<dynamic>).join(', ') ?? '';
+            _locationController.text =
+                (doc['location'] as List<dynamic>).join(', ') ?? '';
+          });
+        }
+      }
+    } catch (e) {
+      print("Failed to load student data: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load profile data')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -241,7 +283,7 @@ class _ProfilePageState extends State<ProfilePage> {
       drawer: HadafiDrawer(),
       appBar: AppBar(
         title: Text('Profile'),
-        backgroundColor: Color(0xFF096499),
+        backgroundColor: Color(0xFF113F67),
         iconTheme: IconThemeData(color: Colors.white),
         actions: [
           IconButton(
