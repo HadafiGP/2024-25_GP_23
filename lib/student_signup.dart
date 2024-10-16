@@ -188,15 +188,33 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                               }
 
                               final gpa = double.tryParse(value);
-                              if (gpa == null ||
-                                  gpa <= 0 ||
-                                  gpa > _selectedGpaScale!) {
-                                return 'Please enter a valid GPA up to ${_selectedGpaScale!.toStringAsFixed(2)}';
+// Check if GPA is null (i.e., user did not enter a valid number)
+                              if (gpa == null) {
+                                return 'Please enter a valid number for GPA.';
                               }
 
-                              final gpaRegex = RegExp(r'^\d\.\d{2}$');
+// Check if GPA is 0
+                              if (gpa == 0) {
+                                return 'GPA cannot be 0. Please enter a valid GPA.';
+                              }
+
+// Check if GPA exceeds the selected scale
+                              if (gpa > _selectedGpaScale!) {
+                                return 'Please enter a valid GPA greater than 0 and up to ${_selectedGpaScale!.toStringAsFixed(2)}';
+                              }
+
+                              // Ensure GPA is in correct format
+                              final gpaRegex = RegExp(r'^\d+(\.\d{1,2})?$');
                               if (!gpaRegex.hasMatch(value)) {
-                                return 'Please enter a valid GPA in the format (e.g., 4.80)';
+                                return 'Please enter a valid GPA with up to two decimal\nplaces (e.g., 4, 4.00, or 4.90)';
+                              }
+
+                              //If GPA is a whole number, format it as x.00 (e.g., 3 becomes 3.00)
+                              if (gpa % 1 == 0) {
+                                _gpaController.text = gpa.toStringAsFixed(2);
+                              } else {
+                                _gpaController.text = gpa.toStringAsFixed(
+                                    2); // Ensure two decimal places
                               }
 
                               return null;
@@ -215,7 +233,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                                   setState(() {
                                     _selectedGpaScale = 4.0;
                                     _gpaController
-                                        .clear(); //Clear the GPA field if scale changes
+                                        .clear(); // Clear the GPA field if scale changes
                                   });
                                 },
                                 style: ElevatedButton.styleFrom(
