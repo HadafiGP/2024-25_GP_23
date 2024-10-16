@@ -32,17 +32,26 @@ class _InterviewPageState extends State<InterviewPage> {
       lastName: "",
       profileImage: "https://i.imgur.com/Be1jZ9c.jpeg");
 
-  List<ChatMessage> _messages = <ChatMessage>[];
-  Timer? _ITimer;
-  Duration IDuration = Duration(minutes: 1);
-  bool waitForUserResponse = false;
+  List<ChatMessage> _messages =
+      <ChatMessage>[]; //A list that store all the messages.
+  List<ChatMessage> _displayedMessages =
+      []; //A list that store the messages displayed in the UI
+  Timer?
+      _ITimer; //A timer instance that starts a timer with a specific duration when used.
+  Duration IDuration = Duration(
+      minutes: 3); //A variable that indicates the length of the interview
   String? promptMsg;
-  bool sentRestartQuestion = false;
+  bool sentRestartQuestion =
+      false; //A variable that indicates if the restart question has been shown to the user
   String feedback = "";
-  bool isLastQuestion = false;
-  bool sentFeedback = false;
-  bool isWaiting = true;
-  bool noMoreQuestions = false;
+  bool isLastQuestion =
+      false; //A variable that indicates if the last interview question has been asked.
+  bool sentFeedback =
+      false; //A variable that indicates if the  interview feedback has been sent to the user.
+  bool isWaiting =
+      true; //A variable that indicates wether the chatbot is watining for the user to respond.
+  bool noMoreQuestions =
+      false; //A variable that indicates whether to stop asking quesztions or not.
   String connectionErrorMessage = ''; // connection error tracking msg
   bool isTyping = false; // typing indicator
 
@@ -68,11 +77,11 @@ class _InterviewPageState extends State<InterviewPage> {
 
     // Check connectivity first
     checkConnectivity(context);
-
-    SEInterview();
+    //Call rhe endInterview function to start a timer with 10min duration
+    endInterview();
+    //A prompt that controls how the chatbot will start the interview.
     _handleInitialMessage(
-      'Introduce yourself as "Hadafi COOP/internship interviewer", and please ask what is the COOP/internship position the user is applying for.' +
-          ' Reask the user without notifying them if his text appears like gibberish, not relevant to the question, or doesn\'t sound like a real postion title',
+      'Introduce yourself as "Hadafi COOP/internship interviewer", and tell the user that you would conduct a 10 minute interview about the COOP/internship Position he is interested in. Make the introduction short.',
     );
   }
 
@@ -89,7 +98,7 @@ class _InterviewPageState extends State<InterviewPage> {
       setState(() {
         isTyping = true;
       });
-
+      //Send first prompt
       final request = ChatCompleteText(
         messages: [
           Map.of({"role": "assistant", "content": character})
@@ -100,6 +109,7 @@ class _InterviewPageState extends State<InterviewPage> {
 
       final response = await _openAI.onChatCompletion(request: request);
 
+      //Clean the response
       ChatMessage message = ChatMessage(
         user: _chatGPTUser,
         createdAt: DateTime.now(),
@@ -109,19 +119,66 @@ class _InterviewPageState extends State<InterviewPage> {
             'No content',
       );
 
+      //after recieving the response, insert it to the _messages/_displayedMessages list.
       setState(() {
         _messages.insert(0, message);
-        isTyping = false; // Stop typing indicator after receiving response
+        _displayedMessages.insert(0, message);
+        isTyping = false; // Stop typing indicator
       });
 
+      // Start typing indicator
+      setState(() {
+        isTyping = true;
+      });
+
+      //Send the stop message
       ChatMessage stopMessage = ChatMessage(
         user: _chatGPTUser,
         createdAt: DateTime.now(),
         text: 'If you want to stop the interview, just type "STOP".',
       );
 
+      //insert the stop message _messages/_displayedMessages list.
       setState(() {
         _messages.insert(0, stopMessage);
+        _displayedMessages.insert(0, stopMessage);
+        isTyping = false; // Stop typing indicator
+      });
+
+      // Start typing indicator
+      setState(() {
+        isTyping = true;
+      });
+
+      //Send the COOP/Inetnship postion question
+      final request2 = ChatCompleteText(
+        messages: [
+          Map.of({
+            "role": "assistant",
+            "content":
+                'Ask what is the COOP/internship position the user is applying for, only accept titles commonly found in job listings. Reask the user without notifying them if their text is gibberish, irrelevan, not commonly found in job listings , or is a humorous/fictional postion title (e.g., \'Chief Unicorn Executive\').'
+          })
+        ],
+        maxToken: 200,
+        model: Gpt4ChatModel(),
+      );
+
+      final response2 = await _openAI.onChatCompletion(request: request2);
+
+      //Clean the response
+      ChatMessage message2 = ChatMessage(
+        user: _chatGPTUser,
+        createdAt: DateTime.now(),
+        text: response2!.choices.first.message!.content
+                .trim()
+                .replaceAll('"', '') ??
+            'No content',
+      );
+
+      //insert the position message _messages/_displayedMessages list.
+      setState(() {
+        _messages.insert(0, message2);
+        _displayedMessages.insert(0, message2);
         isTyping = false; // Stop typing indicator
       });
     } catch (e) {
@@ -150,6 +207,9 @@ class _InterviewPageState extends State<InterviewPage> {
             color: Colors.white,
           ),
         ),
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
         centerTitle: true,
       ),
       body: Column(
@@ -170,7 +230,7 @@ class _InterviewPageState extends State<InterviewPage> {
             child: DashChat(
               currentUser: _currentUser,
               messageOptions: messageOptions,
-              messages: _messages,
+              messages: _displayedMessages,
               typingUsers:
                   isTyping ? [_chatGPTUser] : [], // Display typing indicator
               onSend: (ChatMessage m) {
@@ -180,6 +240,20 @@ class _InterviewPageState extends State<InterviewPage> {
           ),
         ],
       ),
+      //Display the floating history icon that leads to the all past message history.
+      floatingActionButton: Container(
+        margin: const EdgeInsets.only(
+          bottom: 40.0,
+        ),
+        child: FloatingActionButton(
+          onPressed: () => _showPreviousInterviews(),
+          child: const Icon(
+            Icons.history,
+          ),
+          mini: true,
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
@@ -193,9 +267,11 @@ class _InterviewPageState extends State<InterviewPage> {
     // if connected, continue
     setState(() {
       _messages.insert(0, m);
+      _displayedMessages.insert(0, m);
       isWaiting = false;
     });
 
+    //If user types stop then stop interview and display feedback
     if (m.text.trim().toUpperCase() == "STOP") {
       setState(() {
         isTyping = true; // Show typing indicator before STOP
@@ -213,7 +289,7 @@ class _InterviewPageState extends State<InterviewPage> {
 
       return;
     }
-
+    //Handle user response to the restart question
     if (sentRestartQuestion == true) {
       if (m.text.trim().toLowerCase() == "yes") {
         restartInterview();
@@ -229,7 +305,16 @@ class _InterviewPageState extends State<InterviewPage> {
                 ChatMessage(
                   user: _chatGPTUser,
                   createdAt: DateTime.now(),
-                  text: "Goodbye!",
+                  text:
+                      "The interview has ended, thank you for your time and good luck in your COOP/internship search!",
+                ));
+            _displayedMessages.insert(
+                0,
+                ChatMessage(
+                  user: _chatGPTUser,
+                  createdAt: DateTime.now(),
+                  text:
+                      "The interview has ended, thank you for your time and good luck in your COOP/internship search!",
                 ));
             isTyping = false; // Stop typing indicator after Goodbye
           });
@@ -249,7 +334,14 @@ class _InterviewPageState extends State<InterviewPage> {
                 ChatMessage(
                   user: _chatGPTUser,
                   createdAt: DateTime.now(),
-                  text: "Please enter Yes or no only.",
+                  text: "Please answer with 'Yes' or 'No' only.",
+                ));
+            _displayedMessages.insert(
+                0,
+                ChatMessage(
+                  user: _chatGPTUser,
+                  createdAt: DateTime.now(),
+                  text: "Please answer with 'Yes' or 'No' only.",
                 ));
             isTyping =
                 false; // Stop typing indicator after Please enter Yes or no
@@ -262,13 +354,13 @@ class _InterviewPageState extends State<InterviewPage> {
       sentRestartQuestion = false;
       return;
     }
-
+    //If the lastQuestion is sent call feedback function
     if (isLastQuestion) {
       isLastQuestion = false;
       interviewFeedback();
       return;
     }
-
+    //IF feedback is sent make the variable false to handle future interviews feedback.
     if (sentFeedback) {
       sentFeedback = false;
       return;
@@ -315,7 +407,7 @@ class _InterviewPageState extends State<InterviewPage> {
     }
   }
 
-  // Make the chat ask the questions one at a time
+  // Make the chatbot ask the questions one at a time
   Future<void> askQuestions(List<Map<String, dynamic>> messagesHistory) async {
     print("inside askQuestions");
     isWaiting = true;
@@ -344,12 +436,13 @@ class _InterviewPageState extends State<InterviewPage> {
 
       setState(() {
         _messages.insert(0, message);
+        _displayedMessages.insert(0, message);
       });
     }
   }
 
-  // Set an interview for 15 minutes
-  void SEInterview() {
+  // Set an interview timer of 10 minutes and send the last question of the interview after the timer ends.
+  void endInterview() {
     print("Inside SEInterview");
     _ITimer = Timer(IDuration, () async {
       Timer.periodic(Duration(milliseconds: 100), (timer) async {
@@ -389,6 +482,7 @@ class _InterviewPageState extends State<InterviewPage> {
 
           setState(() {
             _messages.insert(0, message);
+            _displayedMessages.insert(0, message);
             isLastQuestion = true;
           });
         }
@@ -396,6 +490,7 @@ class _InterviewPageState extends State<InterviewPage> {
     });
   }
 
+  //sends a feedback on all the interview questions after the interview ends or when the user types "stop". Calls restartInterviewQuestion() after sneding the feedback
   void interviewFeedback() async {
     print("Inside interviewFeedback");
 
@@ -404,7 +499,8 @@ class _InterviewPageState extends State<InterviewPage> {
       isTyping = true;
     });
 
-    List<Map<String, dynamic>> _messagesHistory = _messages.reversed.where((m) {
+    List<Map<String, dynamic>> _messagesHistory =
+        _displayedMessages.reversed.where((m) {
       if (m.user == _currentUser && m.text.trim().toUpperCase() == "STOP") {
         return false;
       }
@@ -428,6 +524,14 @@ class _InterviewPageState extends State<InterviewPage> {
         isTyping = true;
 
         _messages.insert(
+          0,
+          ChatMessage(
+            user: _chatGPTUser,
+            createdAt: DateTime.now(),
+            text: "There are no interview answers to give feedback on.",
+          ),
+        );
+        _displayedMessages.insert(
           0,
           ChatMessage(
             user: _chatGPTUser,
@@ -463,6 +567,7 @@ class _InterviewPageState extends State<InterviewPage> {
 
       setState(() {
         _messages.insert(0, message);
+        _displayedMessages.insert(0, message);
         sentFeedback = true;
         isTyping = false; // Stop typing indicator after feedback
         print("outside interview");
@@ -478,6 +583,7 @@ class _InterviewPageState extends State<InterviewPage> {
     super.dispose();
   }
 
+  //Sends the restart question.
   void restartInterviewQuestion() async {
     print("Inside restartInterviewQuestion");
 
@@ -495,6 +601,14 @@ class _InterviewPageState extends State<InterviewPage> {
             text:
                 "This interview is over. Would you like to have another interview? -Respond with yes or no-",
           ));
+      _displayedMessages.insert(
+          0,
+          ChatMessage(
+            user: _chatGPTUser,
+            createdAt: DateTime.now(),
+            text:
+                "This interview is over. Would you like to have another interview? -Respond with yes or no-",
+          ));
 
       isTyping = false; // Stop typing indicator after the message is inserted
     });
@@ -502,6 +616,7 @@ class _InterviewPageState extends State<InterviewPage> {
     sentRestartQuestion = true;
   }
 
+  //Handles the restart logic by cleaning the UI, resetting the variables, and calling _handleInitialMessage(character)
   void restartInterview() {
     _ITimer?.cancel();
     print("Inside restart");
@@ -521,6 +636,13 @@ class _InterviewPageState extends State<InterviewPage> {
               createdAt: DateTime.now(),
               text: "Your new interview will start now.",
             ));
+        _displayedMessages.insert(
+            0,
+            ChatMessage(
+              user: _chatGPTUser,
+              createdAt: DateTime.now(),
+              text: "Your new interview will start now.",
+            ));
 
         isTyping = false; // Stop typing indicator after the message is inserted
       });
@@ -534,13 +656,92 @@ class _InterviewPageState extends State<InterviewPage> {
         sentFeedback = false;
         sentFeedback = false;
         isWaiting = true;
-        _messages.clear();
+        _displayedMessages.clear();
         _handleInitialMessage(
-          'Introduce yourself as "Hadafi COOP/internship interviewer", and please ask what is the COOP/internship position the user is applying for.' +
-              ' Reask the user without notifying them if his text appears like gibberish, not relevant to the question, or doesn\'t sound like a real postion title',
-        );
-        SEInterview();
+            'Introduce yourself as "Hadafi COOP/internship interviewer", and tell the user that you would conduct a 10 minute interview about the COOP/internship Position he is interested in. Make the introduction short.');
+        endInterview();
       });
     });
+  }
+
+// Call a function that displays the past message history interface when the icon is tapped.
+  void _showPreviousInterviews() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PastInterviewsScreen(messages: _messages),
+      ),
+    );
+  }
+}
+
+// An interface that displays all the messagees history of all past interviews.
+class PastInterviewsScreen extends StatelessWidget {
+  final List<ChatMessage> _messages;
+  final ChatUser _currentUser =
+      ChatUser(id: "1", firstName: "user", lastName: "user");
+  final ChatUser _chatGPTUser = ChatUser(
+      id: "2",
+      firstName: "Hadafi",
+      lastName: "",
+      profileImage: "https://i.imgur.com/Be1jZ9c.jpeg");
+
+  PastInterviewsScreen({required List<ChatMessage> messages})
+      : _messages = messages;
+
+  @override
+  Widget build(BuildContext context) {
+    const messageOptions = const MessageOptions(
+      currentUserContainerColor: Colors.cyan,
+      containerColor: Color(0xFF113F67),
+      textColor: Colors.white,
+    );
+    if (_messages.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('No History'),
+              content: Text('There\'s no Interview history to display!'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      });
+    }
+    return Scaffold(
+      backgroundColor: Color(0xFFF3F9FB),
+      appBar: AppBar(
+        backgroundColor: Color(0xFF113F67),
+        title: const Text(
+          'Past Interviews history',
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
+        centerTitle: true,
+      ),
+      body: DashChat(
+        currentUser: _currentUser,
+        messages: _messages,
+        readOnly: true,
+        inputOptions: InputOptions(
+          inputDisabled: true,
+        ),
+        onSend: (ChatMessage message) {},
+        messageOptions: messageOptions,
+      ),
+    );
   }
 }
