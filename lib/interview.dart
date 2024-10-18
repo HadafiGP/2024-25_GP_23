@@ -1,11 +1,17 @@
 // ignore_for_file: no_leading_underscores_for_local_identifiers
 
 import 'dart:async';
+import 'dart:convert';
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'allHistory.dart';
+import 'main.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class InterviewPage extends StatefulWidget {
   const InterviewPage({super.key});
@@ -55,26 +61,32 @@ class _InterviewPageState extends State<InterviewPage> {
   String connectionErrorMessage = ''; // connection error tracking msg
   bool isTyping = false; // typing indicator
   bool showQuickReplies = false; // flag to show quick replies
+  late SharedPreferences
+      preferences; //SharedPreferences instance used to keep the message history saved all the time.
+  String userKey = ""; // String to save the user generated keys
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  ////waits for the SharedPreferences instance, and when initalized, assigning the message history to _messages using readHistoryMessages(), and when initalized, assigning the message history to _messages using readHistoryMessages()
+  getSharedPrefernces() async {
+    preferences = await SharedPreferences.getInstance();
+    _messages = readHistoryMessages();
+  }
 
+  void handleQuickReply(String title) {
+    ChatMessage quickReplyMessage = ChatMessage(
+      text: title,
+      user: _currentUser,
+      createdAt: DateTime.now(),
+    );
 
-void handleQuickReply(String title) {
-  ChatMessage quickReplyMessage = ChatMessage(
-    text: title,
-    user: _currentUser,
-    createdAt: DateTime.now(),
-  );
+    setState(() {
+      showQuickReplies = false; // Hide quick replies after selection
+    });
 
-  setState(() {
-  
-    showQuickReplies = false;  // Hide quick replies after selection
-  });
-
-  // Send reply to get chat responses
-  getChatResponse(quickReplyMessage);
-}
-
-
+    // Send reply to get chat responses
+    getChatResponse(quickReplyMessage);
+  }
 
   Future<bool> checkConnectivity(BuildContext context) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
@@ -94,6 +106,8 @@ void handleQuickReply(String title) {
   // Initiate the first message: Asking about the COOP/Internship position
   @override
   void initState() {
+    //waits for the SharedPreferences instance.
+    getSharedPrefernces();
     super.initState();
 
     // Check connectivity first
@@ -144,9 +158,8 @@ void handleQuickReply(String title) {
       setState(() {
         _messages.insert(0, message);
         _displayedMessages.insert(0, message);
+        saveHistoryMessages(); //save messages permantely
         isTyping = false; // Stop typing indicator
-     
-      
       });
 
       // Start typing indicator
@@ -165,6 +178,7 @@ void handleQuickReply(String title) {
       setState(() {
         _messages.insert(0, stopMessage);
         _displayedMessages.insert(0, stopMessage);
+        saveHistoryMessages(); //save messages permantely
         isTyping = false; // Stop typing indicator
       });
 
@@ -182,10 +196,8 @@ void handleQuickReply(String title) {
                 'Ask what is the COOP/internship position the user is applying for, only accept titles commonly found in job listings. Reask the user without notifying them if their text is gibberish, irrelevan, not commonly found in job listings , or is a humorous/fictional postion title (e.g., \'Chief Unicorn Executive\').'
           })
         ],
-        
         maxToken: 200,
         model: Gpt4ChatModel(),
-        
       );
 
       final response2 = await _openAI.onChatCompletion(request: request2);
@@ -198,24 +210,16 @@ void handleQuickReply(String title) {
                 .trim()
                 .replaceAll('"', '') ??
             'No content',
-
-           
-          
-
-          
       );
 
       //insert the position message _messages/_displayedMessages list.
       setState(() {
         _messages.insert(0, message2);
         _displayedMessages.insert(0, message2);
+        saveHistoryMessages(); //save messages permantely
         isTyping = false; // Stop typing indicator
         showQuickReplies = true;
       });
-
- 
-
-      
     } catch (e) {
       setState(() {
         connectionErrorMessage =
@@ -225,86 +229,91 @@ void handleQuickReply(String title) {
     }
   }
 
-
   @override
-@override
-Widget build(BuildContext context) {
-  const messageOptions = const MessageOptions(
-    currentUserContainerColor: Colors.cyan,
-    containerColor: Color(0xFF113F67),
-    textColor: Colors.white,
-  );
+  @override
+  Widget build(BuildContext context) {
+    const messageOptions = const MessageOptions(
+      currentUserContainerColor: Colors.cyan,
+      containerColor: Color(0xFF113F67),
+      textColor: Colors.white,
+    );
 
-  return Scaffold(
-    backgroundColor: Color(0xFFF3F9FB),
-    appBar: AppBar(
-      backgroundColor: Color(0xFF113F67),
-      title: const Text(
-        'Interview Simulator',
-        style: TextStyle(color: Colors.white),
-      ),
-      iconTheme: IconThemeData(color: Colors.white),
-      centerTitle: true,
-    ),
-    body: Column(
-      children: [
-        if (connectionErrorMessage.isNotEmpty) // Red banner for connectivity msg
-          Container(
-            color: Colors.red,
-            padding: const EdgeInsets.all(12.0),
-            width: double.infinity,
-            child: Text(
-              connectionErrorMessage,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        Expanded(
-          child: DashChat(
-            currentUser: _currentUser,
-            messageOptions: messageOptions,
-            messages: _displayedMessages,
-            typingUsers: isTyping ? [_chatGPTUser] : [],
-            onSend: (ChatMessage m) {
-              getChatResponse(m);
-            },
-          ),
+    return Scaffold(
+      backgroundColor: Color(0xFFF3F9FB),
+      appBar: AppBar(
+        backgroundColor: Color(0xFF113F67),
+        title: const Text(
+          'Interview Simulator',
+          style: TextStyle(color: Colors.white),
         ),
-        if (showQuickReplies) // only show if showQuickReplies is true
-          Container(
-            color: Colors.white, 
-            padding: EdgeInsets.symmetric(horizontal: 8),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  "Software Engineer Intern", "Data Analyst", "Marketing Intern", "UI/UX Designer", "Finance Intern", "Legal Intern",
-                ].map((title) => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: OutlinedButton(
-                    onPressed: () => handleQuickReply(title),
-                    child: Text(title),
-                  ),
-                )).toList(),
+        iconTheme: IconThemeData(color: Colors.white),
+        centerTitle: true,
+      ),
+      body: Column(
+        children: [
+          if (connectionErrorMessage
+              .isNotEmpty) // Red banner for connectivity msg
+            Container(
+              color: Colors.red,
+              padding: const EdgeInsets.all(12.0),
+              width: double.infinity,
+              child: Text(
+                connectionErrorMessage,
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+                textAlign: TextAlign.center,
               ),
             ),
+          Expanded(
+            child: DashChat(
+              currentUser: _currentUser,
+              messageOptions: messageOptions,
+              messages: _displayedMessages,
+              typingUsers: isTyping ? [_chatGPTUser] : [],
+              onSend: (ChatMessage m) {
+                getChatResponse(m);
+              },
+            ),
           ),
-      ],
-    ),
-    floatingActionButton: Container(
-      margin: const EdgeInsets.only(bottom: 40.0),
-      child: FloatingActionButton(
-        onPressed: () => _showPreviousInterviews(),
-        child: const Icon(Icons.history),
-        mini: true,
+          if (showQuickReplies) // only show if showQuickReplies is true
+            Container(
+              color: Colors.white,
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    "Software Engineer Intern",
+                    "Data Analyst",
+                    "Marketing Intern",
+                    "UI/UX Designer",
+                    "Finance Intern",
+                    "Legal Intern",
+                  ]
+                      .map((title) => Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 4.0),
+                            child: OutlinedButton(
+                              onPressed: () => handleQuickReply(title),
+                              child: Text(title),
+                            ),
+                          ))
+                      .toList(),
+                ),
+              ),
+            ),
+        ],
       ),
-    ),
-    floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-  );
-}
-
-
-
+      floatingActionButton: Container(
+        margin: const EdgeInsets.only(bottom: 40.0),
+        child: FloatingActionButton(
+          onPressed: () => _showPreviousInterviews(),
+          child: const Icon(Icons.history),
+          mini: true,
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+    );
+  }
 
   Future<void> getChatResponse(ChatMessage m) async {
     // check connection
@@ -317,6 +326,7 @@ Widget build(BuildContext context) {
     setState(() {
       _messages.insert(0, m);
       _displayedMessages.insert(0, m);
+      saveHistoryMessages(); //save messages permantely
       isWaiting = false;
       showQuickReplies = false; //hide replies
     });
@@ -366,6 +376,7 @@ Widget build(BuildContext context) {
                   text:
                       "The interview has ended, thank you for your time and good luck in your COOP/internship search!",
                 ));
+            saveHistoryMessages(); //save messages permantely
             isTyping = false; // Stop typing indicator after Goodbye
           });
         });
@@ -393,6 +404,7 @@ Widget build(BuildContext context) {
                   createdAt: DateTime.now(),
                   text: "Please answer with 'Yes' or 'No' only.",
                 ));
+            saveHistoryMessages(); //save messages permantely
             isTyping =
                 false; // Stop typing indicator after Please enter Yes or no
           });
@@ -487,6 +499,7 @@ Widget build(BuildContext context) {
       setState(() {
         _messages.insert(0, message);
         _displayedMessages.insert(0, message);
+        saveHistoryMessages(); //save messages permantely
       });
     }
   }
@@ -533,6 +546,7 @@ Widget build(BuildContext context) {
           setState(() {
             _messages.insert(0, message);
             _displayedMessages.insert(0, message);
+            saveHistoryMessages(); //save messages permantely
             isLastQuestion = true;
           });
         }
@@ -589,6 +603,7 @@ Widget build(BuildContext context) {
             text: "There are no interview answers to give feedback on.",
           ),
         );
+        saveHistoryMessages(); //save messages permantely
         isTyping =
             false; // Stop typing indicator after "There are no interview answers"
       });
@@ -618,6 +633,7 @@ Widget build(BuildContext context) {
       setState(() {
         _messages.insert(0, message);
         _displayedMessages.insert(0, message);
+        saveHistoryMessages(); //save messages permantely
         sentFeedback = true;
         isTyping = false; // Stop typing indicator after feedback
         print("outside interview");
@@ -659,6 +675,7 @@ Widget build(BuildContext context) {
             text:
                 "This interview is over. Would you like to have another interview? -Respond with yes or no-",
           ));
+      saveHistoryMessages(); //save messages permantely
 
       isTyping = false; // Stop typing indicator after the message is inserted
     });
@@ -693,6 +710,7 @@ Widget build(BuildContext context) {
               createdAt: DateTime.now(),
               text: "Your new interview will start now.",
             ));
+        saveHistoryMessages(); //save messages permantely
 
         isTyping = false; // Stop typing indicator after the message is inserted
       });
@@ -722,6 +740,40 @@ Widget build(BuildContext context) {
         builder: (context) => PastInterviewsScreen(messages: _messages),
       ),
     );
+  }
+
+  String generateKey() {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      return 'userHistory:${user.uid}'; // Unique key per user
+    }
+    return 'cuserHistoryDefault:'; // Fallback if user is not logged in
+  }
+
+// Function that saves all the message history during page navigation
+  Future<void> saveHistoryMessages() async {
+    String userKey = generateKey();
+
+    List<String> userMessages = _messages
+        .map((ChatMessage chatMessage) => jsonEncode(chatMessage.toJson()))
+        .toList();
+
+    await preferences.setStringList(userKey, userMessages);
+  }
+
+// Function that transforms the message history from string => chatMessages
+  List<ChatMessage> readHistoryMessages() {
+    String userKey = generateKey();
+
+    List<String>? userMessages = preferences.getStringList(userKey);
+
+    if (userMessages != null && userMessages.isNotEmpty) {
+      return userMessages
+          .map((String messageString) =>
+              ChatMessage.fromJson(json.decode(messageString)))
+          .toList();
+    }
+    return [];
   }
 }
 
