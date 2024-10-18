@@ -39,7 +39,7 @@ class _InterviewPageState extends State<InterviewPage> {
   Timer?
       _ITimer; //A timer instance that starts a timer with a specific duration when used.
   Duration IDuration = Duration(
-      minutes: 3); //A variable that indicates the length of the interview
+      minutes: 2); //A variable that indicates the length of the interview
   String? promptMsg;
   bool sentRestartQuestion =
       false; //A variable that indicates if the restart question has been shown to the user
@@ -54,6 +54,27 @@ class _InterviewPageState extends State<InterviewPage> {
       false; //A variable that indicates whether to stop asking quesztions or not.
   String connectionErrorMessage = ''; // connection error tracking msg
   bool isTyping = false; // typing indicator
+  bool showQuickReplies = false; // flag to show quick replies
+
+
+
+void handleQuickReply(String title) {
+  ChatMessage quickReplyMessage = ChatMessage(
+    text: title,
+    user: _currentUser,
+    createdAt: DateTime.now(),
+  );
+
+  setState(() {
+  
+    showQuickReplies = false;  // Hide quick replies after selection
+  });
+
+  // Send reply to get chat responses
+  getChatResponse(quickReplyMessage);
+}
+
+
 
   Future<bool> checkConnectivity(BuildContext context) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
@@ -124,6 +145,8 @@ class _InterviewPageState extends State<InterviewPage> {
         _messages.insert(0, message);
         _displayedMessages.insert(0, message);
         isTyping = false; // Stop typing indicator
+     
+      
       });
 
       // Start typing indicator
@@ -159,8 +182,10 @@ class _InterviewPageState extends State<InterviewPage> {
                 'Ask what is the COOP/internship position the user is applying for, only accept titles commonly found in job listings. Reask the user without notifying them if their text is gibberish, irrelevan, not commonly found in job listings , or is a humorous/fictional postion title (e.g., \'Chief Unicorn Executive\').'
           })
         ],
+        
         maxToken: 200,
         model: Gpt4ChatModel(),
+        
       );
 
       final response2 = await _openAI.onChatCompletion(request: request2);
@@ -173,6 +198,11 @@ class _InterviewPageState extends State<InterviewPage> {
                 .trim()
                 .replaceAll('"', '') ??
             'No content',
+
+           
+          
+
+          
       );
 
       //insert the position message _messages/_displayedMessages list.
@@ -180,7 +210,12 @@ class _InterviewPageState extends State<InterviewPage> {
         _messages.insert(0, message2);
         _displayedMessages.insert(0, message2);
         isTyping = false; // Stop typing indicator
+        showQuickReplies = true;
       });
+
+ 
+
+      
     } catch (e) {
       setState(() {
         connectionErrorMessage =
@@ -190,72 +225,86 @@ class _InterviewPageState extends State<InterviewPage> {
     }
   }
 
+
   @override
-  Widget build(BuildContext context) {
-    const messageOptions = const MessageOptions(
-      currentUserContainerColor: Colors.cyan,
-      containerColor: Color(0xFF113F67),
-      textColor: Colors.white,
-    );
-    return Scaffold(
-      backgroundColor: Color(0xFFF3F9FB),
-      appBar: AppBar(
-        backgroundColor: Color(0xFF113F67),
-        title: const Text(
-          'Interview Simulator',
-          style: TextStyle(
-            color: Colors.white,
+@override
+Widget build(BuildContext context) {
+  const messageOptions = const MessageOptions(
+    currentUserContainerColor: Colors.cyan,
+    containerColor: Color(0xFF113F67),
+    textColor: Colors.white,
+  );
+
+  return Scaffold(
+    backgroundColor: Color(0xFFF3F9FB),
+    appBar: AppBar(
+      backgroundColor: Color(0xFF113F67),
+      title: const Text(
+        'Interview Simulator',
+        style: TextStyle(color: Colors.white),
+      ),
+      iconTheme: IconThemeData(color: Colors.white),
+      centerTitle: true,
+    ),
+    body: Column(
+      children: [
+        if (connectionErrorMessage.isNotEmpty) // Red banner for connectivity msg
+          Container(
+            color: Colors.red,
+            padding: const EdgeInsets.all(12.0),
+            width: double.infinity,
+            child: Text(
+              connectionErrorMessage,
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        Expanded(
+          child: DashChat(
+            currentUser: _currentUser,
+            messageOptions: messageOptions,
+            messages: _displayedMessages,
+            typingUsers: isTyping ? [_chatGPTUser] : [],
+            onSend: (ChatMessage m) {
+              getChatResponse(m);
+            },
           ),
         ),
-        iconTheme: IconThemeData(
-          color: Colors.white,
-        ),
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          // Red banner for connectivity msg
-          if (connectionErrorMessage.isNotEmpty)
-            Container(
-              color: Colors.red,
-              padding: const EdgeInsets.all(12.0),
-              width: double.infinity,
-              child: Text(
-                connectionErrorMessage,
-                style: const TextStyle(color: Colors.white, fontSize: 16),
-                textAlign: TextAlign.center,
+        if (showQuickReplies) // only show if showQuickReplies is true
+          Container(
+            color: Colors.white, 
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  "Software Engineer Intern", "Data Analyst", "Marketing Intern", "UI/UX Designer", "Finance Intern", "Legal Intern",
+                ].map((title) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: OutlinedButton(
+                    onPressed: () => handleQuickReply(title),
+                    child: Text(title),
+                  ),
+                )).toList(),
               ),
             ),
-          Expanded(
-            child: DashChat(
-              currentUser: _currentUser,
-              messageOptions: messageOptions,
-              messages: _displayedMessages,
-              typingUsers:
-                  isTyping ? [_chatGPTUser] : [], // Display typing indicator
-              onSend: (ChatMessage m) {
-                getChatResponse(m);
-              },
-            ),
           ),
-        ],
+      ],
+    ),
+    floatingActionButton: Container(
+      margin: const EdgeInsets.only(bottom: 40.0),
+      child: FloatingActionButton(
+        onPressed: () => _showPreviousInterviews(),
+        child: const Icon(Icons.history),
+        mini: true,
       ),
-      //Display the floating history icon that leads to the all past message history.
-      floatingActionButton: Container(
-        margin: const EdgeInsets.only(
-          bottom: 40.0,
-        ),
-        child: FloatingActionButton(
-          onPressed: () => _showPreviousInterviews(),
-          child: const Icon(
-            Icons.history,
-          ),
-          mini: true,
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-    );
-  }
+    ),
+    floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+  );
+}
+
+
+
 
   Future<void> getChatResponse(ChatMessage m) async {
     // check connection
@@ -269,6 +318,7 @@ class _InterviewPageState extends State<InterviewPage> {
       _messages.insert(0, m);
       _displayedMessages.insert(0, m);
       isWaiting = false;
+      showQuickReplies = false; //hide replies
     });
 
     //If user types stop then stop interview and display feedback
