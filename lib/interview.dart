@@ -304,7 +304,7 @@ class _InterviewPageState extends State<InterviewPage> {
         ],
       ),
       floatingActionButton: Container(
-        margin: const EdgeInsets.only(bottom: 40.0),
+        margin: const EdgeInsets.only(bottom: 610.0),
         child: FloatingActionButton(
           onPressed: () => _showPreviousInterviews(),
           child: const Icon(Icons.history),
@@ -824,7 +824,7 @@ class PastInterviewsScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Color(0xFF113F67),
         title: const Text(
-          'Past Interviews history',
+          'Interview History',
           style: TextStyle(
             color: Colors.white,
           ),
