@@ -18,14 +18,13 @@ class _TrainingProviderSignupScreenState
     extends State<TrainingProviderSignupScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   final TextEditingController _companyNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
 
+  String? _emailError; // To hold the "email already in use" error
   List<String> _selectedLocations = [];
   List<String> _filteredCities = [];
   bool _isLoading = false;
@@ -147,6 +146,9 @@ class _TrainingProviderSignupScreenState
                         'Company Email',
                         _emailController,
                         validator: (value) {
+                          if (_emailError != null) {
+                            return _emailError; // Display the email aleardy in use error
+                          }
                           if (value == null || value.isEmpty) {
                             return 'Please enter your company email';
                           }
@@ -384,12 +386,26 @@ class _TrainingProviderSignupScreenState
                 builder: (context) => TrainingProviderHomePage()));
       }
     } catch (e) {
-      String errorMessage = 'Sign-up failed. Please try again.';
       if (e is FirebaseAuthException && e.code == 'email-already-in-use') {
-        errorMessage = 'This email is already in use. Please log in.';
+        setState(() {
+          _emailError =
+              'This email is already in use. Please log in.'; // Set the email error for form display
+        });
+      } else {
+        setState(() {
+          _emailError = null; // Reset email error if it's not an email issue
+        });
+        // Show general connection error
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Sign-up failed. Please check your internet connection, or try again later.',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(errorMessage)));
     } finally {
       setState(() {
         _isLoading = false;
