@@ -304,7 +304,7 @@ class _InterviewPageState extends State<InterviewPage> {
         ],
       ),
       floatingActionButton: Container(
-        margin: const EdgeInsets.only(bottom: 610.0),
+        margin: const EdgeInsets.only(bottom: 590.0),
         child: FloatingActionButton(
           onPressed: () => _showPreviousInterviews(),
           child: const Icon(Icons.history),
