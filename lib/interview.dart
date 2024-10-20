@@ -193,7 +193,7 @@ class _InterviewPageState extends State<InterviewPage> {
           Map.of({
             "role": "assistant",
             "content":
-                'Ask what is the COOP/internship position the user is applying for, only accept titles commonly found in job listings. Reask the user without notifying them if their text is gibberish, irrelevan, not commonly found in job listings , or is a humorous/fictional postion title (e.g., \'Chief Unicorn Executive\').'
+                'Ask what is the COOP/internship position the user is applying for. Limit the accepted titles (without saying) to real-world job position titles. Reask the user without notifying them if their text is gibberish, irrelevant, or not a real world job title.'
           })
         ],
         maxToken: 200,
