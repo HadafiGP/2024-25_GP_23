@@ -7,6 +7,7 @@ class TrainingProviderHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFF3F9FB),
       appBar: AppBar(
         backgroundColor: Color(0xFF113F67),
         iconTheme: IconThemeData(color: Colors.white), // White menu button
@@ -27,7 +28,8 @@ class TrainingProviderHomePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            ElevatedButton(
+            Center(
+            child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFF113F67),
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -43,14 +45,17 @@ class TrainingProviderHomePage extends StatelessWidget {
                     TextStyle(color: Colors.white), // Set text color to white
               ),
             ),
+            ),
             SizedBox(height: 20),
-            Text(
+            Center(
+            child: Text(
               'Posted Opportunities',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF113F67),
               ),
+            ),
             ),
             Expanded(
               child: ListView.builder(
@@ -274,13 +279,18 @@ class _ProviderProfilePageState extends State<ProviderProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFF3F9FB),
       appBar: AppBar(
-        title: Text('Profile'),
-        backgroundColor: Color(0xFF113F67), // AppBar color set to match theme
-        iconTheme: IconThemeData(color: Colors.white), // White icon color
+        backgroundColor: Color(0xFF113F67),
+        title: const Text(
+          'Profile',
+          style: TextStyle(color: Colors.white),
+        ),
+        iconTheme: IconThemeData(color: Colors.white),
+        centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.save,
+            icon: Icon(Icons.edit,
                 color: Colors.white), // Save icon color to white
             onPressed: _saveProfile, // Save the profile data
           ),

@@ -96,6 +96,7 @@ class StudentHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFF3F9FB),
       drawer: HadafiDrawer(),
       appBar: AppBar(
         backgroundColor: Color(0xFF113F67),
@@ -128,7 +129,8 @@ class StudentHomePage extends StatelessWidget {
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Text(
+      child: Center(
+        child:Text(
         title,
         style: TextStyle(
           fontSize: 24,
@@ -136,6 +138,7 @@ class StudentHomePage extends StatelessWidget {
           color: Color(0xFF113F67),
         ),
       ),
+      ) 
     );
   }
 
@@ -303,6 +306,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFF3F9FB),
       appBar: AppBar(
         backgroundColor: Color(0xFF113F67),
         title: const Text(
@@ -313,7 +317,7 @@ class _ProfilePageState extends State<ProfilePage> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.save),
+            icon: Icon(Icons.edit),
             onPressed: _saveProfile, // Save profile changes
           ),
         ],
