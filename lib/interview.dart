@@ -45,7 +45,7 @@ class _InterviewPageState extends State<InterviewPage> {
   Timer?
       _ITimer; //A timer instance that starts a timer with a specific duration when used.
   Duration IDuration = Duration(
-      minutes: 2); //A variable that indicates the length of the interview
+      minutes: 10); //A variable that indicates the length of the interview
   String? promptMsg;
   bool sentRestartQuestion =
       false; //A variable that indicates if the restart question has been shown to the user
@@ -116,7 +116,7 @@ class _InterviewPageState extends State<InterviewPage> {
     endInterview();
     //A prompt that controls how the chatbot will start the interview.
     _handleInitialMessage(
-      'Introduce yourself as "Hadafi COOP/internship interviewer", and tell the user that you would conduct a 10 minute interview about the COOP/internship Position he is interested in. Make the introduction short.',
+      'Introduce yourself as "Hadafi application COOP/internship interviewer", and tell the user that you would conduct a 10 minute interview about the COOP/internship Position he is interested in. Make the introduction short.',
     );
   }
 
@@ -616,10 +616,10 @@ class _InterviewPageState extends State<InterviewPage> {
           Map.of({
             "role": "assistant",
             "content":
-                "Use the user’s complete message history to provide a comprehensive feedback on the user's entire interview answers."
+                "Analyze the user’s entire interview answers and offer constructive feedback on the strengths and areas of improvements, and mention any unanswered questions (except for the last one after “stop”)."
           })
         ],
-        maxToken: 200,
+        maxToken: 1000,
       );
 
       final response = await _openAI.onChatCompletion(request: request);
@@ -726,7 +726,7 @@ class _InterviewPageState extends State<InterviewPage> {
         isWaiting = true;
         _displayedMessages.clear();
         _handleInitialMessage(
-            'Introduce yourself as "Hadafi COOP/internship interviewer", and tell the user that you would conduct a 10 minute interview about the COOP/internship Position he is interested in. Make the introduction short.');
+            'Introduce yourself as "Hadafi application COOP/internship interviewer", and tell the user that you would conduct a 10 minute interview about the COOP/internship Position he is interested in. Make the introduction short.');
         endInterview();
       });
     });
