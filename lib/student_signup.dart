@@ -5,7 +5,7 @@ import 'package:hadafi_application/signup_widget.dart';
 import 'package:hadafi_application/StudentHomepage.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
-import 'package:connectivity_plus/connectivity_plus.dart';
+import 'dart:async';
 
 class StudentSignupScreen extends StatefulWidget {
   const StudentSignupScreen({Key? key}) : super(key: key);
@@ -58,20 +58,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   void initState() {
     super.initState();
     _filteredCities = _cities;
-  }
-
-  // Check for internet connection
-  Future<bool> _checkInternetConnection() async {
-    var connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult == ConnectivityResult.none) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content:
-                Text("No internet connection. Please check and try again.")),
-      );
-      return false;
-    }
-    return true;
   }
 
   @override
@@ -286,9 +272,9 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
 
                       const SizedBox(height: 15),
                       _buildDynamicFields(
-                          'Skills', _skillsControllers, _addSkill),
+                          'Skill', _skillsControllers, _addSkill),
                       const SizedBox(height: 15),
-                      _buildDynamicFields('Certificates',
+                      _buildDynamicFields('Certificate',
                           _certificatesControllers, _addCertificate),
                       const SizedBox(height: 15),
                       _buildLocationSelector(),
@@ -380,105 +366,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
         ),
       ],
     );
-  }
-
-  // Add new skill field
-  void _addSkill() {
-    setState(() {
-      _skillsControllers.add(TextEditingController());
-    });
-  }
-
-  // Add new certificate field
-  void _addCertificate() {
-    setState(() {
-      _certificatesControllers.add(TextEditingController());
-    });
-  }
-
-  // Encrypt password using SHA-256
-  String _encryptPassword(String password) {
-    final bytes = utf8.encode(password);
-    final digest = sha256.convert(bytes);
-    return digest.toString();
-  }
-
-  // Store user data in Firestore and Firebase Authentication
-  Future<void> _signUp() async {
-    if (!_formKey.currentState!.validate()) {
-      return; //if the form is not valid return and show errors
-    }
-
-    if (!await _checkInternetConnection()) {
-      return; //stop the process if there is no internet connection
-    }
-
-    setState(() {
-      _isLoading = true;
-      _emailError = null; // Reset the email error before sign-up attempt
-    });
-
-    try {
-      UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-      );
-      User? user = userCredential.user;
-
-      if (user != null) {
-        //encrypt password before saving it to Firestore
-        String encryptedPassword = _encryptPassword(_passwordController.text);
-
-        //collect skills and certificates from dynamic input fields
-        List<String> skills =
-            _skillsControllers.map((controller) => controller.text).toList();
-        List<String> certificates = _certificatesControllers
-            .map((controller) => controller.text)
-            .toList();
-
-        await _firestore.collection('Student').doc(user.uid).set({
-          'name': _nameController.text.trim(),
-          'email': _emailController.text.trim(),
-          'password': encryptedPassword, //store encrypted password
-          'major': _majorController.text.trim(),
-          'skills': skills, //save skills as array
-          'certificates': certificates, //save certificates as array
-          'gpa': _gpaController.text.trim(),
-          'location': _selectedLocations,
-          'uid': user.uid,
-          'role': 'student', //store the user role as 'student'
-        });
-
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => StudentHomePage()));
-      }
-    } catch (e) {
-      if (e is FirebaseAuthException && e.code == 'email-already-in-use') {
-        setState(() {
-          _emailError =
-              'This email is already in use. Please log in.'; // Set the email error for form display
-        });
-      } else {
-        setState(() {
-          _emailError = null; // Reset email error if it's not an email issue
-        });
-        // Show general connection error
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Sign-up failed. Please check your internet connection, or try again later.',
-              style: TextStyle(color: Colors.white),
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
   }
 
   Widget _buildTextField(String label, TextEditingController controller,
@@ -592,5 +479,115 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
         );
       },
     );
+  }
+
+  // Add new skill field
+  void _addSkill() {
+    setState(() {
+      _skillsControllers.add(TextEditingController());
+    });
+  }
+
+  // Add new certificate field
+  void _addCertificate() {
+    setState(() {
+      _certificatesControllers.add(TextEditingController());
+    });
+  }
+
+  // Encrypt password using SHA-256
+  String _encryptPassword(String password) {
+    final bytes = utf8.encode(password);
+    final digest = sha256.convert(bytes);
+    return digest.toString();
+  }
+
+  // Store user data in Firestore and Firebase Authentication with Timeout and Error Handling
+  Future<void> _signUp() async {
+    if (!_formKey.currentState!.validate()) {
+      return; // If the form is not valid, return and show errors
+    }
+
+    setState(() {
+      _isLoading = true;
+      _emailError = null; // Reset the email error before sign-up attempt
+    });
+
+    try {
+      // Set a timeout of 15 seconds for Firebase sign-up operation
+      UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text,
+          )
+          .timeout(Duration(seconds: 15)); // Timeout for Firebase Auth
+
+      User? user = userCredential.user;
+
+      if (user != null) {
+        // Encrypt password before saving it to Firestore
+        String encryptedPassword = _encryptPassword(_passwordController.text);
+
+        // Collect skills and certificates from dynamic input fields
+        List<String> skills =
+            _skillsControllers.map((controller) => controller.text).toList();
+        List<String> certificates = _certificatesControllers
+            .map((controller) => controller.text)
+            .toList();
+
+        // Store user data in Firestore
+        await _firestore.collection('Student').doc(user.uid).set({
+          'name': _nameController.text.trim(),
+          'email': _emailController.text.trim(),
+          'password': encryptedPassword, // Store encrypted password
+          'major': _majorController.text.trim(),
+          'skills': skills, // Save skills as array
+          'certificates': certificates, // Save certificates as array
+          'gpa': _gpaController.text.trim(),
+          'location': _selectedLocations,
+          'uid': user.uid,
+          'role': 'student', // Store the user role as 'student'
+        });
+
+        // Navigate to Student Home Page after successful sign-up
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => StudentHomePage()),
+        );
+      }
+    } on TimeoutException {
+      // Handle timeout error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Sign-up timed out. Please check your connection and try again.',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 5),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use') {
+        setState(() {
+          _emailError = 'This email is already in use. Please log in.';
+        });
+      } else {
+        // Show general Firebase error
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Sign-up failed. Please check your internet connection, or try again later.',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 }

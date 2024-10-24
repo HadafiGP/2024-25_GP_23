@@ -10,6 +10,9 @@ class SignupWidget extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: IconThemeData(
+          color: Colors.white, // Set the arrow (back button) color to white
+        ),
       ),
       extendBodyBehindAppBar: true,
       body: Stack(

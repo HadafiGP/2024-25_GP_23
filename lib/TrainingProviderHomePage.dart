@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:hadafi_application/welcome.dart';
 
 class TrainingProviderHomePage extends StatelessWidget {
   @override
@@ -29,33 +28,33 @@ class TrainingProviderHomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Center(
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF113F67),
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF113F67),
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text('Navigate to Post New Opportunity page'),
+                  ));
+                },
+                child: Text(
+                  'Post New Opportunity',
+                  style:
+                      TextStyle(color: Colors.white), // Set text color to white
+                ),
               ),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text('Navigate to Post New Opportunity page'),
-                ));
-              },
-              child: Text(
-                'Post New Opportunity',
-                style:
-                    TextStyle(color: Colors.white), // Set text color to white
-              ),
-            ),
             ),
             SizedBox(height: 20),
             Center(
-            child: Text(
-              'Posted Opportunities',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF113F67),
+              child: Text(
+                'Posted Opportunities',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF113F67),
+                ),
               ),
-            ),
             ),
             Expanded(
               child: ListView.builder(
@@ -141,23 +140,7 @@ class TrainingProviderHomePage extends StatelessWidget {
             ListTile(
               leading: Icon(Icons.logout, color: Color(0xFF113F67)),
               title: Text('Log Out'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-
-                // Show the logout message
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text('Logged Out'),
-                ));
-
-                // Redirect to the WelcomeScreen
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        WelcomeScreen(), // Navigate to WelcomeScreen
-                  ),
-                );
-              },
+              onTap: () {},
             ),
           ],
         ),

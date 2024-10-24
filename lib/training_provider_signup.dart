@@ -5,6 +5,7 @@ import 'package:hadafi_application/signup_widget.dart';
 import 'package:hadafi_application/TrainingProviderHomePage.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
+import 'dart:async';
 
 class TrainingProviderSignupScreen extends StatefulWidget {
   const TrainingProviderSignupScreen({super.key});
@@ -350,52 +351,67 @@ class _TrainingProviderSignupScreenState
     return digest.toString();
   }
 
+// Store training provider data in Firestore and Firebase Authentication
   Future<void> _signUp() async {
     if (!_formKey.currentState!.validate()) {
-      return; //if the form is not valid return and show errors
+      return; // If the form is not valid, return and show errors
     }
 
     setState(() {
       _isLoading = true;
+      _emailError = null; // Reset the email error before sign-up attempt
     });
 
     try {
-      UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
-      );
+      // Set a timeout of 15 seconds for Firebase sign-up operation
+      UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text,
+          )
+          .timeout(Duration(seconds: 15)); // Timeout for Firebase Auth
+
       User? user = userCredential.user;
 
       if (user != null) {
-        //encrypt password before saving it to Firestore
+        // Encrypt password before saving it to Firestore
         String encryptedPassword = _encryptPassword(_passwordController.text);
 
+        // Store training provider data in Firestore
         await _firestore.collection('TrainingProvider').doc(user.uid).set({
-          'company_name': _companyNameController.text,
-          'email': _emailController.text,
-          'password': encryptedPassword, //store encrypted password
-          'location': _selectedLocations, //store selected locations
+          'company_name': _companyNameController.text.trim(),
+          'email': _emailController.text.trim(),
+          'password': encryptedPassword, // Store encrypted password
+          'location': _selectedLocations, // Store selected locations
           'uid': user.uid,
-          'role': 'training_provider', //storing the user role
+          'role': 'training_provider', // Storing the user role
         });
 
+        // Navigate to Training Provider Home Page after successful sign-up
         Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) => TrainingProviderHomePage()));
+          context,
+          MaterialPageRoute(builder: (context) => TrainingProviderHomePage()),
+        );
       }
-    } catch (e) {
-      if (e is FirebaseAuthException && e.code == 'email-already-in-use') {
+    } on TimeoutException {
+      // Handle timeout error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Sign-up timed out. Please check your connection and try again.',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 5),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use') {
         setState(() {
-          _emailError =
-              'This email is already in use. Please log in.'; // Set the email error for form display
+          _emailError = 'This email is already in use. Please log in.';
         });
       } else {
-        setState(() {
-          _emailError = null; // Reset email error if it's not an email issue
-        });
-        // Show general connection error
+        // Show general Firebase error
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(

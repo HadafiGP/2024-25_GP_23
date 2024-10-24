@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hadafi_application/interview.dart';
-import 'package:hadafi_application/welcome.dart';
 
 class MainScreen extends StatelessWidget {
   @override
@@ -49,23 +48,7 @@ class HadafiDrawer extends StatelessWidget {
             ListTile(
               leading: Icon(Icons.logout, color: Color(0xFF113F67)),
               title: Text('Logout'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-
-                // Show the logout message
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text('Logged out'),
-                ));
-
-                // Redirect to the WelcomeScreen
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        WelcomeScreen(), // Navigate to WelcomeScreen
-                  ),
-                );
-              },
+              onTap: () {},
             ),
           ],
         ),
@@ -128,18 +111,17 @@ class StudentHomePage extends StatelessWidget {
 
   Widget _buildSectionTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Center(
-        child:Text(
-        title,
-        style: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          color: Color(0xFF113F67),
-        ),
-      ),
-      ) 
-    );
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF113F67),
+            ),
+          ),
+        ));
   }
 
   Widget _buildOpportunitiesTab() {
