@@ -10,6 +10,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'allHistory.dart';
 import 'main.dart';
+import 'StudentHomePage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -249,6 +250,7 @@ class _InterviewPageState extends State<InterviewPage> {
         iconTheme: IconThemeData(color: Colors.white),
         centerTitle: true,
       ),
+      drawer:HadafiDrawer(),
       body: Column(
         children: [
           if (connectionErrorMessage
