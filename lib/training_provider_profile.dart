@@ -171,13 +171,6 @@ class _ProviderProfilePageState extends State<ProviderProfilePage> {
         ),
         iconTheme: IconThemeData(color: Colors.white),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.edit,
-                color: Colors.white), // Save icon color to white
-            onPressed: _saveProfile, // Save the profile data
-          ),
-        ],
       ),
       drawer: _buildDrawer(context),
       body: Padding(
@@ -200,6 +193,27 @@ class _ProviderProfilePageState extends State<ProviderProfilePage> {
                     style: TextStyle(color: Colors.red),
                   ),
                 ),
+              // Add Save button at the bottom
+              const SizedBox(height: 20),
+              Center(
+                child: Container(
+                  width: 140, // Set a fixed width
+                  child: ElevatedButton(
+                    onPressed: null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF113F67),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30)),
+                    ),
+                    child: const Text(
+                      'Save',
+                      style: TextStyle(fontSize: 16, color: Color(0xFFF3F9FB)),
+                    ),
+                  ),
+                ),
+              )
             ],
           ),
         ),

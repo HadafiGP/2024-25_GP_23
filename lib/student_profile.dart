@@ -122,6 +122,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 (doc['certificates'] as List<dynamic>).join(', ') ?? '';
             _selectedLocations = List<String>.from(doc['location'] ?? []);
             _locationController.text = _selectedLocations.join(', ');
+            _selectedGpaScale =
+                doc['gpaScale'] != null ? doc['gpaScale'].toDouble() : null;
           });
         }
       }
@@ -145,12 +147,6 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         iconTheme: IconThemeData(color: Colors.white),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: _saveProfile, // Save profile changes
-          ),
-        ],
       ),
       drawer: HadafiDrawer(),
       body: Padding(
@@ -279,6 +275,28 @@ class _ProfilePageState extends State<ProfilePage> {
               _buildEditableField('Skills', _skillsController),
               _buildEditableField('Certificates', _certificatesController),
               _buildLocationSelector(),
+
+              // Add Save button at the bottom
+              const SizedBox(height: 20),
+              Center(
+                child: Container(
+                  width: 140, // Set a fixed width
+                  child: ElevatedButton(
+                    onPressed: null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF113F67),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30)),
+                    ),
+                    child: const Text(
+                      'Save',
+                      style: TextStyle(fontSize: 16, color: Color(0xFFF3F9FB)),
+                    ),
+                  ),
+                ),
+              )
             ],
           ),
         ),
@@ -488,6 +506,7 @@ class _ProfilePageState extends State<ProfilePage> {
           'name': _nameController.text,
           'email': email,
           'gpa': _gpaController.text,
+          'gpaScale': _selectedGpaScale,
           'major': _majorController.text,
           'skills': _skillsController.text.split(', '),
           'certificates': _certificatesController.text.split(', '),
