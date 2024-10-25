@@ -24,10 +24,13 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   final TextEditingController _gpaController = TextEditingController();
   final TextEditingController _majorController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
-
+  final TextEditingController _nationalityController = TextEditingController();
   String? _emailError; // To hold the "email already in use" error
   List<String> _selectedLocations = [];
   List<String> _filteredCities = [];
+  String? _selectedNationality;
+
+  List<String> _filteredNationalities = [];
   bool _isLoading = false;
   double? _selectedGpaScale; // Store selected GPA scale
   List<String> _cities = [
@@ -46,6 +49,26 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     'Riyadh',
     'Tabuk',
     'Taif',
+  ];
+
+  List<String> _nationalities = [
+    'Algerian',
+    'Bahraini',
+    'Egyptian',
+    'Emirati',
+    'Iraqi',
+    'Jordanian',
+    'Kuwaiti',
+    'Lebanese',
+    'Omani',
+    'Other',
+    'Palestinian',
+    'Qatari',
+    'Saudi',
+    'Sudanese',
+    'Syrian',
+    'Tunisian',
+    'Yemeni',
   ];
 
   // Lists for skills and certificates
@@ -287,6 +310,8 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                           _certificatesControllers, _addCertificate),
                       const SizedBox(height: 15),
                       _buildLocationSelector(),
+                      const SizedBox(height: 15),
+                      _buildNationalitySelector(),
                       const SizedBox(height: 25),
                       _isLoading
                           ? CircularProgressIndicator()
@@ -393,6 +418,20 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     );
   }
 
+  // Add new skill field
+  void _addSkill() {
+    setState(() {
+      _skillsControllers.add(TextEditingController());
+    });
+  }
+
+  // Add new certificate field
+  void _addCertificate() {
+    setState(() {
+      _certificatesControllers.add(TextEditingController());
+    });
+  }
+
   Widget _buildLocationSelector() {
     return GestureDetector(
       onTap: () {
@@ -490,18 +529,92 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     );
   }
 
-  // Add new skill field
-  void _addSkill() {
-    setState(() {
-      _skillsControllers.add(TextEditingController());
-    });
+  Widget _buildNationalitySelector() {
+    return GestureDetector(
+      onTap: () {
+        _showNationalityDialog();
+      },
+      child: AbsorbPointer(
+        child: TextFormField(
+          controller: _nationalityController,
+          decoration: InputDecoration(
+            labelText: 'Select Nationality',
+            suffixIcon: const Icon(Icons.arrow_drop_down),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          validator: (value) {
+            if (_selectedNationality == null) {
+              return 'Please choose your nationality';
+            }
+            return null;
+          },
+        ),
+      ),
+    );
   }
 
-  // Add new certificate field
-  void _addCertificate() {
+  void _showNationalityDialog() {
     setState(() {
-      _certificatesControllers.add(TextEditingController());
+      _filteredNationalities = _nationalities;
     });
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Column(
+                children: [
+                  Text('Select Nationality'),
+                  SizedBox(height: 10),
+                  TextField(
+                    decoration: InputDecoration(
+                      labelText: 'Search Nationality',
+                      prefixIcon: Icon(Icons.search),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        _filteredNationalities = _nationalities
+                            .where((nationality) => nationality
+                                .toLowerCase()
+                                .startsWith(value.toLowerCase()))
+                            .toList();
+                      });
+                    },
+                  ),
+                ],
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: _filteredNationalities.map((nationality) {
+                    return RadioListTile<String>(
+                      title: Text(nationality),
+                      value: nationality,
+                      groupValue: _selectedNationality,
+                      onChanged: (String? value) {
+                        setState(() {
+                          _selectedNationality = value;
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    _nationalityController.text = _selectedNationality ?? '';
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -562,6 +675,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
           'gpa': _gpaController.text.trim(),
           'gpaScale': _selectedGpaScale, // Save selected GPA scale
           'location': _selectedLocations,
+          'nationality': _selectedNationality,
           'uid': user.uid,
           'role': 'student', // Store the user role as 'student'
         });
