@@ -46,7 +46,7 @@ class _InterviewPageState extends State<InterviewPage> {
   Timer?
       _ITimer; //A timer instance that starts a timer with a specific duration when used.
   Duration IDuration = Duration(
-      minutes: 10); //A variable that indicates the length of the interview
+      minutes: 7); //A variable that indicates the length of the interview
   String? promptMsg;
   bool sentRestartQuestion =
       false; //A variable that indicates if the restart question has been shown to the user
@@ -117,7 +117,7 @@ class _InterviewPageState extends State<InterviewPage> {
     endInterview();
     //A prompt that controls how the chatbot will start the interview.
     _handleInitialMessage(
-      'Introduce yourself as "Hadafi application COOP/internship interviewer", and tell the user that you would conduct a 10 minute interview about the COOP/internship Position he is interested in. Make the introduction short.',
+      'Introduce yourself as "Hadafi application COOP/internship interviewer", and tell the user that you would conduct a 7 minute interview about the COOP/internship Position he is interested in. Make the introduction short.',
     );
   }
 
@@ -250,7 +250,7 @@ class _InterviewPageState extends State<InterviewPage> {
         iconTheme: IconThemeData(color: Colors.white),
         centerTitle: true,
       ),
-      drawer:HadafiDrawer(),
+      drawer: HadafiDrawer(),
       body: Column(
         children: [
           if (connectionErrorMessage
@@ -318,22 +318,22 @@ class _InterviewPageState extends State<InterviewPage> {
   }
 
   Future<void> getChatResponse(ChatMessage m) async {
-    // check connection
+    // Check connection
     bool isConnected = await checkConnectivity(context);
     if (!isConnected) {
       return;
     }
 
-    // if connected, continue
+    // If connected, continue
     setState(() {
       _messages.insert(0, m);
       _displayedMessages.insert(0, m);
-      saveHistoryMessages(); //save messages permantely
+      saveHistoryMessages(); // Save messages permanently
       isWaiting = false;
-      showQuickReplies = false; //hide replies
+      showQuickReplies = false; // Hide replies
     });
 
-    //If user types stop then stop interview and display feedback
+    // If user types stop then stop interview and display feedback
     if (m.text.trim().toUpperCase() == "STOP") {
       setState(() {
         isTyping = true; // Show typing indicator before STOP
@@ -351,7 +351,8 @@ class _InterviewPageState extends State<InterviewPage> {
 
       return;
     }
-    //Handle user response to the restart question
+
+    // Handle user response to the restart question
     if (sentRestartQuestion == true) {
       if (m.text.trim().toLowerCase() == "yes") {
         restartInterview();
@@ -378,7 +379,7 @@ class _InterviewPageState extends State<InterviewPage> {
                   text:
                       "The interview has ended, thank you for your time and good luck in your COOP/internship search!",
                 ));
-            saveHistoryMessages(); //save messages permantely
+            saveHistoryMessages(); // Save messages permanently
             isTyping = false; // Stop typing indicator after Goodbye
           });
         });
@@ -406,32 +407,33 @@ class _InterviewPageState extends State<InterviewPage> {
                   createdAt: DateTime.now(),
                   text: "Please answer with 'Yes' or 'No' only.",
                 ));
-            saveHistoryMessages(); //save messages permantely
+            saveHistoryMessages(); // Save messages permanently
             isTyping =
                 false; // Stop typing indicator after Please enter Yes or no
           });
         });
-
-        return;
       }
 
       sentRestartQuestion = false;
       return;
     }
-    //If the lastQuestion is sent call feedback function
+
+    // If the lastQuestion is sent call feedback function
     if (isLastQuestion) {
       isLastQuestion = false;
       interviewFeedback();
       return;
     }
-    //IF feedback is sent make the variable false to handle future interviews feedback.
+
+    // If feedback is sent make the variable false to handle future interviews feedback.
     if (sentFeedback) {
       sentFeedback = false;
       return;
     }
 
     // Convert the ChatMessage objects into the required Map<String, dynamic> format
-    List<Map<String, dynamic>> _messagesHistory = _messages.reversed.map((m) {
+    List<Map<String, dynamic>> _messagesHistory =
+        _displayedMessages.reversed.map((m) {
       if (m.user == _currentUser) {
         return {"role": "user", "content": m.text};
       } else {
@@ -458,11 +460,31 @@ class _InterviewPageState extends State<InterviewPage> {
         isTyping = false; // Stop typing indicator after response
       });
     } catch (e) {
-      setState(() {
-        connectionErrorMessage =
-            'Failed to retrieve the response. Please check your connection and try again.';
-        isTyping = false; // Stop typing indicator on error
-      });
+      // catches 429 exception: too many requests
+      if (e.toString().contains("429")) {
+        // tries resending the request after two seconds
+        await Future.delayed(Duration(seconds: 2));
+
+        try {
+          final response = await _openAI.onChatCompletion(request: request);
+
+          setState(() {
+            isTyping = false; // Stop typing indicator after response
+          });
+        } catch (e) {
+          setState(() {
+            connectionErrorMessage =
+                'Failed to retrieve the response. Please check your connection and try again.';
+            isTyping = false; // Stop typing indicator on error
+          });
+        }
+      } else {
+        setState(() {
+          connectionErrorMessage =
+              'Failed to retrieve the response. Please check your connection and try again.';
+          isTyping = false; // Stop typing indicator on error
+        });
+      }
     }
 
     // Trigger the single question function.
@@ -516,7 +538,7 @@ class _InterviewPageState extends State<InterviewPage> {
           timer.cancel();
 
           List<Map<String, dynamic>> _messagesHistory =
-              _messages.reversed.map((m) {
+              _displayedMessages.reversed.map((m) {
             if (m.user == _currentUser) {
               return {"role": "user", "content": m.text};
             } else {
@@ -728,7 +750,7 @@ class _InterviewPageState extends State<InterviewPage> {
         isWaiting = true;
         _displayedMessages.clear();
         _handleInitialMessage(
-            'Introduce yourself as "Hadafi application COOP/internship interviewer", and tell the user that you would conduct a 10 minute interview about the COOP/internship Position he is interested in. Make the introduction short.');
+            'Introduce yourself as "Hadafi application COOP/internship interviewer", and tell the user that you would conduct a 7 minute interview about the COOP/internship Position he is interested in. Make the introduction short.');
         endInterview();
       });
     });
