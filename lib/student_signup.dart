@@ -58,6 +58,15 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   void initState() {
     super.initState();
     _filteredCities = _cities;
+
+    // Add a listener to clear email error when the user changes the email input
+    _emailController.addListener(() {
+      if (_emailError != null) {
+        setState(() {
+          _emailError = null;
+        });
+      }
+    });
   }
 
   @override
@@ -495,6 +504,13 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    _emailController
+        .dispose(); // Dispose of the controller when the widget is removed
+    super.dispose();
+  }
+
   // Encrypt password using SHA-256
   String _encryptPassword(String password) {
     final bytes = utf8.encode(password);
@@ -544,6 +560,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
           'skills': skills, // Save skills as array
           'certificates': certificates, // Save certificates as array
           'gpa': _gpaController.text.trim(),
+          'gpaScale': _selectedGpaScale, // Save selected GPA scale
           'location': _selectedLocations,
           'uid': user.uid,
           'role': 'student', // Store the user role as 'student'
@@ -572,6 +589,8 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
         setState(() {
           _emailError = 'This email is already in use. Please log in.';
         });
+        // Re-run form validation to display the error immediately
+        _formKey.currentState!.validate();
       } else {
         // Show general Firebase error
         ScaffoldMessenger.of(context).showSnackBar(

@@ -86,6 +86,15 @@ class _TrainingProviderSignupScreenState
   void initState() {
     super.initState();
     _filteredCities = _cities;
+
+    // Add a listener to clear email error when the user changes the email input
+    _emailController.addListener(() {
+      if (_emailError != null) {
+        setState(() {
+          _emailError = null;
+        });
+      }
+    });
   }
 
   @override
@@ -344,6 +353,13 @@ class _TrainingProviderSignupScreenState
     );
   }
 
+  @override
+  void dispose() {
+    _emailController
+        .dispose(); // Dispose of the controller when the widget is removed
+    super.dispose();
+  }
+
   //encrypt password using SHA-256
   String _encryptPassword(String password) {
     final bytes = utf8.encode(password);
@@ -410,6 +426,8 @@ class _TrainingProviderSignupScreenState
         setState(() {
           _emailError = 'This email is already in use. Please log in.';
         });
+        // Re-run form validation to display the error immediately
+        _formKey.currentState!.validate();
       } else {
         // Show general Firebase error
         ScaffoldMessenger.of(context).showSnackBar(
