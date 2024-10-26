@@ -61,7 +61,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     'Kuwaiti',
     'Lebanese',
     'Omani',
-    'Other',
     'Palestinian',
     'Qatari',
     'Saudi',
@@ -69,6 +68,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     'Syrian',
     'Tunisian',
     'Yemeni',
+    'Other',
   ];
 
   // Lists for skills and certificates
