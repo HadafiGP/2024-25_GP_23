@@ -72,11 +72,11 @@ class _ProviderProfilePageState extends State<ProviderProfilePage> {
     'example.com'
   ]; // Example valid domains
   final List<String> exceptionEmails = [
-    'hend@gmail.com',
-    'hessaa@gmail.com',
-    'duna@gmail.com',
-    'jeje@gmail.com',
-    'lama@gmail.com'
+    'hendtp@gmail.com',
+    'hessatp@gmail.com',
+    'dunatp@gmail.com',
+    'jejetp@gmail.com',
+    'lamatp@gmail.com'
   ]; // Example exception emails
 
   List<String> _cities = [
