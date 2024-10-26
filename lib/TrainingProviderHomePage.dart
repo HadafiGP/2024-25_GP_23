@@ -29,20 +29,20 @@ class TrainingProviderHomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Center(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
+              child: ElevatedButton.icon(
+                style:ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF113F67),
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding:EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 ),
-                onPressed: () {
+                onPressed: (){
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text('Navigate to Post New Opportunity page'),
                   ));
                 },
-                child: Text(
+                icon: Icon(Icons.add, color: Colors.white),//plus icon
+                label: Text(
                   'Post New Opportunity',
-                  style:
-                      TextStyle(color: Colors.white), // Set text color to white
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
             ),
