@@ -67,6 +67,9 @@ class _InterviewPageState extends State<InterviewPage> {
   String userKey = ""; // String to save the user generated keys
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final TextEditingController _messageController = TextEditingController(); 
+  final FocusNode _focusNode =
+      FocusNode(); // used for the input field focus effect
 
   ////waits for the SharedPreferences instance, and when initalized, assigning the message history to _messages using readHistoryMessages(), and when initalized, assigning the message history to _messages using readHistoryMessages()
   getSharedPrefernces() async {
@@ -231,30 +234,29 @@ class _InterviewPageState extends State<InterviewPage> {
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
-    const messageOptions = const MessageOptions(
+    final messageOptions = MessageOptions(
       currentUserContainerColor: Colors.cyan,
-      containerColor: Color(0xFF113F67),
+      containerColor: const Color(0xFF113F67),
       textColor: Colors.white,
     );
 
     return Scaffold(
-      backgroundColor: Color(0xFFF3F9FB),
+      backgroundColor: const Color(0xFFF3F9FB),
       appBar: AppBar(
-        backgroundColor: Color(0xFF113F67),
+        backgroundColor: const Color(0xFF113F67),
         title: const Text(
           'Interview Simulator',
           style: TextStyle(color: Colors.white),
         ),
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
       ),
       drawer: HadafiDrawer(),
       body: Column(
         children: [
-          if (connectionErrorMessage
-              .isNotEmpty) // Red banner for connectivity msg
+          // Display connectivity error banner if there's a connection issue
+          if (connectionErrorMessage.isNotEmpty)
             Container(
               color: Colors.red,
               padding: const EdgeInsets.all(12.0),
@@ -265,50 +267,89 @@ class _InterviewPageState extends State<InterviewPage> {
                 textAlign: TextAlign.center,
               ),
             ),
+          // Main chat interface using DashChat
           Expanded(
             child: DashChat(
               currentUser: _currentUser,
               messageOptions: messageOptions,
               messages: _displayedMessages,
               typingUsers: isTyping ? [_chatGPTUser] : [],
-              onSend: (ChatMessage m) {
-                getChatResponse(m);
+              onSend: (ChatMessage message) {
+                getChatResponse(message); // Handle message sending
+                _messageController.clear(); // clear input field after sending
               },
+              inputOptions: InputOptions(
+                textController:
+                    _messageController, // controller to use for the (Enter) action
+                focusNode: _focusNode, // focus
+                sendOnEnter: true, // send on (Enter) key press
+                textInputAction: TextInputAction.send, // Show 'send' action
+                inputDecoration: InputDecoration(
+                  hintText: 'Type your message...',
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 12.0,
+                    horizontal: 16.0,
+                  ),
+                  filled: true,
+                  fillColor: Colors.white, //input field color
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF113F67),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF113F67),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: const BorderSide(
+                      color: Colors.cyan,
+                      width: 2.0,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
-          if (showQuickReplies) // only show if showQuickReplies is true
+          // Quick replies section (visible only if showQuickReplies is true)
+          if (showQuickReplies)
             Container(
               color: Colors.white,
-              padding: EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
                     "Software Engineer Intern",
                     "Data Analyst",
+                    "IT Intern",
                     "Marketing Intern",
                     "UI/UX Designer",
                     "Finance Intern",
                     "Legal Intern",
-                  ]
-                      .map((title) => Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 4.0),
-                            child: OutlinedButton(
-                              onPressed: () => handleQuickReply(title),
-                              child: Text(title),
-                            ),
-                          ))
-                      .toList(),
+                  ].map((title) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                      child: OutlinedButton(
+                        onPressed: () => handleQuickReply(title),
+                        child: Text(title),
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
             ),
         ],
       ),
+      // Floating Action Button to show previous interviews
       floatingActionButton: Container(
         margin: const EdgeInsets.only(bottom: 590.0),
         child: FloatingActionButton(
-          onPressed: () => _showPreviousInterviews(),
+          onPressed: () => _showPreviousInterviews(), // Navigate to history
           child: const Icon(Icons.history),
           mini: true,
         ),
@@ -670,6 +711,8 @@ class _InterviewPageState extends State<InterviewPage> {
   @override
   void dispose() {
     _ITimer?.cancel();
+    _messageController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
