@@ -52,6 +52,8 @@ Widget _buildDrawer(BuildContext context) {
 }
 
 class ProviderProfilePage extends StatefulWidget {
+  const ProviderProfilePage({super.key});
+
   @override
   _ProviderProfilePageState createState() => _ProviderProfilePageState();
 }
@@ -79,7 +81,7 @@ class _ProviderProfilePageState extends State<ProviderProfilePage> {
     'lamatp@gmail.com'
   ]; // Example exception emails
 
-  List<String> _cities = [
+  final List<String> _cities = [
     'Abha',
     'Al Ahsa',
     'Al Khobar',
@@ -196,7 +198,7 @@ class _ProviderProfilePageState extends State<ProviderProfilePage> {
               // Add Save button at the bottom
               const SizedBox(height: 20),
               Center(
-                child: Container(
+                child: SizedBox(
                   width: 140, // Set a fixed width
                   child: ElevatedButton(
                     onPressed: null,

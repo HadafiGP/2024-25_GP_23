@@ -6,6 +6,8 @@ import 'package:hadafi_application/StudentHomePage.dart';
 import 'package:hadafi_application/student_profile.dart';
 
 class HadafiDrawer extends StatelessWidget {
+  const HadafiDrawer({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -70,6 +72,8 @@ class HadafiDrawer extends StatelessWidget {
 }
 
 class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
+
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
@@ -89,7 +93,7 @@ class _ProfilePageState extends State<ProfilePage> {
   List<String> _selectedLocations = [];
   List<String> _filteredCities = [];
   double? _selectedGpaScale;
-  bool _isEmailUsed = false;
+  final bool _isEmailUsed = false;
   String _originalEmail = '';
 
   final _formKey = GlobalKey<FormState>();
@@ -123,7 +127,7 @@ class _ProfilePageState extends State<ProfilePage> {
             _selectedLocations = List<String>.from(doc['location'] ?? []);
             _locationController.text = _selectedLocations.join(', ');
             _selectedGpaScale =
-                doc['gpaScale'] != null ? doc['gpaScale'].toDouble() : null;
+                doc['gpaScale']?.toDouble();
           });
         }
       }
@@ -279,7 +283,7 @@ class _ProfilePageState extends State<ProfilePage> {
               // Add Save button at the bottom
               const SizedBox(height: 20),
               Center(
-                child: Container(
+                child: SizedBox(
                   width: 140, // Set a fixed width
                   child: ElevatedButton(
                     onPressed: null,

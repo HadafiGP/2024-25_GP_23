@@ -8,7 +8,7 @@ import 'dart:convert';
 import 'dart:async';
 
 class StudentSignupScreen extends StatefulWidget {
-  const StudentSignupScreen({Key? key}) : super(key: key);
+  const StudentSignupScreen({super.key});
 
   @override
   _StudentSignupScreenState createState() => _StudentSignupScreenState();
@@ -26,14 +26,14 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _nationalityController = TextEditingController();
   String? _emailError; // To hold the "email already in use" error
-  List<String> _selectedLocations = [];
+  final List<String> _selectedLocations = [];
   List<String> _filteredCities = [];
   String? _selectedNationality;
 
   List<String> _filteredNationalities = [];
   bool _isLoading = false;
   double? _selectedGpaScale; // Store selected GPA scale
-  List<String> _cities = [
+  final List<String> _cities = [
     'Abha',
     'Al Ahsa',
     'Al Khobar',
@@ -51,7 +51,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     'Taif',
   ];
 
-  List<String> _nationalities = [
+  final List<String> _nationalities = [
     'Algerian',
     'Bahraini',
     'Egyptian',
@@ -72,8 +72,8 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   ];
 
   // Lists for skills and certificates
-  List<TextEditingController> _skillsControllers = [TextEditingController()];
-  List<TextEditingController> _certificatesControllers = [
+  final List<TextEditingController> _skillsControllers = [TextEditingController()];
+  final List<TextEditingController> _certificatesControllers = [
     TextEditingController()
   ];
 

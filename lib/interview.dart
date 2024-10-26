@@ -41,7 +41,7 @@ class _InterviewPageState extends State<InterviewPage> {
 
   List<ChatMessage> _messages =
       <ChatMessage>[]; //A list that store all the messages.
-  List<ChatMessage> _displayedMessages =
+  final List<ChatMessage> _displayedMessages =
       []; //A list that store the messages displayed in the UI
   Timer?
       _ITimer; //A timer instance that starts a timer with a specific duration when used.
@@ -350,9 +350,9 @@ class _InterviewPageState extends State<InterviewPage> {
       floatingActionButton: Container(
         margin: const EdgeInsets.only(bottom: 590.0),
         child: FloatingActionButton(
-          onPressed: () => _showPreviousInterviews(), // Navigate to history
+          onPressed: () => _showPreviousInterviews(),
+          mini: true, // Navigate to history
           child: const Icon(Icons.history),
-          mini: true,
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -845,12 +845,12 @@ class PastInterviewsScreen extends StatelessWidget {
       lastName: "",
       profileImage: "https://i.imgur.com/Be1jZ9c.jpeg");
 
-  PastInterviewsScreen({required List<ChatMessage> messages})
+  PastInterviewsScreen({super.key, required List<ChatMessage> messages})
       : _messages = messages;
 
   @override
   Widget build(BuildContext context) {
-    const messageOptions = const MessageOptions(
+    const messageOptions = MessageOptions(
       currentUserContainerColor: Colors.cyan,
       containerColor: Color(0xFF113F67),
       textColor: Colors.white,

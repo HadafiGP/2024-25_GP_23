@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hadafi_application/training_provider_profile.dart';
 
 class TrainingProviderHomePage extends StatelessWidget {
+  const TrainingProviderHomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

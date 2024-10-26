@@ -26,11 +26,11 @@ class _TrainingProviderSignupScreenState
   final TextEditingController _locationController = TextEditingController();
 
   String? _emailError; // To hold the "email already in use" error
-  List<String> _selectedLocations = [];
+  final List<String> _selectedLocations = [];
   List<String> _filteredCities = [];
   bool _isLoading = false;
 
-  List<String> _cities = [
+  final List<String> _cities = [
     'Abha',
     'Al Ahsa',
     'Al Khobar',
