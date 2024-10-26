@@ -67,7 +67,7 @@ class _InterviewPageState extends State<InterviewPage> {
   String userKey = ""; // String to save the user generated keys
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final TextEditingController _messageController = TextEditingController(); 
+  final TextEditingController _messageController = TextEditingController();
   final FocusNode _focusNode =
       FocusNode(); // used for the input field focus effect
 
@@ -536,7 +536,6 @@ class _InterviewPageState extends State<InterviewPage> {
 
   // Make the chatbot ask the questions one at a time
   Future<void> askQuestions(List<Map<String, dynamic>> messagesHistory) async {
-    print("inside askQuestions");
     isWaiting = true;
 
     if (!noMoreQuestions) {
@@ -571,7 +570,6 @@ class _InterviewPageState extends State<InterviewPage> {
 
   // Set an interview timer of 10 minutes and send the last question of the interview after the timer ends.
   void endInterview() {
-    print("Inside SEInterview");
     _ITimer = Timer(IDuration, () async {
       Timer.periodic(Duration(milliseconds: 100), (timer) async {
         if (isWaiting == false) {
@@ -621,8 +619,6 @@ class _InterviewPageState extends State<InterviewPage> {
 
   //sends a feedback on all the interview questions after the interview ends or when the user types "stop". Calls restartInterviewQuestion() after sneding the feedback
   void interviewFeedback() async {
-    print("Inside interviewFeedback");
-
     // Set typing indicator before feedback
     setState(() {
       isTyping = true;
@@ -647,8 +643,6 @@ class _InterviewPageState extends State<InterviewPage> {
         _messagesHistory.where((msg) => msg["role"] == "user").length;
     if (!hasHistory || messageCount == 1) {
       setState(() {
-        print("inside no history");
-
         // Show typing indicator before "There are no interview answers"
         isTyping = true;
 
@@ -673,7 +667,6 @@ class _InterviewPageState extends State<InterviewPage> {
             false; // Stop typing indicator after "There are no interview answers"
       });
     } else {
-      print("inside history");
       final request = ChatCompleteText(
         model: Gpt4ChatModel(),
         messages: [
@@ -701,7 +694,6 @@ class _InterviewPageState extends State<InterviewPage> {
         saveHistoryMessages(); //save messages permantely
         sentFeedback = true;
         isTyping = false; // Stop typing indicator after feedback
-        print("outside interview");
       });
     }
 
@@ -718,8 +710,6 @@ class _InterviewPageState extends State<InterviewPage> {
 
   //Sends the restart question.
   void restartInterviewQuestion() async {
-    print("Inside restartInterviewQuestion");
-
     // Show typing indicator before "Would you like to have another interview?"
     setState(() {
       isTyping = true;
@@ -753,7 +743,6 @@ class _InterviewPageState extends State<InterviewPage> {
   //Handles the restart logic by cleaning the UI, resetting the variables, and calling _handleInitialMessage(character)
   void restartInterview() {
     _ITimer?.cancel();
-    print("Inside restart");
 
     // Show typing indicator before "Your new interview will start now."
     setState(() {

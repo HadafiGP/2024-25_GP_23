@@ -7,7 +7,7 @@ class TrainingProviderHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF3F9FB),
+      backgroundColor: Color(0xFFF3F9FB), // Softer background color
       appBar: AppBar(
         backgroundColor: Color(0xFF113F67),
         iconTheme: IconThemeData(color: Colors.white), // White menu button
@@ -17,7 +17,7 @@ class TrainingProviderHomePage extends StatelessWidget {
             child: Image.asset(
               'Hadafi/images/LOGO.png', // Path to the logo
               fit: BoxFit.contain,
-              height: 50, // Adjust logo size
+              height: 50,
             ),
           ),
         ],
@@ -28,25 +28,7 @@ class TrainingProviderHomePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Center(
-              child: ElevatedButton.icon(
-                style:ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF113F67),
-                  padding:EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                ),
-                onPressed: (){
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text('Navigate to Post New Opportunity page'),
-                  ));
-                },
-                icon: Icon(Icons.add, color: Colors.white),//plus icon
-                label: Text(
-                  'Post New Opportunity',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
+            // Center the title
             Center(
               child: Text(
                 'Posted Opportunities',
@@ -57,6 +39,7 @@ class TrainingProviderHomePage extends StatelessWidget {
                 ),
               ),
             ),
+            SizedBox(height: 20),
             Expanded(
               child: ListView.builder(
                 itemCount: 5, // Example number of posted opportunities
@@ -77,9 +60,17 @@ class TrainingProviderHomePage extends StatelessWidget {
                         ],
                       ),
                       child: ListTile(
-                        title: Text('Opportunity ${index + 1}'),
-                        subtitle:
-                            Text('Details about opportunity ${index + 1}'),
+                        title: Text(
+                          'Opportunity ${index + 1}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF113F67),
+                          ),
+                        ),
+                        subtitle: Text(
+                          'Details about opportunity ${index + 1}',
+                          style: TextStyle(color: Colors.grey[700]),
+                        ),
                         trailing: IconButton(
                           icon: Icon(Icons.delete, color: Colors.red),
                           onPressed: () {
@@ -92,6 +83,51 @@ class TrainingProviderHomePage extends StatelessWidget {
                     ),
                   );
                 },
+              ),
+            ),
+
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    InkWell(
+                      borderRadius: BorderRadius.circular(30),
+                      onTap: () {},
+                      child: Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xFF113F67),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 8,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.add,
+                          size: 30,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      'Post New Opportunity',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF113F67),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -118,23 +154,23 @@ class TrainingProviderHomePage extends StatelessWidget {
               ),
             ),
             ListTile(
-              leading:
-                  Icon(Icons.person, color: Color(0xFF113F67)), // Profile icon
+              leading: Icon(Icons.person, color: Color(0xFF113F67)),
               title: Text('Profile'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => ProviderProfilePage()),
+                    builder: (context) => ProviderProfilePage(),
+                  ),
                 );
               },
             ),
             ListTile(
-              leading: Icon(Icons.home, color: Color(0xFF113F67)), // Home icon
+              leading: Icon(Icons.home, color: Color(0xFF113F67)),
               title: Text('Home'),
               onTap: () {
-                Navigator.pop(context); // Close the drawer
+                Navigator.pop(context);
               },
             ),
             Divider(),
