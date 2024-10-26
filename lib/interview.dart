@@ -67,7 +67,8 @@ class _InterviewPageState extends State<InterviewPage> {
   String userKey = ""; // String to save the user generated keys
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final TextEditingController _messageController = TextEditingController();
+  final TextEditingController _messageController =
+      TextEditingController(); //controller for sending with enter
   final FocusNode _focusNode =
       FocusNode(); // used for the input field focus effect
 
