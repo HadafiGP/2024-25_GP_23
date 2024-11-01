@@ -29,6 +29,12 @@ class _TrainingProviderSignupScreenState
   final List<String> _selectedLocations = [];
   List<String> _filteredCities = [];
   bool _isLoading = false;
+  bool _isPasswordVisible = false;
+  bool _isMinLength = false;
+  bool _hasUppercase = false;
+  bool _hasLowercase = false;
+  bool _hasNumber = false;
+  bool _hasSpecialChar = false;
 
   final List<String> _cities = [
     'Abha',
@@ -81,6 +87,54 @@ class _TrainingProviderSignupScreenState
     'jejetp@gmail.com',
     'lamatp@gmail.com',
   ];
+
+  void _validatePassword(String password) {
+    setState(() {
+      _isMinLength = password.length >= 8;
+      _hasUppercase = RegExp(r'[A-Z]').hasMatch(password);
+      _hasLowercase = RegExp(r'[a-z]').hasMatch(password);
+      _hasNumber = RegExp(r'[0-9]').hasMatch(password);
+      _hasSpecialChar = RegExp(r'[!@#\$&*~]').hasMatch(password);
+    });
+  }
+
+  Widget _buildPasswordGuidance() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildPasswordCriteriaRow(
+            "Must be at least 8 characters.", _isMinLength),
+        _buildPasswordCriteriaRow(
+            "Must contain an uppercase letter.", _hasUppercase),
+        _buildPasswordCriteriaRow(
+            "Must contain a lowercase letter.", _hasLowercase),
+        _buildPasswordCriteriaRow("Must contain a number.", _hasNumber),
+        _buildPasswordCriteriaRow(
+            "Must contain a special character.", _hasSpecialChar),
+        const SizedBox(height: 10),
+      ],
+    );
+  }
+
+  Widget _buildPasswordCriteriaRow(String text, bool isValid) {
+    return Row(
+      children: [
+        Icon(
+          isValid ? Icons.check_circle : Icons.cancel,
+          color: isValid ? Colors.green : Colors.red,
+          size: 20,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          text,
+          style: TextStyle(
+            color: isValid ? Colors.green : Colors.red,
+            fontSize: 14,
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   void initState() {
@@ -185,27 +239,43 @@ class _TrainingProviderSignupScreenState
                       const SizedBox(height: 15),
 
                       // Password field
-                      _buildTextField('Password', _passwordController,
-                          isPassword: true, validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your password.';
-                        }
-
-                        // Password constraints:
-                        final passwordValid = value.length >= 8 &&
-                            RegExp(r'[A-Z]').hasMatch(value) &&
-                            RegExp(r'[a-z]').hasMatch(value) &&
-                            RegExp(r'[0-9]').hasMatch(value) &&
-                            RegExp(r'[!@#\$&*~]').hasMatch(value);
-
-                        if (!passwordValid) {
-                          return 'The password must be at least 8 characters long, include \nuppercase/lowercase letters, and at least one number \nand special character.';
-                        }
-
-                        return null;
-                      }),
+                      // Password field with eye icon and guidance
+                      _buildTextField(
+                        'Password',
+                        _passwordController,
+                        isPassword: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your password.';
+                          }
+                          // Password constraints
+                          final passwordValid = value.length >= 8 &&
+                              RegExp(r'[A-Z]').hasMatch(value) &&
+                              RegExp(r'[a-z]').hasMatch(value) &&
+                              RegExp(r'[0-9]').hasMatch(value) &&
+                              RegExp(r'[!@#\$&*~]').hasMatch(value);
+                          if (!passwordValid) {
+                            return 'The password must be at least 8 characters long, include \nuppercase/lowercase letters, and at least one number \nand special character.';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) => _validatePassword(value),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isPasswordVisible = !_isPasswordVisible;
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      _buildPasswordGuidance(), // Display password guidance here
                       const SizedBox(height: 15),
-
                       // location selector
                       _buildLocationSelector(),
                       const SizedBox(height: 25),
@@ -243,47 +313,79 @@ class _TrainingProviderSignupScreenState
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller,
-      {bool isPassword = false, String? Function(String?)? validator}) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    bool isPassword = false,
+    String? Function(String?)? validator,
+    Widget? suffixIcon,
+    Function(String)? onChanged,
+  }) {
     return TextFormField(
       controller: controller,
-      obscureText: isPassword,
+      obscureText: isPassword && !_isPasswordVisible, // Toggle visibility
       validator: validator,
+      onChanged: onChanged,
       decoration: InputDecoration(
         labelText: label,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        suffixIcon: suffixIcon, // password eye icon
       ),
     );
   }
 
   Widget _buildLocationSelector() {
-    return GestureDetector(
-      onTap: () {
-        _showLocationDialog();
-      },
-      child: AbsorbPointer(
-        child: TextFormField(
-          controller: _locationController,
-          decoration: InputDecoration(
-            labelText: 'Select Location',
-            suffixIcon: const Icon(Icons.arrow_drop_down),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-          validator: (value) {
-            if (_selectedLocations.isEmpty) {
-              return 'Please select at least one location';
-            }
-            return null;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () {
+            _showLocationDialog();
           },
+          child: AbsorbPointer(
+            child: TextFormField(
+              decoration: InputDecoration(
+                labelText: 'Select Locations',
+                suffixIcon: const Icon(Icons.arrow_drop_down),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              controller: TextEditingController(
+                  text: _selectedLocations
+                      .join(', ')), // Update field with selected locations
+              validator: (value) {
+                if (_selectedLocations.isEmpty) {
+                  return 'Please select at least one location';
+                }
+                return null;
+              },
+            ),
+          ),
         ),
-      ),
+        const SizedBox(height: 8), // Space between TextFormField and Chips
+
+        // Display selected locations as Chips
+        Wrap(
+          spacing: 6.0,
+          runSpacing: 6.0,
+          children: _selectedLocations.map((location) {
+            return Chip(
+              label: Text(location),
+              onDeleted: () {
+                setState(() {
+                  _selectedLocations
+                      .remove(location); // Remove location from list
+                });
+              },
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 
   void _showLocationDialog() {
-    setState(() {
-      _filteredCities = _cities;
-    });
+    _filteredCities = _cities; // Reset the filtered cities list
 
     showDialog(
       context: context,
@@ -340,8 +442,9 @@ class _TrainingProviderSignupScreenState
               actions: [
                 ElevatedButton(
                   onPressed: () {
-                    _locationController.text = _selectedLocations.join(', ');
-                    Navigator.of(context).pop();
+                    Navigator.of(context).pop(); // Close dialog
+                    setState(
+                        () {}); // Refresh the main widget state to reflect changes
                   },
                   child: Text('OK'),
                 ),
@@ -350,7 +453,12 @@ class _TrainingProviderSignupScreenState
           },
         );
       },
-    );
+    ).then((_) {
+      setState(() {
+        _locationController.text = _selectedLocations
+            .join(', '); // Ensure field text is updated after dialog
+      });
+    });
   }
 
   @override

@@ -21,18 +21,200 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _gpaController = TextEditingController();
   final TextEditingController _majorController = TextEditingController();
+  final TextEditingController _gpaScaleController = TextEditingController();
+  final TextEditingController _gpaController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _nationalityController = TextEditingController();
-  String? _emailError; // To hold the "email already in use" error
+  final List<double> _gpaScales = [4.0, 5.0]; // GPA scale options
   final List<String> _selectedLocations = [];
+  final List<String> _selectedTechnicalSkills = [];
+  final List<String> _selectedManagementSkills = [];
+  final List<String> _selectedSoftSkills = [];
+  List<String> _filteredMajors = [];
   List<String> _filteredCities = [];
-  String? _selectedNationality;
-
   List<String> _filteredNationalities = [];
-  bool _isLoading = false;
+  String? _emailError; // To hold the "email already in use" error
+  String? _selectedNationality;
+  String? _selectedMajor;
+
   double? _selectedGpaScale; // Store selected GPA scale
+
+  bool _isSkillsSelected = true; // Tracks if at least one skill is selected
+  bool _isCheckingEmail = false; // show loading indicator for email check
+  bool _isLoading = false;
+  bool _isPasswordVisible = false;
+  bool _isMinLength = false;
+  bool _hasUppercase = false;
+  bool _hasLowercase = false;
+  bool _hasNumber = false;
+  bool _hasSpecialChar = false;
+  int _strengthScore = 0;
+
+  final List<String> _technicalSkills = [
+    "Adobe XD",
+    "Agile",
+    "Angular",
+    "API integration (REST)",
+    "API integration (SOAP)",
+    "ASP.NET",
+    "AWS",
+    "Azure",
+    "Big Data Analytics",
+    "Bitbucket",
+    "Blockchain",
+    "C#",
+    "C++",
+    "Cloud Architecture",
+    "Confluence",
+    "CRM systems",
+    "CSS",
+    "Cybersecurity",
+    "Data Analysis",
+    "Data Mining",
+    "Data Visualization",
+    "Database Design",
+    "DevOps",
+    "Docker",
+    "Encryption",
+    "Excel",
+    "Express",
+    "Figma",
+    "Firebase",
+    "Financial Forecasting",
+    "Financial Modeling",
+    "Firewalls",
+    "Git and GitHub",
+    "GCP",
+    "Google Ads",
+    "Google Analytics",
+    "Hadoop",
+    "HTML",
+    "Investment Analysis",
+    "Java",
+    "JavaScript",
+    "Jest",
+    "JIRA",
+    "JUnit",
+    "Kubernetes",
+    "Machine Learning",
+    "MATLAB",
+    "Microsoft Office Suite",
+    "MongoDB",
+    "MS Project",
+    "Network Fundamentals",
+    "NoSQL",
+    "Node.js",
+    "NLP",
+    "Object-Oriented Programming (OOP)",
+    "Oracle APEX",
+    "Penetration Testing",
+    "PHP",
+    "PL/SQL",
+    "Postman",
+    "Power BI",
+    "PowerPoint",
+    "Prototyping",
+    "Python",
+    "R Programming",
+    "React",
+    "Ruby",
+    "Selenium",
+    "Sketch",
+    "SQL",
+    "Statistical Analysis",
+    "Supervised/Unsupervised Learning",
+    "SVN",
+    "Swift",
+    "Tableau",
+    "TensorFlow",
+    "Trello",
+    "UI/UX Design",
+    "User Research",
+    "VLOOKUP",
+    "Vue.js",
+    "Waterfall",
+    "Web Development",
+    "Word"
+  ];
+
+  final List<String> _softSkills = [
+    "Accountability",
+    "Adaptability",
+    "Analytical Thinking",
+    "Attention to Detail",
+    "Collaboration and Teamwork",
+    "Communication",
+    "Conflict Resolution",
+    "Creative Solutions",
+    "Critical Thinking",
+    "Customer Orientation",
+    "Decision Making",
+    "Dependability",
+    "Emotional Intelligence",
+    "Empathy",
+    "Flexibility to Changing Environments",
+    "Goal-Oriented Mindset",
+    "Influence",
+    "Interpersonal Skills",
+    "Leadership",
+    "Logical Reasoning",
+    "Motivational Skills",
+    "Negotiation",
+    "Networking",
+    "Openness to New Ideas",
+    "Organization",
+    "Patience",
+    "Presentation Skills",
+    "Problem Solving",
+    "Proactive Initiative",
+    "Public Speaking",
+    "Relationship Building",
+    "Resilience",
+    "Self-Motivation",
+    "Strong Work Ethic",
+    "Stress Management",
+    "Task Prioritization",
+    "Thoroughness",
+    "Time Management",
+    "Verbal and Written Clarity",
+    "Workplace Etiquette",
+    "Working Effectively Within Teams"
+  ];
+
+  final List<String> _managementSkills = [
+    "Adapting to Organizational Changes",
+    "Budgeting Tools",
+    "Business Strategy",
+    "Change Management",
+    "Client Relationship Management",
+    "Conflict Resolution",
+    "Cost Analysis",
+    "Crisis Management",
+    "Delegation",
+    "Expense Tracking",
+    "Facilitating Transitions Smoothly",
+    "Forecasting",
+    "Innovation Management",
+    "Leadership",
+    "Mentorship",
+    "Operational Planning",
+    "People Management",
+    "Performance Evaluation",
+    "Process Improvement",
+    "Project Lifecycle Management",
+    "Project Planning and Coordination",
+    "Resource Management",
+    "Risk Assessment",
+    "Stakeholder Management",
+    "Strategic Planning",
+    "Supply Chain Management",
+    "Task Prioritization",
+    "Team Building",
+    "Timeline Setting",
+    "Vendor Management"
+  ];
+
   final List<String> _cities = [
     'Abha',
     'Al Ahsa',
@@ -71,11 +253,110 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     'Other',
   ];
 
-  // Lists for skills and certificates
-  final List<TextEditingController> _skillsControllers = [TextEditingController()];
-  final List<TextEditingController> _certificatesControllers = [
-    TextEditingController()
+// List of all available majors (no college dependency)
+  final List<String> _majors = [
+    'Clinical Laboratory Sciences',
+    'Occupational Therapy',
+    'Physical Therapy',
+    'Prosthetics and Orthotics',
+    'Radiology',
+    'Architecture',
+    'Graphic Design',
+    'Industrial Design',
+    'Interior Design',
+    'Urban Planning',
+    'Arabic Language and Literature',
+    'English Language and Literature',
+    'Geography',
+    'History',
+    'Psychology',
+    'Sociology',
+    'Accounting',
+    'Business Administration',
+    'Finance',
+    'Human Resources Management',
+    'International Business',
+    'Management Information Systems',
+    'Marketing',
+    'Supply Chain Management',
+    'Artificial Intelligence',
+    'Computer Science',
+    'Cybersecurity',
+    'Data Science',
+    'Information Systems',
+    'Information Technology',
+    'Software Engineering',
+    'Dentistry',
+    'Oral and Maxillofacial Surgery',
+    'Orthodontics',
+    'Art Education',
+    'Counseling and Guidance',
+    'Educational Technology',
+    'Early Childhood Education',
+    'Physical Education',
+    'Special Education',
+    'Biomedical Engineering',
+    'Chemical Engineering',
+    'Civil Engineering',
+    'Electrical Engineering',
+    'Environmental Engineering',
+    'Industrial Engineering',
+    'Mechanical Engineering',
+    'Petroleum Engineering',
+    'Environmental Studies',
+    'Geographical Information Systems (GIS)',
+    'Geology',
+    'Clinical Nutrition',
+    'Health Informatics',
+    'Medical Laboratory Sciences',
+    'Nursing',
+    'Public Health',
+    'Radiologic Technology',
+    'Respiratory Therapy',
+    'Islamic History',
+    'Islamic Studies',
+    'Quranic Studies',
+    'Islamic Law (Sharia)',
+    'Law',
+    'Medicine (MBBS)',
+    'Surgery',
+    'Clinical Pharmacy',
+    'Pharmaceutical Sciences',
+    'Pharmacy',
+    'Biology',
+    'Chemistry',
+    'Environmental Science',
+    'Mathematics',
+    'Physics',
+    'Anthropology',
+    'International Relations',
+    'Political Science',
+    'Social Work',
+    'Agribusiness',
+    'Agricultural Engineering',
+    'Animal Science',
+    'Food Science and Nutrition',
+    'Plant Science'
   ];
+
+  void _validatePassword(String password) {
+    setState(() {
+      _isMinLength = password.length >= 8;
+      _hasUppercase = RegExp(r'[A-Z]').hasMatch(password);
+      _hasLowercase = RegExp(r'[a-z]').hasMatch(password);
+      _hasNumber = RegExp(r'[0-9]').hasMatch(password);
+      _hasSpecialChar = RegExp(r'[!@#\$&*~]').hasMatch(password);
+
+      // Calculate strength score based on criteria met
+      _strengthScore = [
+        _isMinLength,
+        _hasUppercase,
+        _hasLowercase,
+        _hasNumber,
+        _hasSpecialChar
+      ].where((criterion) => criterion).length;
+    });
+  }
 
   @override
   void initState() {
@@ -90,6 +371,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
         });
       }
     });
+    _filteredMajors.addAll(_majors); // Initialize with all majors
   }
 
   @override
@@ -160,33 +442,54 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                         },
                       ),
                       const SizedBox(height: 15),
-                      _buildTextField('Password', _passwordController,
-                          isPassword: true, validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your password.';
-                        }
+                      _buildTextField(
+                        'Password',
+                        _passwordController,
+                        isPassword: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your password.';
+                          }
 
-                        // Password constraints:
-                        final passwordValid = value.length >= 8 &&
-                            RegExp(r'[A-Z]').hasMatch(value) &&
-                            RegExp(r'[a-z]').hasMatch(value) &&
-                            RegExp(r'[0-9]').hasMatch(value) &&
-                            RegExp(r'[!@#\$&*~]').hasMatch(value);
+                          // Password constraints
+                          final passwordValid = value.length >= 8 &&
+                              RegExp(r'[A-Z]').hasMatch(value) &&
+                              RegExp(r'[a-z]').hasMatch(value) &&
+                              RegExp(r'[0-9]').hasMatch(value) &&
+                              RegExp(r'[!@#\$&*~]').hasMatch(value);
 
-                        if (!passwordValid) {
-                          return 'The password must be at least 8 characters long, include \nuppercase/lowercase letters, and at least one number \nand special character.';
-                        }
+                          if (!passwordValid) {
+                            return 'Password must be at least 8 characters long, include \nuppercase/lowercase letters, and at least one number \nand special character.';
+                          }
 
-                        return null;
-                      }),
+                          return null;
+                        },
+                        onChanged: (value) =>
+                            _validatePassword(value), // Call validation method
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isPasswordVisible = !_isPasswordVisible;
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      _buildPasswordGuidance(), //password guidance here
+
                       const SizedBox(height: 15),
-                      _buildTextField('Major', _majorController,
-                          validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your major';
-                        }
-                        return null;
-                      }),
+
+                      // Major Dropdown
+                      _buildMajorDropdown(),
+                      const SizedBox(height: 15),
+                      _buildLocationSelector(),
+                      const SizedBox(height: 15),
+                      _buildNationalitySelector(),
                       const SizedBox(height: 15),
 
 // GPA Scale and GPA Field Placement
@@ -194,6 +497,9 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                         crossAxisAlignment: CrossAxisAlignment
                             .start, // Align buttons to the left
                         children: [
+                          _buildGpaScaleSelector(), // GPA Scale Selector Field
+
+                          const SizedBox(height: 10),
                           // GPA Input Field
                           _buildTextField(
                             'GPA',
@@ -242,81 +548,64 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                             enabled: _selectedGpaScale !=
                                 null, // Disable until scale is selected
                           ),
+                        ],
+                      ),
 
-                          const SizedBox(height: 5),
+                      const SizedBox(height: 25),
 
-                          // GPA Scale Buttons
-                          Row(
-                            children: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _selectedGpaScale = 4.0;
-                                    _gpaController
-                                        .clear(); // Clear the GPA field if scale changes
-                                  });
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: _selectedGpaScale == 4.0
-                                      ? Color(0xFF113F67)
-                                      : Colors.grey,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 11, vertical: 10),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'GPA Scale 4.00',
-                                  style: TextStyle(
-                                      fontSize: 12, color: Colors.white),
-                                ),
-                              ),
-                              const SizedBox(width: 20),
-                              ElevatedButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _selectedGpaScale = 5.0;
-                                    _gpaController
-                                        .clear(); // Clear the GPA field if scale changes
-                                  });
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: _selectedGpaScale == 5.0
-                                      ? Color(0xFF113F67)
-                                      : Colors.grey,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 11, vertical: 10),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'GPA Scale 5.00',
-                                  style: TextStyle(
-                                      fontSize: 12, color: Colors.white),
-                                ),
-                              ),
-                            ],
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Skills title
+                          Text(
+                            "Skills:",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF113F67),
+                            ),
+                          ),
+                          // Subtitle with conditional color change
+                          Text(
+                            "Please choose at least one skill from any category",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: _isSkillsSelected
+                                  ? Color(0xFF113F67)
+                                  : Colors.red,
+                            ),
                           ),
                         ],
                       ),
 
+                      const SizedBox(height: 10),
+                      _buildManagementSkillsSelector(), // Management Skills Dropdown
                       const SizedBox(height: 15),
-                      _buildDynamicFields(
-                          'Skill', _skillsControllers, _addSkill),
+                      _buildSoftSkillsSelector(), // Soft Skills Dropdown
                       const SizedBox(height: 15),
-                      _buildDynamicFields('Certificate',
-                          _certificatesControllers, _addCertificate),
-                      const SizedBox(height: 15),
-                      _buildLocationSelector(),
-                      const SizedBox(height: 15),
-                      _buildNationalitySelector(),
+                      _buildTechnicalSkillsSelector(), // Technical Skills Dropdown
                       const SizedBox(height: 25),
                       _isLoading
                           ? CircularProgressIndicator()
-                          : ElevatedButton(
-                              onPressed: _signUp,
+                          : // Sign Up button with separate skills validation
+                          ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  // Manually validate skills selection
+                                  _isSkillsSelected = _selectedTechnicalSkills
+                                          .isNotEmpty ||
+                                      _selectedManagementSkills.isNotEmpty ||
+                                      _selectedSoftSkills.isNotEmpty;
+                                });
+
+                                if (_formKey.currentState!.validate() &&
+                                    _isSkillsSelected) {
+                                  _signUp(); // Proceed if form and skills validation pass
+                                } else {
+                                  // No additional notification or red box will appear
+                                  // Remove or leave empty if you do not want to notify the user
+                                }
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF113F67),
                                 padding: const EdgeInsets.symmetric(
@@ -330,8 +619,9 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                               child: Text(
                                 'Sign Up',
                                 style: TextStyle(
-                                    fontSize: 18,
-                                    color: const Color(0xFFF3F9FB)),
+                                  fontSize: 18,
+                                  color: const Color(0xFFF3F9FB),
+                                ),
                               ),
                             ),
                     ],
@@ -345,109 +635,83 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     );
   }
 
-  // Dynamic input fields for skills and certificates
-  Widget _buildDynamicFields(
-      String label, List<TextEditingController> controllers, Function() onAdd) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    bool isPassword = false,
+    bool enabled = true,
+    String? Function(String?)? validator,
+    Function(String)? onChanged, // Add onChanged parameter
+    Widget? suffixIcon, // New parameter for suffix icon
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: isPassword && !_isPasswordVisible, // Toggle visibility
+      validator: validator,
+      onChanged: onChanged,
+      enabled: enabled,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        suffixIcon: suffixIcon, //suffix icon
+      ),
+    );
+  }
+
+  Widget _buildPasswordGuidance() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ListView.builder(
-          shrinkWrap: true,
-          itemCount: controllers.length,
-          itemBuilder: (context, index) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: controllers[index],
-                      decoration: InputDecoration(
-                        labelText: '$label ${index + 1}',
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter at least one $label';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  if (index > 0) // Remove only for additional fields
-                    IconButton(
-                      icon: Icon(Icons.remove_circle),
-                      onPressed: () {
-                        setState(() {
-                          controllers.removeAt(index);
-                        });
-                      },
-                    ),
-                ],
-              ),
-            );
-          },
+        _buildPasswordCriteriaRow(
+            "Must be at least 8 characters.", _isMinLength),
+        _buildPasswordCriteriaRow(
+            "Must contain an uppercase letter.", _hasUppercase),
+        _buildPasswordCriteriaRow(
+            "Must contain a lowercase letter.", _hasLowercase),
+        _buildPasswordCriteriaRow("Must contain a number.", _hasNumber),
+        _buildPasswordCriteriaRow(
+            "Must contain a special character.", _hasSpecialChar),
+        const SizedBox(height: 10),
+      ],
+    );
+  }
+
+  Widget _buildPasswordCriteriaRow(String text, bool isValid) {
+    return Row(
+      children: [
+        Icon(
+          isValid ? Icons.check_circle : Icons.cancel,
+          color: isValid ? Colors.green : Colors.red,
+          size: 20,
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            TextButton.icon(
-              onPressed: onAdd,
-              icon: Icon(Icons.add_circle),
-              label: Text('Add $label'),
-            ),
-          ],
+        const SizedBox(width: 8),
+        Text(
+          text,
+          style: TextStyle(
+            color: isValid ? Colors.green : Colors.red,
+            fontSize: 14,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller,
-      {bool isPassword = false,
-      bool enabled = true,
-      String? Function(String?)? validator}) {
-    return TextFormField(
-      controller: controller,
-      obscureText: isPassword,
-      validator: validator,
-      enabled: enabled,
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
-  }
-
-  // Add new skill field
-  void _addSkill() {
-    setState(() {
-      _skillsControllers.add(TextEditingController());
-    });
-  }
-
-  // Add new certificate field
-  void _addCertificate() {
-    setState(() {
-      _certificatesControllers.add(TextEditingController());
-    });
-  }
-
-  Widget _buildLocationSelector() {
+  Widget _buildMajorDropdown() {
     return GestureDetector(
       onTap: () {
-        _showLocationDialog();
+        _showMajorDialog();
       },
       child: AbsorbPointer(
         child: TextFormField(
           decoration: InputDecoration(
-            labelText: 'Select Locations',
+            labelText: 'Select Major',
             suffixIcon: const Icon(Icons.arrow_drop_down),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
-          controller: _locationController,
+          controller: _majorController, // Use the dedicated controller
           validator: (value) {
-            if (_selectedLocations.isEmpty) {
-              return 'Please select at least one location';
+            if (_selectedMajor == null) {
+              return 'Please choose your major';
             }
             return null;
           },
@@ -456,10 +720,334 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     );
   }
 
-  void _showLocationDialog() {
+  void _showMajorDialog() {
     setState(() {
-      _filteredCities = _cities;
+      _filteredMajors = _majors; // Initialize with all majors
     });
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Column(
+                children: [
+                  Text('Select Major'),
+                  SizedBox(height: 10),
+                  TextField(
+                    decoration: InputDecoration(
+                      labelText: 'Search Major',
+                      prefixIcon: Icon(Icons.search),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        _filteredMajors = _majors
+                            .where((major) => major
+                                .toLowerCase()
+                                .startsWith(value.toLowerCase()))
+                            .toList();
+                      });
+                    },
+                  ),
+                ],
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: _filteredMajors.map((major) {
+                    return RadioListTile<String>(
+                      title: Text(major),
+                      value: major,
+                      groupValue: _selectedMajor,
+                      onChanged: (String? value) {
+                        setState(() {
+                          _selectedMajor =
+                              value; // Only update the selected major
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    if (_selectedMajor != null) {
+                      _majorController.text =
+                          _selectedMajor!; // Update controller text
+                    }
+                    Navigator.of(context)
+                        .pop(); // Close dialog when OK is pressed
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildTechnicalSkillsSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () {
+            _showSkillsDialog("Select Technical Skills", _technicalSkills,
+                _selectedTechnicalSkills);
+          },
+          child: AbsorbPointer(
+            child: TextFormField(
+              decoration: InputDecoration(
+                labelText: 'Select Technical Skills',
+                suffixIcon: const Icon(Icons.arrow_drop_down),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              controller: TextEditingController(
+                text: _selectedTechnicalSkills
+                    .join(', '), // Display selected skills as text
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8), // Space between TextFormField and Chips
+
+        // Display selected skills as Chips
+        Wrap(
+          spacing: 6.0,
+          runSpacing: 6.0,
+          children: _selectedTechnicalSkills.map((skill) {
+            return Chip(
+              label: Text(skill),
+              onDeleted: () {
+                setState(() {
+                  _selectedTechnicalSkills
+                      .remove(skill); // Remove skill from list
+                });
+              },
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+// Management Skills Dropdown
+  Widget _buildManagementSkillsSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () {
+            _showSkillsDialog("Select Management Skills", _managementSkills,
+                _selectedManagementSkills);
+          },
+          child: AbsorbPointer(
+            child: TextFormField(
+              decoration: InputDecoration(
+                labelText: 'Select Management Skills',
+                suffixIcon: const Icon(Icons.arrow_drop_down),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              controller: TextEditingController(
+                text: _selectedManagementSkills.join(', '),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8), // Space between TextFormField and Chips
+
+        // Display selected skills as Chips
+        Wrap(
+          spacing: 6.0,
+          runSpacing: 6.0,
+          children: _selectedManagementSkills.map((skill) {
+            return Chip(
+              label: Text(skill),
+              onDeleted: () {
+                setState(() {
+                  _selectedManagementSkills
+                      .remove(skill); // Remove skill from list
+                });
+              },
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+// Soft Skills Dropdown
+  Widget _buildSoftSkillsSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () {
+            _showSkillsDialog(
+                "Select Soft Skills", _softSkills, _selectedSoftSkills);
+          },
+          child: AbsorbPointer(
+            child: TextFormField(
+              decoration: InputDecoration(
+                labelText: 'Select Soft Skills',
+                suffixIcon: const Icon(Icons.arrow_drop_down),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              controller: TextEditingController(
+                text: _selectedSoftSkills.join(', '),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8), // Space between TextFormField and Chips
+
+        // Display selected skills as Chips
+        Wrap(
+          spacing: 6.0,
+          runSpacing: 6.0,
+          children: _selectedSoftSkills.map((skill) {
+            return Chip(
+              label: Text(skill),
+              onDeleted: () {
+                setState(() {
+                  _selectedSoftSkills.remove(skill); // Remove skill from list
+                });
+              },
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  void _showSkillsDialog(
+      String title, List<String> skillsList, List<String> selectedSkills) {
+    List<String> filteredSkillsList =
+        List.from(skillsList); // Make a copy for filtering
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Column(
+                children: [
+                  Text(title),
+                  const SizedBox(height: 10),
+                  TextField(
+                    decoration: InputDecoration(
+                      labelText: 'Search Skills',
+                      prefixIcon: Icon(Icons.search),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        filteredSkillsList = skillsList
+                            .where((skill) => skill
+                                .toLowerCase()
+                                .startsWith(value.toLowerCase()))
+                            .toList();
+                      });
+                    },
+                  ),
+                ],
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: filteredSkillsList.map((skill) {
+                    return CheckboxListTile(
+                      title: Text(skill),
+                      value: selectedSkills.contains(skill),
+                      onChanged: (bool? value) {
+                        setState(() {
+                          if (value == true) {
+                            selectedSkills.add(skill);
+                          } else {
+                            selectedSkills.remove(skill);
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    setState(
+                        () {}); // This updates the selected skills display when dialog closes
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    ).then((_) {
+      // Make sure to update the main screen after dialog closes to reflect selected skills as chips
+      setState(() {});
+    });
+  }
+
+  Widget _buildLocationSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () {
+            _showLocationDialog();
+          },
+          child: AbsorbPointer(
+            child: TextFormField(
+              decoration: InputDecoration(
+                labelText: 'Select Locations',
+                suffixIcon: const Icon(Icons.arrow_drop_down),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              controller: TextEditingController(
+                  text: _selectedLocations
+                      .join(', ')), // Update field with selected locations
+              validator: (value) {
+                if (_selectedLocations.isEmpty) {
+                  return 'Please select at least one location';
+                }
+                return null;
+              },
+            ),
+          ),
+        ),
+        const SizedBox(height: 8), // Space between TextFormField and Chips
+
+        // Display selected locations as Chips
+        Wrap(
+          spacing: 6.0,
+          runSpacing: 6.0,
+          children: _selectedLocations.map((location) {
+            return Chip(
+              label: Text(location),
+              onDeleted: () {
+                setState(() {
+                  _selectedLocations
+                      .remove(location); // Remove location from list
+                });
+              },
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  void _showLocationDialog() {
+    _filteredCities = _cities; // Reset the filtered cities list
 
     showDialog(
       context: context,
@@ -516,8 +1104,9 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
               actions: [
                 ElevatedButton(
                   onPressed: () {
-                    _locationController.text = _selectedLocations.join(', ');
-                    Navigator.of(context).pop();
+                    Navigator.of(context).pop(); // Close dialog
+                    setState(
+                        () {}); // Refresh the main widget state to reflect changes
                   },
                   child: Text('OK'),
                 ),
@@ -526,7 +1115,12 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
           },
         );
       },
-    );
+    ).then((_) {
+      setState(() {
+        _locationController.text = _selectedLocations
+            .join(', '); // Ensure field text is updated after dialog
+      });
+    });
   }
 
   Widget _buildNationalitySelector() {
@@ -617,6 +1211,62 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     );
   }
 
+// GPA Scale Selector
+  Widget _buildGpaScaleSelector() {
+    return GestureDetector(
+      onTap: () {
+        _showGpaScaleDialog();
+      },
+      child: AbsorbPointer(
+        child: TextFormField(
+          controller: _gpaScaleController,
+          decoration: InputDecoration(
+            labelText: 'Select GPA Scale',
+            suffixIcon: const Icon(Icons.arrow_drop_down),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          validator: (value) {
+            if (_selectedGpaScale == null) {
+              return 'Please select a GPA scale';
+            }
+            return null;
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showGpaScaleDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Select GPA Scale'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: _gpaScales.map((scale) {
+              return RadioListTile<double>(
+                title: Text('GPA Scale $scale'),
+                value: scale,
+                groupValue: _selectedGpaScale,
+                onChanged: (double? value) {
+                  setState(() {
+                    _selectedGpaScale = value;
+                    _gpaScaleController.text =
+                        'GPA Scale ${_selectedGpaScale!.toStringAsFixed(1)}';
+                  });
+                  Navigator.of(context).pop();
+                },
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     _emailController
@@ -633,7 +1283,13 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
 
   // Store user data in Firestore and Firebase Authentication with Timeout and Error Handling
   Future<void> _signUp() async {
-    if (!_formKey.currentState!.validate()) {
+    setState(() {
+      // Check if at least one skill is selected
+      _isSkillsSelected = _selectedTechnicalSkills.isNotEmpty ||
+          _selectedManagementSkills.isNotEmpty ||
+          _selectedSoftSkills.isNotEmpty;
+    });
+    if (!_isSkillsSelected || !_formKey.currentState!.validate()) {
       return; // If the form is not valid, return and show errors
     }
 
@@ -657,21 +1313,19 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
         // Encrypt password before saving it to Firestore
         String encryptedPassword = _encryptPassword(_passwordController.text);
 
-        // Collect skills and certificates from dynamic input fields
-        List<String> skills =
-            _skillsControllers.map((controller) => controller.text).toList();
-        List<String> certificates = _certificatesControllers
-            .map((controller) => controller.text)
-            .toList();
+        List<String> allSkills = [
+          ..._selectedTechnicalSkills,
+          ..._selectedManagementSkills,
+          ..._selectedSoftSkills
+        ];
 
         // Store user data in Firestore
         await _firestore.collection('Student').doc(user.uid).set({
           'name': _nameController.text.trim(),
           'email': _emailController.text.trim(),
           'password': encryptedPassword, // Store encrypted password
-          'major': _majorController.text.trim(),
-          'skills': skills, // Save skills as array
-          'certificates': certificates, // Save certificates as array
+          'major': _selectedMajor, // Store selected major
+          'skills': allSkills, // Store all skills in a single array
           'gpa': _gpaController.text.trim(),
           'gpaScale': _selectedGpaScale, // Save selected GPA scale
           'location': _selectedLocations,
