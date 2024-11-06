@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hadafi_application/training_provider_profile.dart';
+import 'package:hadafi_application/welcome.dart';
 
 class TrainingProviderHomePage extends StatelessWidget {
   const TrainingProviderHomePage({super.key});
@@ -179,11 +180,39 @@ class TrainingProviderHomePage extends StatelessWidget {
             ListTile(
               leading: Icon(Icons.logout, color: Color(0xFF113F67)),
               title: Text('Log Out'),
-              onTap: () {},
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+                _logout(context); // Call the logout function
+              },
             ),
           ],
         ),
       ),
     );
+  }
+
+  // Logout method to handle signing out
+  Future<void> _logout(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut(); // Sign out from Firebase
+
+      // Navigate to WelcomeScreen and clear the navigation stack
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+        (route) => false, // Remove all previous routes
+      );
+    } catch (e) {
+      // Show error if logout fails
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Logout failed. Please try again.',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }

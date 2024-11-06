@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hadafi_application/interview.dart';
 import 'package:hadafi_application/student_profile.dart';
+import 'package:hadafi_application/welcome.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MainScreen extends StatelessWidget {
@@ -58,8 +59,11 @@ class HadafiDrawer extends StatelessWidget {
             const Divider(),
             ListTile(
               leading: Icon(Icons.logout, color: Color(0xFF113F67)),
-              title: const Text('Logout'),
-              onTap: () {},
+              title: Text('Log Out'),
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+                _logout(context); // Call the logout function
+              },
             ),
           ],
         ),
@@ -89,7 +93,8 @@ class HadafiDrawer extends StatelessWidget {
     final Uri emailLaunchUri = Uri(
       scheme: 'mailto',
       path: 'Hadafi.GP@gmail.com',
-      query: 'subject=App Support&body=Dear Admin, I encountered the following issues:',
+      query:
+          'subject=App Support&body=Dear Admin, I encountered the following issues:',
     );
 
     try {
@@ -250,6 +255,31 @@ class OpportunitiesList extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+// Logout method to handle signing out
+Future<void> _logout(BuildContext context) async {
+  try {
+    await FirebaseAuth.instance.signOut(); // Sign out from Firebase
+
+    // Navigate to WelcomeScreen and clear the navigation stack
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+      (route) => false, // Remove all previous routes
+    );
+  } catch (e) {
+    // Show error if logout fails
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Logout failed. Please try again.',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.red,
+      ),
     );
   }
 }

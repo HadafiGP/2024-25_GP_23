@@ -35,6 +35,7 @@ class _TrainingProviderSignupScreenState
   bool _hasLowercase = false;
   bool _hasNumber = false;
   bool _hasSpecialChar = false;
+  bool _hasAttemptedSubmit = false;
 
   final List<String> _cities = [
     'Abha',
@@ -95,45 +96,8 @@ class _TrainingProviderSignupScreenState
       _hasLowercase = RegExp(r'[a-z]').hasMatch(password);
       _hasNumber = RegExp(r'[0-9]').hasMatch(password);
       _hasSpecialChar = RegExp(r'[!@#\$&*~]').hasMatch(password);
+      _hasAttemptedSubmit = false;
     });
-  }
-
-  Widget _buildPasswordGuidance() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildPasswordCriteriaRow(
-            "Must be at least 8 characters.", _isMinLength),
-        _buildPasswordCriteriaRow(
-            "Must contain an uppercase letter.", _hasUppercase),
-        _buildPasswordCriteriaRow(
-            "Must contain a lowercase letter.", _hasLowercase),
-        _buildPasswordCriteriaRow("Must contain a number.", _hasNumber),
-        _buildPasswordCriteriaRow(
-            "Must contain a special character.", _hasSpecialChar),
-        const SizedBox(height: 10),
-      ],
-    );
-  }
-
-  Widget _buildPasswordCriteriaRow(String text, bool isValid) {
-    return Row(
-      children: [
-        Icon(
-          isValid ? Icons.check_circle : Icons.cancel,
-          color: isValid ? Colors.green : Colors.red,
-          size: 20,
-        ),
-        const SizedBox(width: 8),
-        Text(
-          text,
-          style: TextStyle(
-            color: isValid ? Colors.green : Colors.red,
-            fontSize: 14,
-          ),
-        ),
-      ],
-    );
   }
 
   @override
@@ -194,7 +158,7 @@ class _TrainingProviderSignupScreenState
 
                       //Company name field
                       _buildTextField(
-                        'Company Name',
+                        'Company Name (required)',
                         _companyNameController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -207,7 +171,7 @@ class _TrainingProviderSignupScreenState
 
                       // Company email field with both domain and exception email validation
                       _buildTextField(
-                        'Company Email',
+                        'Company Email (required)',
                         _emailController,
                         validator: (value) {
                           if (_emailError != null) {
@@ -239,27 +203,30 @@ class _TrainingProviderSignupScreenState
                       const SizedBox(height: 15),
 
                       // Password field
-                      // Password field with eye icon and guidance
                       _buildTextField(
-                        'Password',
+                        'Password (required)',
                         _passwordController,
                         isPassword: true,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your password.';
                           }
+
                           // Password constraints
                           final passwordValid = value.length >= 8 &&
                               RegExp(r'[A-Z]').hasMatch(value) &&
                               RegExp(r'[a-z]').hasMatch(value) &&
                               RegExp(r'[0-9]').hasMatch(value) &&
                               RegExp(r'[!@#\$&*~]').hasMatch(value);
+
                           if (!passwordValid) {
-                            return 'The password must be at least 8 characters long, include \nuppercase/lowercase letters, and at least one number \nand special character.';
+                            return 'Password must be at least 8 characters long, include \nuppercase/lowercase letters, and at least one number \nand special character.';
                           }
+
                           return null;
                         },
-                        onChanged: (value) => _validatePassword(value),
+                        onChanged: (value) =>
+                            _validatePassword(value), // Call validation method
                         suffixIcon: IconButton(
                           icon: Icon(
                             _isPasswordVisible
@@ -269,6 +236,7 @@ class _TrainingProviderSignupScreenState
                           onPressed: () {
                             setState(() {
                               _isPasswordVisible = !_isPasswordVisible;
+                              _hasAttemptedSubmit = true;
                             });
                           },
                         ),
@@ -317,20 +285,74 @@ class _TrainingProviderSignupScreenState
     String label,
     TextEditingController controller, {
     bool isPassword = false,
+    bool enabled = true,
     String? Function(String?)? validator,
-    Widget? suffixIcon,
-    Function(String)? onChanged,
+    Function(String)? onChanged, // Add onChanged parameter
+    Widget? suffixIcon, // New parameter for suffix icon
   }) {
     return TextFormField(
       controller: controller,
       obscureText: isPassword && !_isPasswordVisible, // Toggle visibility
       validator: validator,
       onChanged: onChanged,
+      enabled: enabled,
       decoration: InputDecoration(
         labelText: label,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        suffixIcon: suffixIcon, // password eye icon
+        suffixIcon: suffixIcon, //suffix icon
       ),
+    );
+  }
+
+  Widget _buildPasswordGuidance() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildPasswordCriteriaRow(
+            "Must be at least 8 characters.", _isMinLength),
+        _buildPasswordCriteriaRow(
+            "Must contain an uppercase letter.", _hasUppercase),
+        _buildPasswordCriteriaRow(
+            "Must contain a lowercase letter.", _hasLowercase),
+        _buildPasswordCriteriaRow("Must contain a number.", _hasNumber),
+        _buildPasswordCriteriaRow(
+            "Must contain a special character.", _hasSpecialChar),
+        const SizedBox(height: 10),
+      ],
+    );
+  }
+
+  Widget _buildPasswordCriteriaRow(String text, bool isValid) {
+    Color color;
+    IconData icon;
+
+    if (isValid) {
+      color = Colors.green; // Met criteria: Green
+      icon = Icons.check_circle; // Check icon
+    } else if (_hasAttemptedSubmit) {
+      color = Colors.red; // Unmet criteria after submit attempt: Red
+      icon = Icons.cancel; // Cancel icon
+    } else {
+      color = Colors.grey; // Unmet criteria before submit: Grey
+      icon = Icons.radio_button_unchecked; // Neutral icon
+    }
+
+    return Row(
+      children: [
+        Icon(
+          icon,
+          color: color,
+          size: 20,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          text,
+          style: TextStyle(
+            color: color,
+            fontSize: 14,
+          ),
+        ),
+      ],
     );
   }
 
@@ -345,7 +367,7 @@ class _TrainingProviderSignupScreenState
           child: AbsorbPointer(
             child: TextFormField(
               decoration: InputDecoration(
-                labelText: 'Select Locations',
+                labelText: 'Select Locations (required)',
                 suffixIcon: const Icon(Icons.arrow_drop_down),
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
@@ -395,7 +417,7 @@ class _TrainingProviderSignupScreenState
             return AlertDialog(
               title: Column(
                 children: [
-                  Text('Select Locations'),
+                  Text('Select Locations (required)'),
                   SizedBox(height: 10),
                   TextField(
                     decoration: InputDecoration(
@@ -477,14 +499,18 @@ class _TrainingProviderSignupScreenState
 
 // Store training provider data in Firestore and Firebase Authentication
   Future<void> _signUp() async {
-    if (!_formKey.currentState!.validate()) {
-      return; // If the form is not valid, return and show errors
-    }
-
     setState(() {
+      _hasAttemptedSubmit = true; // Track that the user attempted to submit
       _isLoading = true;
       _emailError = null; // Reset the email error before sign-up attempt
     });
+
+    if (!_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = false; // Stop loading if validation fails
+      });
+      return; // If the form is not valid, return and show errors
+    }
 
     try {
       // Set a timeout of 15 seconds for Firebase sign-up operation

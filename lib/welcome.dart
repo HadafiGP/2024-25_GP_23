@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hadafi_application/student_signup.dart';
 import 'package:hadafi_application/training_provider_signup.dart';
+import 'package:hadafi_application/logIn_page.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -137,7 +138,12 @@ class WelcomeScreen extends StatelessWidget {
                             WidgetSpan(
                               child: GestureDetector(
                                 onTap: () {
-                                  // Navigate to the login page
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => LoginPage(),
+                                    ),
+                                  );
                                 },
                                 child: Text(
                                   'Log in',

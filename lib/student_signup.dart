@@ -22,11 +22,9 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _majorController = TextEditingController();
-  final TextEditingController _gpaScaleController = TextEditingController();
   final TextEditingController _gpaController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _nationalityController = TextEditingController();
-  final List<double> _gpaScales = [4.0, 5.0]; // GPA scale options
   final List<String> _selectedLocations = [];
   final List<String> _selectedTechnicalSkills = [];
   final List<String> _selectedManagementSkills = [];
@@ -49,7 +47,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   bool _hasLowercase = false;
   bool _hasNumber = false;
   bool _hasSpecialChar = false;
-  int _strengthScore = 0;
+  bool _hasAttemptedSubmit = false; // Add this line
 
   final List<String> _technicalSkills = [
     "Adobe XD",
@@ -346,15 +344,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
       _hasLowercase = RegExp(r'[a-z]').hasMatch(password);
       _hasNumber = RegExp(r'[0-9]').hasMatch(password);
       _hasSpecialChar = RegExp(r'[!@#\$&*~]').hasMatch(password);
-
-      // Calculate strength score based on criteria met
-      _strengthScore = [
-        _isMinLength,
-        _hasUppercase,
-        _hasLowercase,
-        _hasNumber,
-        _hasSpecialChar
-      ].where((criterion) => criterion).length;
+      _hasAttemptedSubmit = false;
     });
   }
 
@@ -414,7 +404,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      _buildTextField('Full Name', _nameController,
+                      _buildTextField('Full Name (required)', _nameController,
                           validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your full name';
@@ -424,7 +414,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                       const SizedBox(height: 15),
 
                       _buildTextField(
-                        'Email',
+                        'Email (required)',
                         _emailController,
                         validator: (value) {
                           if (_emailError != null) {
@@ -443,7 +433,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                       ),
                       const SizedBox(height: 15),
                       _buildTextField(
-                        'Password',
+                        'Password (required)',
                         _passwordController,
                         isPassword: true,
                         validator: (value) {
@@ -497,12 +487,64 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                         crossAxisAlignment: CrossAxisAlignment
                             .start, // Align buttons to the left
                         children: [
-                          _buildGpaScaleSelector(), // GPA Scale Selector Field
-
-                          const SizedBox(height: 10),
+                          // GPA Scale Buttons
+                          Row(
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedGpaScale = 4.0;
+                                    _gpaController
+                                        .clear(); // Clear the GPA field if scale changes
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: _selectedGpaScale == 4.0
+                                      ? Color(0xFF113F67)
+                                      : Colors.grey,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 11, vertical: 10),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'GPA Scale 4.00',
+                                  style: TextStyle(
+                                      fontSize: 12, color: Colors.white),
+                                ),
+                              ),
+                              const SizedBox(width: 20),
+                              ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedGpaScale = 5.0;
+                                    _gpaController
+                                        .clear(); // Clear the GPA field if scale changes
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: _selectedGpaScale == 5.0
+                                      ? Color(0xFF113F67)
+                                      : Colors.grey,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 11, vertical: 10),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'GPA Scale 5.00',
+                                  style: TextStyle(
+                                      fontSize: 12, color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 15),
                           // GPA Input Field
                           _buildTextField(
-                            'GPA',
+                            'GPA (required)',
                             _gpaController,
                             validator: (value) {
                               if (_selectedGpaScale == null) {
@@ -556,29 +598,37 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Skills title
-                          Text(
-                            "Skills:",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF113F67),
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "Skills: ",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: _isSkillsSelected
+                                        ? Color(0xFF113F67)
+                                        : Colors.red, // Conditional color
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          // Subtitle with conditional color change
+                          const SizedBox(
+                              height: 8), // Add some spacing if needed
                           Text(
                             "Please choose at least one skill from any category",
                             style: TextStyle(
                               fontSize: 14,
                               color: _isSkillsSelected
                                   ? Color(0xFF113F67)
-                                  : Colors.red,
+                                  : Colors.red, // Same conditional color
                             ),
                           ),
                         ],
                       ),
 
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 15),
                       _buildManagementSkillsSelector(), // Management Skills Dropdown
                       const SizedBox(height: 15),
                       _buildSoftSkillsSelector(), // Soft Skills Dropdown
@@ -591,6 +641,8 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                           ElevatedButton(
                               onPressed: () {
                                 setState(() {
+                                  _hasAttemptedSubmit = true;
+
                                   // Manually validate skills selection
                                   _isSkillsSelected = _selectedTechnicalSkills
                                           .isNotEmpty ||
@@ -601,9 +653,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                                 if (_formKey.currentState!.validate() &&
                                     _isSkillsSelected) {
                                   _signUp(); // Proceed if form and skills validation pass
-                                } else {
-                                  // No additional notification or red box will appear
-                                  // Remove or leave empty if you do not want to notify the user
                                 }
                               },
                               style: ElevatedButton.styleFrom(
@@ -677,18 +726,32 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   }
 
   Widget _buildPasswordCriteriaRow(String text, bool isValid) {
+    Color color;
+    IconData icon;
+
+    if (isValid) {
+      color = Colors.green; // Met criteria: Green
+      icon = Icons.check_circle; // Check icon
+    } else if (_hasAttemptedSubmit) {
+      color = Colors.red; // Unmet criteria after submit attempt: Red
+      icon = Icons.cancel; // Cancel icon
+    } else {
+      color = Colors.grey; // Unmet criteria before submit: Grey
+      icon = Icons.radio_button_unchecked; // Neutral icon
+    }
+
     return Row(
       children: [
         Icon(
-          isValid ? Icons.check_circle : Icons.cancel,
-          color: isValid ? Colors.green : Colors.red,
+          icon,
+          color: color,
           size: 20,
         ),
         const SizedBox(width: 8),
         Text(
           text,
           style: TextStyle(
-            color: isValid ? Colors.green : Colors.red,
+            color: color,
             fontSize: 14,
           ),
         ),
@@ -704,7 +767,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
       child: AbsorbPointer(
         child: TextFormField(
           decoration: InputDecoration(
-            labelText: 'Select Major',
+            labelText: 'Select Major (required)',
             suffixIcon: const Icon(Icons.arrow_drop_down),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
@@ -733,7 +796,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
             return AlertDialog(
               title: Column(
                 children: [
-                  Text('Select Major'),
+                  Text('Select Major (required)'),
                   SizedBox(height: 10),
                   TextField(
                     decoration: InputDecoration(
@@ -1007,7 +1070,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
           child: AbsorbPointer(
             child: TextFormField(
               decoration: InputDecoration(
-                labelText: 'Select Locations',
+                labelText: 'Select Locations (required)',
                 suffixIcon: const Icon(Icons.arrow_drop_down),
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
@@ -1057,7 +1120,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
             return AlertDialog(
               title: Column(
                 children: [
-                  Text('Select Locations'),
+                  Text('Select Locations (required)'),
                   SizedBox(height: 10),
                   TextField(
                     decoration: InputDecoration(
@@ -1132,7 +1195,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
         child: TextFormField(
           controller: _nationalityController,
           decoration: InputDecoration(
-            labelText: 'Select Nationality',
+            labelText: 'Select Nationality (required)',
             suffixIcon: const Icon(Icons.arrow_drop_down),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
@@ -1160,7 +1223,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
             return AlertDialog(
               title: Column(
                 children: [
-                  Text('Select Nationality'),
+                  Text('Select Nationality (required)'),
                   SizedBox(height: 10),
                   TextField(
                     decoration: InputDecoration(
@@ -1211,62 +1274,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     );
   }
 
-// GPA Scale Selector
-  Widget _buildGpaScaleSelector() {
-    return GestureDetector(
-      onTap: () {
-        _showGpaScaleDialog();
-      },
-      child: AbsorbPointer(
-        child: TextFormField(
-          controller: _gpaScaleController,
-          decoration: InputDecoration(
-            labelText: 'Select GPA Scale',
-            suffixIcon: const Icon(Icons.arrow_drop_down),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          validator: (value) {
-            if (_selectedGpaScale == null) {
-              return 'Please select a GPA scale';
-            }
-            return null;
-          },
-        ),
-      ),
-    );
-  }
-
-  void _showGpaScaleDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Select GPA Scale'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: _gpaScales.map((scale) {
-              return RadioListTile<double>(
-                title: Text('GPA Scale $scale'),
-                value: scale,
-                groupValue: _selectedGpaScale,
-                onChanged: (double? value) {
-                  setState(() {
-                    _selectedGpaScale = value;
-                    _gpaScaleController.text =
-                        'GPA Scale ${_selectedGpaScale!.toStringAsFixed(1)}';
-                  });
-                  Navigator.of(context).pop();
-                },
-              );
-            }).toList(),
-          ),
-        );
-      },
-    );
-  }
-
   @override
   void dispose() {
     _emailController
@@ -1288,6 +1295,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
       _isSkillsSelected = _selectedTechnicalSkills.isNotEmpty ||
           _selectedManagementSkills.isNotEmpty ||
           _selectedSoftSkills.isNotEmpty;
+      _hasAttemptedSubmit = true;
     });
     if (!_isSkillsSelected || !_formKey.currentState!.validate()) {
       return; // If the form is not valid, return and show errors
