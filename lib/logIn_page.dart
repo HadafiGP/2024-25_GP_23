@@ -5,6 +5,7 @@ import 'package:hadafi_application/signup_widget.dart';
 import 'package:hadafi_application/StudentHomepage.dart';
 import 'package:hadafi_application/TrainingProviderHomepage.dart';
 import 'package:hadafi_application/forget_password_page.dart';
+import 'dart:io';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,9 +19,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>(); // Form key
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  String? _errorMessage; // To hold the generic error message
+  String? _errorMessage;
+  bool _verificationMessageVisible = false;
+  bool _isPasswordVisible = false; // New variable for password visibility
 
   @override
   Widget build(BuildContext context) {
@@ -89,8 +92,27 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        if (_errorMessage !=
-                            null) // Display generic error message if it exists
+                        if (_verificationMessageVisible)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.check_circle,
+                                color: Colors.green,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                "Verification email sent. Please verify to log in.",
+                                style: TextStyle(
+                                  color: const Color(0xFF113F67),
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ],
+                          ),
+                        const SizedBox(height: 15),
+                        if (_errorMessage != null)
                           Text(
                             _errorMessage!,
                             style: TextStyle(color: Colors.red, fontSize: 14),
@@ -150,10 +172,20 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildPasswordField() {
     return TextFormField(
       controller: _passwordController,
-      obscureText: true,
+      obscureText: !_isPasswordVisible,
       decoration: InputDecoration(
         labelText: 'Password',
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+          ),
+          onPressed: () {
+            setState(() {
+              _isPasswordVisible = !_isPasswordVisible;
+            });
+          },
+        ),
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -166,12 +198,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) {
-      return; // Stop if form validation fails
+      return;
     }
 
     setState(() {
       _isLoading = true;
-      _errorMessage = null; // Reset the generic error message
+      _errorMessage = null;
     });
 
     try {
@@ -184,13 +216,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (user != null && !user.emailVerified) {
         await user.sendEmailVerification();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text('Verification email sent. Please verify to proceed.')),
-        );
+        setState(() {
+          _verificationMessageVisible = true;
+        });
       } else if (user != null && user.emailVerified) {
-        // Check Firestore for the user's role
         final userDoc =
             await _firestore.collection('Student').doc(user.uid).get();
 
@@ -219,9 +248,25 @@ class _LoginScreenState extends State<LoginScreen> {
           }
         }
       }
-    } on FirebaseAuthException {
+    } on SocketException {
       setState(() {
-        _errorMessage = 'Invalid email or password';
+        _errorMessage =
+            'Log in failed, Please check your internet connection\n or try again later.';
+      });
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found' || e.code == 'wrong-password') {
+        setState(() {
+          _errorMessage = 'Invalid email or password.';
+        });
+      } else {
+        setState(() {
+          _errorMessage =
+              'Log in failed, Please check your internet connection\n or try again later.';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'An unexpected error occurred. Please try again later.';
       });
     } finally {
       setState(() {
