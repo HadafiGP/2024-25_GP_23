@@ -5,13 +5,16 @@ import 'package:hadafi_application/interview.dart';
 import 'package:hadafi_application/student_profile.dart';
 import 'package:hadafi_application/welcome.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import "package:hadafi_application/OpportunityDetailsPage.dart";
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return StudentHomePage();
+    return const StudentHomePage();
   }
 }
 
@@ -22,12 +25,12 @@ class HadafiDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Drawer(
       child: Container(
-        color: Color(0xFFF3F9FB),
+        color: const Color(0xFFF3F9FB),
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Color(0xFF113F67),
               ),
               child: Image.asset(
@@ -36,21 +39,23 @@ class HadafiDrawer extends StatelessWidget {
                 height: 80,
               ),
             ),
-            _buildDrawerItem(context, Icons.person, 'Profile', ProfilePage()),
-            _buildDrawerItem(context, Icons.home, 'Home', StudentHomePage()),
+            _buildDrawerItem(
+                context, Icons.person, 'Profile', const ProfilePage()),
+            _buildDrawerItem(
+                context, Icons.home, 'Home', const StudentHomePage()),
             _buildDrawerItem(
                 context, Icons.assignment, 'CV Enhancement Tool', null),
             _buildDrawerItem(
               context,
               Icons.chat,
               'Interview Simulator',
-              InterviewPage(),
+              const InterviewPage(),
             ),
             _buildDrawerItem(context, Icons.feedback, 'Feedback', null),
             _buildDrawerItem(context, Icons.group, 'Communities', null),
             _buildDrawerItem(context, Icons.favorite, 'Favorites List', null),
             ListTile(
-              leading: Icon(Icons.contact_mail, color: Color(0xFF113F67)),
+              leading: const Icon(Icons.contact_mail, color: Color(0xFF113F67)),
               title: const Text('Contact us'),
               onTap: () {
                 _launchEmail(); // call email launcher
@@ -58,11 +63,11 @@ class HadafiDrawer extends StatelessWidget {
             ),
             const Divider(),
             ListTile(
-              leading: Icon(Icons.logout, color: Color(0xFF113F67)),
-              title: Text('Log Out'),
+              leading: const Icon(Icons.logout, color: Color(0xFF113F67)),
+              title: const Text('Log Out'),
               onTap: () {
-                Navigator.pop(context); // Close the drawer
-                _logout(context); // Call the logout function
+                Navigator.pop(context); 
+                _logout(context); 
               },
             ),
           ],
@@ -74,7 +79,7 @@ class HadafiDrawer extends StatelessWidget {
   Widget _buildDrawerItem(
       BuildContext context, IconData icon, String title, Widget? page) {
     return ListTile(
-      leading: Icon(icon, color: Color(0xFF113F67)),
+      leading: Icon(icon, color: const Color(0xFF113F67)),
       title: Text(title),
       onTap: () {
         Navigator.pop(context);
@@ -88,7 +93,7 @@ class HadafiDrawer extends StatelessWidget {
     );
   }
 
-  // Email launcher function
+ 
   void _launchEmail() async {
     final Uri emailLaunchUri = Uri(
       scheme: 'mailto',
@@ -109,8 +114,73 @@ class HadafiDrawer extends StatelessWidget {
   }
 }
 
-class StudentHomePage extends StatelessWidget {
+class StudentHomePage extends StatefulWidget {
   const StudentHomePage({super.key});
+
+  @override
+  _StudentHomePageState createState() => _StudentHomePageState();
+}
+
+class _StudentHomePageState extends State<StudentHomePage> {
+  List<dynamic> recommendations = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchRecommendations();
+  }
+
+  Future<void> fetchRecommendations() async {
+    final String url =
+        "http://10.0.2.2:5000/recommend"; 
+
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        print("User is not logged in.");
+        return;
+      }
+
+      final String? firebaseToken = await user.getIdToken();
+
+      if (firebaseToken == null) {
+        print("Failed to retrieve Firebase token.");
+        return;
+      }
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $firebaseToken",
+        },
+        body: jsonEncode({}), 
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (mounted) {
+          setState(() {
+            recommendations = data['recommendations'];
+          });
+        }
+      } else {
+        print(
+            "Failed to fetch recommendations. Status code: ${response.statusCode}");
+        print("Error message: ${response.body}");
+      }
+    } catch (e) {
+      print("An error occurred: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -131,17 +201,19 @@ class StudentHomePage extends StatelessWidget {
         ],
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            _buildSectionTitle('Training Opportunities'),
-            _buildOpportunitiesTab(),
-            _buildSectionTitle('Feedback from Users'),
-            _buildFeedbackList(),
-          ],
-        ),
-      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  _buildSectionTitle('Training Opportunities'),
+                  _buildOpportunitiesTab(),
+                  _buildSectionTitle('Feedback from Users'),
+                  _buildFeedbackList(),
+                ],
+              ),
+            ),
     );
   }
 
@@ -182,8 +254,12 @@ class StudentHomePage extends StatelessWidget {
               Expanded(
                 child: TabBarView(
                   children: [
-                    OpportunitiesList(title: 'Best Match Opportunities'),
-                    OpportunitiesList(title: 'Other Opportunities'),
+                    OpportunitiesList(
+                      title: 'Best Match Opportunities',
+                      opportunities: recommendations,
+                    ),
+                    OpportunitiesList(
+                        title: 'Other Opportunities', opportunities: []),
                   ],
                 ),
               ),
@@ -227,15 +303,38 @@ class StudentHomePage extends StatelessWidget {
 
 class OpportunitiesList extends StatelessWidget {
   final String title;
+  final List<dynamic> opportunities;
 
-  const OpportunitiesList({super.key, required this.title});
+  const OpportunitiesList(
+      {super.key, required this.title, required this.opportunities});
 
   @override
   Widget build(BuildContext context) {
+    if (opportunities.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Text(
+            'No opportunities available at the moment.',
+            style: TextStyle(fontSize: 18, color: Colors.grey),
+          ),
+        ),
+      );
+    }
+
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      itemCount: 5,
+      itemCount: opportunities.length,
       itemBuilder: (context, index) {
+        final opportunity = opportunities[index];
+
+        final jobTitle = opportunity['Job Title'] ?? "Unknown Title";
+        final companyName = opportunity['Company Name'] ?? "Unknown Company";
+        final description =
+            opportunity['Description'] ?? "No description available.";
+        final applyUrl = opportunity['Apply url'] ?? "";
+        final similarity = opportunity['Total Similarity'] ?? 0.0;
+
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 10.0),
           child: Container(
@@ -245,12 +344,55 @@ class OpportunitiesList extends StatelessWidget {
               border: Border.all(color: const Color(0xFF113F67), width: 2),
               boxShadow: const [
                 BoxShadow(
-                    color: Colors.black12, blurRadius: 5, spreadRadius: 2),
+                  color: Colors.black12,
+                  blurRadius: 5,
+                  spreadRadius: 2,
+                ),
               ],
             ),
             child: ListTile(
-              title: Text('$title ${index + 1}'),
-              subtitle: const Text('Based on your qualifications'),
+              title: Text(
+                jobTitle,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF113F67),
+                ),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(companyName),
+                  const SizedBox(height: 5),
+                  Text(
+                    "Match Percent: ${(similarity * 100).toStringAsFixed(2)}%",
+                    style: TextStyle(
+                      color: similarity >= 0.7
+                          ? Colors.green
+                          : similarity >= 0.5
+                              ? const Color.fromARGB(255, 233, 109, 0)
+                              : const Color.fromARGB(255, 200, 14, 1),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              trailing: IconButton(
+                icon: const Icon(Icons.more),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => OpportunityDetailsPage(
+                        jobTitle: jobTitle,
+                        companyName: companyName,
+                        description: description,
+                        applyUrl: applyUrl,
+                        similarity: similarity,
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         );
@@ -262,22 +404,16 @@ class OpportunitiesList extends StatelessWidget {
 // Logout method to handle signing out
 Future<void> _logout(BuildContext context) async {
   try {
-    await FirebaseAuth.instance.signOut(); // Sign out from Firebase
-
-    // Navigate to WelcomeScreen and clear the navigation stack
+    await FirebaseAuth.instance.signOut();
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const WelcomeScreen()),
-      (route) => false, // Remove all previous routes
+      (route) => false,
     );
   } catch (e) {
-    // Show error if logout fails
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Logout failed. Please try again.',
-          style: TextStyle(color: Colors.white),
-        ),
+      const SnackBar(
+        content: Text('Logout failed. Please try again.'),
         backgroundColor: Colors.red,
       ),
     );

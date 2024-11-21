@@ -84,7 +84,6 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _gpaController = TextEditingController();
   final TextEditingController _majorController = TextEditingController();
   final TextEditingController _skillsController = TextEditingController();
-  final TextEditingController _certificatesController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -122,8 +121,6 @@ class _ProfilePageState extends State<ProfilePage> {
             _majorController.text = doc['major'] ?? '';
             _skillsController.text =
                 (doc['skills'] as List<dynamic>).join(', ') ?? '';
-            _certificatesController.text =
-                (doc['certificates'] as List<dynamic>).join(', ') ?? '';
             _selectedLocations = List<String>.from(doc['location'] ?? []);
             _locationController.text = _selectedLocations.join(', ');
             _selectedGpaScale =
@@ -277,7 +274,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
               _buildEditableField('Major', _majorController),
               _buildEditableField('Skills', _skillsController),
-              _buildEditableField('Certificates', _certificatesController),
               _buildLocationSelector(),
 
               // Add Save button at the bottom
@@ -513,7 +509,6 @@ class _ProfilePageState extends State<ProfilePage> {
           'gpaScale': _selectedGpaScale,
           'major': _majorController.text,
           'skills': _skillsController.text.split(', '),
-          'certificates': _certificatesController.text.split(', '),
           'location': _selectedLocations,
         });
 
