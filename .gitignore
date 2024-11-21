@@ -9,6 +9,8 @@
 .history
 .svn/
 migrate_working_dir/
+lib/hadafi-a7971-firebase-adminsdk-3k84a-901d21ad25.json
+
 
 # IntelliJ related
 *.iml
