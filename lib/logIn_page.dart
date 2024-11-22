@@ -251,7 +251,6 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       }
     } on FirebaseAuthException catch (e) {
-      print('Error code: ${e.code}');
       setState(() {
         if (e.code == 'user-not-found' ||
             e.code == 'invalid-credential' ||
