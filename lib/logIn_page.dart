@@ -164,6 +164,12 @@ class _LoginScreenState extends State<LoginScreen> {
         if (value == null || value.isEmpty) {
           return 'Please enter your email';
         }
+        // Check for valid email format
+        final emailRegex =
+            RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+        if (!emailRegex.hasMatch(value)) {
+          return 'Invalid email format. Please enter a valid email.';
+        }
         return null;
       },
     );
@@ -245,11 +251,12 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       }
     } on FirebaseAuthException catch (e) {
+      print('Error code: ${e.code}');
       setState(() {
-        if (e.code == 'user-not-found' || e.code == 'wrong-password') {
+        if (e.code == 'user-not-found' ||
+            e.code == 'invalid-credential' ||
+            e.code == 'wrong-password') {
           _errorMessage = 'Incorrect email or password. Please try again.';
-        } else if (e.code == 'wrong-password') {
-          _errorMessage = 'Incorrect password. Please try again.';
         } else if (e.code == 'invalid-email') {
           _errorMessage = 'Invalid email format. Please enter a valid email.';
         } else if (e.code == 'network-request-failed') {
