@@ -241,32 +241,27 @@ class _LoginScreenState extends State<LoginScreen> {
               MaterialPageRoute(
                   builder: (context) => TrainingProviderHomePage()),
             );
-          } else {
-            setState(() {
-              _errorMessage = 'Role not found. Please contact support.';
-            });
           }
         }
       }
-    } on SocketException {
-      setState(() {
-        _errorMessage =
-            'Log in failed, Please check your internet connection\n or try again later.';
-      });
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found' || e.code == 'wrong-password') {
-        setState(() {
-          _errorMessage = 'Invalid email or password.';
-        });
-      } else {
-        setState(() {
+      setState(() {
+        if (e.code == 'user-not-found' || e.code == 'wrong-password') {
+          _errorMessage = 'Incorrect email or password. Please try again.';
+        } else if (e.code == 'invalid-email') {
+          _errorMessage = 'Invalid email format. Please enter a valid email.';
+        } else if (e.code == 'network-request-failed') {
           _errorMessage =
               'Log in failed, Please check your internet connection\n or try again later.';
-        });
-      }
+        } else {
+          _errorMessage =
+              'Log in failed due to an unexpected error. Please try again.';
+        }
+      });
     } catch (e) {
       setState(() {
-        _errorMessage = 'An unexpected error occurred. Please try again later.';
+        _errorMessage =
+            'Log in failed due to an unexpected error. Please try again.';
       });
     } finally {
       setState(() {
