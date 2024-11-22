@@ -248,11 +248,12 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         if (e.code == 'user-not-found' || e.code == 'wrong-password') {
           _errorMessage = 'Incorrect email or password. Please try again.';
+        } else if (e.code == 'wrong-password') {
+          _errorMessage = 'Incorrect password. Please try again.';
         } else if (e.code == 'invalid-email') {
           _errorMessage = 'Invalid email format. Please enter a valid email.';
         } else if (e.code == 'network-request-failed') {
-          _errorMessage =
-              'Log in failed, Please check your internet connection\n or try again later.';
+          _errorMessage = 'Network error. Please check your connection.';
         } else {
           _errorMessage =
               'Log in failed due to an unexpected error. Please try again.';
