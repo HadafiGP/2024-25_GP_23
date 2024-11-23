@@ -89,7 +89,6 @@ class OpportunityDetailsPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            // About Section (Expandable)
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
