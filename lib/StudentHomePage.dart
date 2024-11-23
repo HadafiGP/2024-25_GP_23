@@ -58,7 +58,7 @@ class HadafiDrawer extends StatelessWidget {
               leading: const Icon(Icons.contact_mail, color: Color(0xFF113F67)),
               title: const Text('Contact us'),
               onTap: () {
-                _launchEmail(); // call email launcher
+                _launchEmail(); 
               },
             ),
             const Divider(),
@@ -82,7 +82,7 @@ class HadafiDrawer extends StatelessWidget {
       leading: Icon(icon, color: const Color(0xFF113F67)),
       title: Text(title),
       onTap: () {
-        Navigator.pop(context);
+        Navigator.pop(context); 
         if (page != null) {
           Navigator.push(
             context,
@@ -93,7 +93,6 @@ class HadafiDrawer extends StatelessWidget {
     );
   }
 
- 
   void _launchEmail() async {
     final Uri emailLaunchUri = Uri(
       scheme: 'mailto',
@@ -132,8 +131,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
   }
 
   Future<void> fetchRecommendations() async {
-    final String url =
-        "http://10.0.2.2:5000/recommend"; 
+    final String url = "http://10.0.2.2:5000/recommend";
 
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -156,7 +154,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
           "Content-Type": "application/json",
           "Authorization": "Bearer $firebaseToken",
         },
-        body: jsonEncode({}), 
+        body: jsonEncode({}),
       );
 
       if (response.statusCode == 200) {
@@ -387,7 +385,9 @@ class OpportunitiesList extends StatelessWidget {
                         companyName: companyName,
                         description: description,
                         applyUrl: applyUrl,
-                        similarity: similarity,
+                        similarity: opportunity['Total Similarity'] ?? 0.0,
+                        skills: List<String>.from(opportunity['Skills'] ?? []),
+                        location: (opportunity['Locations'] ?? []).join(', '),
                       ),
                     ),
                   );
@@ -401,7 +401,7 @@ class OpportunitiesList extends StatelessWidget {
   }
 }
 
-// Logout method to handle signing out
+// Logout method
 Future<void> _logout(BuildContext context) async {
   try {
     await FirebaseAuth.instance.signOut();

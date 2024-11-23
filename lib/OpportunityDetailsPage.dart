@@ -7,6 +7,8 @@ class OpportunityDetailsPage extends StatelessWidget {
   final String description;
   final String applyUrl;
   final double similarity;
+  final List<String> skills;
+  final String location;
 
   const OpportunityDetailsPage({
     super.key,
@@ -15,10 +17,15 @@ class OpportunityDetailsPage extends StatelessWidget {
     required this.description,
     required this.applyUrl,
     required this.similarity,
+    required this.skills,
+    required this.location,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Split location into a list to handle multiple locations.
+    final locationsList = location.split(',').map((loc) => loc.trim()).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -89,6 +96,7 @@ class OpportunityDetailsPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
+            // About the Company Section
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -100,7 +108,7 @@ class OpportunityDetailsPage extends StatelessWidget {
                     const Icon(Icons.info_outline, color: Color(0xFF096499)),
                     const SizedBox(width: 8),
                     const Text(
-                      "About The Company",
+                      "About the Company",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -115,6 +123,110 @@ class OpportunityDetailsPage extends StatelessWidget {
                     child: Text(
                       description,
                       style: const TextStyle(fontSize: 16, height: 1.5),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Location Section
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: locationsList.length > 1
+                  ? ExpansionTile(
+                      title: Row(
+                        children: [
+                          const Icon(Icons.location_on, color: Color(0xFF096499)),
+                          const SizedBox(width: 8),
+                          const Text(
+                            "Locations",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF096499),
+                            ),
+                          ),
+                        ],
+                      ),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Text(
+                            locationsList.join(', '),
+                            style: const TextStyle(fontSize: 16, height: 1.5),
+                          ),
+                        ),
+                      ],
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.location_on, color: Color(0xFF096499)),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              location,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+            ),
+            const SizedBox(height: 16),
+            // Skills Section
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ExpansionTile(
+                title: Row(
+                  children: [
+                    const Icon(Icons.lightbulb_outline, color: Color(0xFF096499)),
+                    const SizedBox(width: 8),
+                    const Text(
+                      "Skills Required",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF096499),
+                      ),
+                    ),
+                  ],
+                ),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: skills
+                          .map(
+                            (skill) => Row(
+                              children: [
+                                const Icon(Icons.circle, size: 8, color: Color(0xFF096499)), // Bullet point
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    skill,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      height: 1.5,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                          .toList(),
                     ),
                   ),
                 ],
@@ -156,15 +268,12 @@ class OpportunityDetailsPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            // Divider for spacing
-            const Divider(color: Colors.grey, thickness: 0.5),
-            const SizedBox(height: 16),
             // Apply Now Button
             Center(
               child: ElevatedButton(
                 onPressed: () async {
-                  if (applyUrl.isNotEmpty && await canLaunch(applyUrl)) {
-                    await launch(applyUrl);
+                  if (applyUrl.isNotEmpty && await canLaunchUrl(Uri.parse(applyUrl))) {
+                    await launchUrl(Uri.parse(applyUrl));
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(

@@ -10,19 +10,13 @@ from firebase_admin import credentials, firestore, auth
 import numpy as np
 import os
 
-# Flask app setup
 app = Flask(__name__)
 
 
-
 script_dir = os.path.dirname(os.path.abspath(__file__))
-
-
 env_path = os.path.join(script_dir, "../.env")
 if not os.path.exists(env_path):
     raise FileNotFoundError(f".env file not found at path: {env_path}")
-
-print(f"Loading .env file from: {env_path}")
 load_dotenv(dotenv_path=env_path)
 
 
@@ -30,15 +24,11 @@ firebase_credentials_path = os.getenv("FIREBASE_CREDENTIALS_PATH")
 if not firebase_credentials_path:
     raise ValueError("Firebase credentials path is not set in the .env file.")
 
-
 if not os.path.isabs(firebase_credentials_path):
     firebase_credentials_path = os.path.join(script_dir, firebase_credentials_path)
 
 if not os.path.exists(firebase_credentials_path):
     raise FileNotFoundError(f"Firebase credentials file not found at path: {firebase_credentials_path}")
-
-print(f"Resolved Firebase credentials path: {firebase_credentials_path}")
-
 
 cred = credentials.Certificate(firebase_credentials_path)
 firebase_admin.initialize_app(cred)
@@ -46,15 +36,11 @@ db = firestore.client()
 print("Firebase Admin initialized successfully!")
 
 
-dataset_name = "ClayWebScrapingwithskills20NOV 4.csv"  
+dataset_name = "ClayWebScrapingwithskills20NOV 4.csv"
 dataset_path = os.path.join(script_dir, dataset_name)
-
 
 if not os.path.exists(dataset_path):
     raise FileNotFoundError(f"Dataset file not found at path: {dataset_path}")
-
-print(f"Resolved dataset path: {dataset_path}")
-
 
 try:
     opp_df = pd.read_csv(dataset_path)
@@ -63,55 +49,38 @@ except Exception as e:
     raise ValueError(f"Error loading dataset: {str(e)}")
 
 
-
-
 job_columns = ['Company Descreption', 'Skills', 'Majors', 'Location', 'GPA out of 5', 'GPA out of 4', 'Job Title', 'Company Apply link']
-
-
 for column in job_columns:
     opp_df[column] = opp_df[column].fillna('').astype(str)
-
 
 opp_df['GPA out of 5'] = pd.to_numeric(opp_df['GPA out of 5'], errors='coerce').fillna(0)
 opp_df['GPA out of 4'] = pd.to_numeric(opp_df['GPA out of 4'], errors='coerce').fillna(0)
 
+opp_df['Location'] = opp_df['Location'].apply(lambda x: x.split(',') if x else [])
+opp_df['Skills'] = opp_df['Skills'].apply(
+    lambda x: list(set([skill.strip().lower() for skill in x.split(',')])) if x else []
+)
+print("Sample processed data:")
+print(opp_df[['Skills', 'Location']].head())
 
-opp_df['Location'] = opp_df['Location'].str.replace('Jiddah', 'Jeddah')
-
-
-cities = [
-    'Abha', 'Al Ahsa', 'Al Khobar', 'Al Qassim', 'Dammam', 'Hail', 'Jeddah', 'Jizan', 'Jubail',
-    'Mecca', 'Medina', 'Najran', 'Riyadh', 'Tabuk', 'Taif'
-]
-
-
-def expand_saudi_arabia(locations):
-    if 'Saudi Arabia' in locations:
-        return cities
-    return locations
-
-
-opp_df['Location'] = opp_df['Location'].apply(lambda x: expand_saudi_arabia(x.split(',')))
-
+opp_df['Location'] = opp_df['Location'].apply(lambda x: ['Jeddah' if loc == 'Jiddah' else loc for loc in x])
 
 location_binarizer = MultiLabelBinarizer()
 location_binarizer.fit(opp_df['Location'])
 
 tfidf_vectorizer = TfidfVectorizer(max_features=5000, stop_words='english')
-tfidf_vectorizer.fit(opp_df['Skills'])
+tfidf_vectorizer.fit([' '.join(skills) for skills in opp_df['Skills']])
 
 gpa_scaler = StandardScaler()
 gpa_scaler.fit(opp_df[['GPA out of 5', 'GPA out of 4']])
 
-
 def vectorize_opp():
-    opp_text_vectors = tfidf_vectorizer.transform(opp_df['Skills'])
+    opp_text_vectors = tfidf_vectorizer.transform([' '.join(skills) for skills in opp_df['Skills']])
     opp_gpa_vectors = csr_matrix(gpa_scaler.transform(opp_df[['GPA out of 5', 'GPA out of 4']]))
     opp_location_vectors = csr_matrix(location_binarizer.transform(opp_df['Location']))
     return opp_text_vectors, opp_gpa_vectors, opp_location_vectors
 
 opp_text_vectors, opp_gpa_vectors, opp_location_vectors = vectorize_opp()
-
 
 def vectorize_user(user_data):
     skills_combined = ' '.join(skill.lower() for skill in user_data['skills'])
@@ -128,17 +97,14 @@ def vectorize_user(user_data):
     return user_text_vector, user_gpa_vector, user_location_vector
 
 def calculate_gpa_similarity(user_gpa, user_gpa_scale, job_gpa_5, job_gpa_4):
-
     try:
         user_gpa = float(user_gpa)
         user_gpa_scale = float(user_gpa_scale)
     except ValueError:
         raise ValueError("GPA and GPA scale must be numeric values.")
-    
 
     if job_gpa_5 == 0 and job_gpa_4 == 0:
         return 1.0
-    
 
     if user_gpa_scale == 5:
         user_gpa_scaled = user_gpa
@@ -146,17 +112,13 @@ def calculate_gpa_similarity(user_gpa, user_gpa_scale, job_gpa_5, job_gpa_4):
         user_gpa_scaled = user_gpa * (5 / 4)
     else:
         raise ValueError("Unsupported GPA scale. Only 4 or 5 are allowed.")
-    
 
     job_gpa = max(job_gpa_5, job_gpa_4 * (5 / 4))
-    
 
     if user_gpa_scaled >= job_gpa:
         return 1.0
-    
 
     return 1 - abs(user_gpa_scaled - job_gpa) / 5
-
 
 def calculate_skills_similarity(user_skills_vector, job_skills_vector):
     return cosine_similarity(user_skills_vector, job_skills_vector)[0][0]
@@ -167,7 +129,6 @@ def calculate_location_similarity(user_locations, job_locations):
     if np.dot(user_locations_array, job_locations_array) > 0:
         return 1.0
     return 0.0
-
 
 @app.route("/recommend", methods=["POST"])
 def recommend():
@@ -218,7 +179,9 @@ def recommend():
                     'Job Title': row['Job Title'],
                     'Description': row['Company Descreption'],
                     'Apply url': row['Company Apply link'],
-                    'Company Name':row['Company Name'],
+                    'Company Name': row.get('Company Name', 'N/A'),
+                    'Skills': row['Skills'],
+                    'Locations': row['Location'],
                     'Total Similarity': total_similarity
                 })
 
