@@ -25,54 +25,142 @@ class OpportunityDetailsPage extends StatelessWidget {
           "Company Details",
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: const Color(0xFF113F67),
+        backgroundColor: const Color(0xFF096499),
         centerTitle: true,
         iconTheme: const IconThemeData(
           color: Colors.white,
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              jobTitle,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF113F67),
+            // Header Section
+            Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(0xFF096499),
+                    Color(0xFF2F83C5),
+                    Color(0xFF1BAEC6),
+                    Color(0xFF48C4DD),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 8,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    jobTitle,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.business, color: Colors.white, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        companyName,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 10),
-            Text(
-              "Company: $companyName",
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF113F67),
+            const SizedBox(height: 16),
+            // About Section (Expandable)
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ExpansionTile(
+                title: Row(
+                  children: [
+                    const Icon(Icons.info_outline, color: Color(0xFF096499)),
+                    const SizedBox(width: 8),
+                    const Text(
+                      "About The Company",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF096499),
+                      ),
+                    ),
+                  ],
+                ),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      description,
+                      style: const TextStyle(fontSize: 16, height: 1.5),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 10),
-             Text(
-              "About: $companyName",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Text(description),
-            const SizedBox(height: 10),
-            Text(
-              "Match Percent: ${(similarity * 100).toStringAsFixed(2)}%",
-              style: TextStyle(
-                fontSize: 16,
-                color: similarity >= 0.7
-                    ? Colors.green
-                    : similarity >= 0.5
-                        ? const Color.fromARGB(255, 233, 109, 0)
-                        : const Color.fromARGB(255, 200, 14, 1),
-                fontWeight: FontWeight.bold,
+            const SizedBox(height: 16),
+            // Match Percent Section
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.bar_chart,
+                      color: Color(0xFF096499),
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        "Match Percent: ${(similarity * 100).toStringAsFixed(2)}%",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: similarity >= 0.7
+                              ? Colors.green
+                              : similarity >= 0.5
+                                  ? const Color.fromARGB(255, 233, 109, 0)
+                                  : const Color.fromARGB(255, 200, 14, 1),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const Spacer(), 
+            const SizedBox(height: 24),
+            // Divider for spacing
+            const Divider(color: Colors.grey, thickness: 0.5),
+            const SizedBox(height: 16),
+            // Apply Now Button
             Center(
               child: ElevatedButton(
                 onPressed: () async {
@@ -87,20 +175,27 @@ class OpportunityDetailsPage extends StatelessWidget {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF113F67),
+                  backgroundColor: const Color(0xFF096499),
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 30, vertical: 12), // Adjust button size
+                      horizontal: 40, vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
+                  elevation: 6,
                 ),
-                child: const Text(
-                  "Apply Now",
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.send, color: Colors.white),
+                    SizedBox(width: 8),
+                    Text(
+                      "Apply Now",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ],
                 ),
               ),
             ),
-            const SizedBox(height: 20), 
           ],
         ),
       ),
