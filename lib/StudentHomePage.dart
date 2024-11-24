@@ -94,21 +94,48 @@ class HadafiDrawer extends StatelessWidget {
   }
 
   void _launchEmail() async {
-    final Uri emailLaunchUri = Uri(
-      scheme: 'mailto',
-      path: 'Hadafi.GP@gmail.com',
-      query:
-          'subject=App Support&body=Dear Admin, I encountered the following issues:',
-    );
-
     try {
-      if (await canLaunchUrl(emailLaunchUri)) {
-        await launchUrl(emailLaunchUri);
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        print("User is not logged in.");
+        return;
+      }
+
+      final String userId = user.uid;
+
+      final String email = 'Hadafi.GP@gmail.com';
+      final String subject = Uri.encodeComponent('App Support - User ID: $userId');
+      final String body = Uri.encodeComponent(
+          'Dear Admin, I encountered the following issues:');
+
+      final String emailUrl = 'mailto:$email?subject=$subject&body=$body';
+
+      if (await canLaunchUrl(Uri.parse(emailUrl))) {
+        await launchUrl(Uri.parse(emailUrl));
       } else {
         throw 'Could not launch email client';
       }
     } catch (e) {
-      print(e);
+      print("An error occurred while launching the email: $e");
+    }
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+        (route) => false,
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Logout failed. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 }
@@ -123,6 +150,8 @@ class StudentHomePage extends StatefulWidget {
 class _StudentHomePageState extends State<StudentHomePage> {
   List<dynamic> recommendations = [];
   bool isLoading = true;
+
+  final ValueNotifier<int> _tabNotifier = ValueNotifier<int>(0);
 
   @override
   void initState() {
@@ -182,36 +211,49 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF3F9FB),
-      drawer: const HadafiDrawer(),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF113F67),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(1),
-            child: Image.asset(
-              'Hadafi/images/LOGO.png',
-              fit: BoxFit.contain,
-              height: 300,
+    return DefaultTabController(
+      length: 2,
+      child: Builder(
+        builder: (BuildContext context) {
+          final TabController tabController = DefaultTabController.of(context)!;
+          tabController.addListener(() {
+            if (!tabController.indexIsChanging) {
+              _tabNotifier.value = tabController.index;
+            }
+          });
+          return Scaffold(
+            backgroundColor: const Color(0xFFF3F9FB),
+            drawer: const HadafiDrawer(),
+            appBar: AppBar(
+              backgroundColor: const Color(0xFF113F67),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.all(1),
+                  child: Image.asset(
+                    'Hadafi/images/LOGO.png',
+                    fit: BoxFit.contain,
+                    height: 300,
+                  ),
+                ),
+              ],
+              iconTheme: const IconThemeData(color: Colors.white),
             ),
-          ),
-        ],
-        iconTheme: const IconThemeData(color: Colors.white),
+            body: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        _buildSectionTitle('Training Opportunities'),
+                        _buildOpportunitiesTab(),
+                        _buildSectionTitle('Feedback from Users'),
+                        _buildFeedbackList(),
+                      ],
+                    ),
+                  ),
+          );
+        },
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  _buildSectionTitle('Training Opportunities'),
-                  _buildOpportunitiesTab(),
-                  _buildSectionTitle('Feedback from Users'),
-                  _buildFeedbackList(),
-                ],
-              ),
-            ),
     );
   }
 
@@ -235,67 +277,73 @@ class _StudentHomePageState extends State<StudentHomePage> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
       child: SizedBox(
-        height: 530, 
-        child: DefaultTabController(
-          length: 2,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE3F2FD),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.info_outline,
-                        color: Color(0xFF113F67),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: const Text(
-                          'Opportunities are sorted from the best match to the least.',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF113F67),
-                            fontWeight: FontWeight.bold,
+        height: 530,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ValueListenableBuilder<int>(
+              valueListenable: _tabNotifier,
+              builder: (context, selectedIndex, child) {
+                return AnimatedSize(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  child: selectedIndex == 0
+                      ? Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 8.0),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE3F2FD),
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                        ),
-                      ),
-                    ],
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.info_outline,
+                                color: Color(0xFF113F67),
+                                size: 20, 
+                              ),
+                              const SizedBox(width: 8),
+                              const Expanded(
+                                child: Text(
+                                  'Opportunities are sorted from the best match to the least',
+                                  style: TextStyle(
+                                    fontSize: 12, 
+                                    color: Color(0xFF113F67),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : const SizedBox.shrink(), 
+                );
+              },
+            ),
+            const TabBar(
+              labelColor: Color(0xFF113F67),
+              unselectedLabelColor: Colors.grey,
+              indicatorColor: Color(0xFF113F67),
+              tabs: [
+                Tab(text: 'Best Match'),
+                Tab(text: 'Other'),
+              ],
+            ),
+            Expanded(
+              child: TabBarView(
+                children: [
+                  OpportunitiesList(
+                    title: 'Best Match Opportunities',
+                    opportunities: recommendations,
                   ),
-                ),
-              ),
-              const TabBar(
-                labelColor: Color(0xFF113F67),
-                unselectedLabelColor: Colors.grey,
-                indicatorColor: Color(0xFF113F67),
-                tabs: [
-                  Tab(text: 'Best Match'),
-                  Tab(text: 'Other'),
+                  OpportunitiesList(
+                    title: 'Other Opportunities',
+                    opportunities: [],
+                  ),
                 ],
               ),
-              Expanded(
-                child: TabBarView(
-                  children: [
-                    OpportunitiesList(
-                      title: 'Best Match Opportunities',
-                      opportunities: recommendations,
-                    ),
-                    OpportunitiesList(
-                      title: 'Other Opportunities',
-                      opportunities: [],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -396,8 +444,7 @@ class OpportunitiesList extends StatelessWidget {
                 ],
               ),
               trailing: IconButton(
-                icon: const Icon(Icons.more,
-                    color: Color(0xFF113F67)),
+                icon: const Icon(Icons.more, color: Color(0xFF113F67)),
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -407,9 +454,10 @@ class OpportunitiesList extends StatelessWidget {
                         companyName: companyName,
                         description: description,
                         applyUrl: applyUrl,
-                        similarity: 0.0, 
+                        similarity: 0.0,
                         skills: List<String>.from(opportunity['Skills'] ?? []),
-                        location: (opportunity['Locations'] ?? []).join(', '),
+                        location:
+                            (opportunity['Locations'] ?? []).join(', '),
                         gpa5: gpa5,
                         gpa4: gpa4,
                       ),
@@ -421,25 +469,6 @@ class OpportunitiesList extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-// Logout method
-Future<void> _logout(BuildContext context) async {
-  try {
-    await FirebaseAuth.instance.signOut();
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const WelcomeScreen()),
-      (route) => false,
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Logout failed. Please try again.'),
-        backgroundColor: Colors.red,
-      ),
     );
   }
 }
