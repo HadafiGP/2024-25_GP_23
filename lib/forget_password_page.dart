@@ -101,7 +101,10 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                         Text(
                           'Enter your email to receive a password reset link.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 16),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Color(0xFF113F67),
+                          ),
                         ),
                         const SizedBox(height: 20),
                         _buildTextField('Email', _emailController),
