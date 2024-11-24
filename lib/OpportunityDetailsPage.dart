@@ -9,6 +9,8 @@ class OpportunityDetailsPage extends StatelessWidget {
   final double similarity;
   final List<String> skills;
   final String location;
+  final double gpa5;
+  final double gpa4;
 
   const OpportunityDetailsPage({
     super.key,
@@ -19,12 +21,17 @@ class OpportunityDetailsPage extends StatelessWidget {
     required this.similarity,
     required this.skills,
     required this.location,
+    required this.gpa5,
+    required this.gpa4,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Split location into a list to handle multiple locations.
+    // Split locations
     final locationsList = location.split(',').map((loc) => loc.trim()).toList();
+
+    // Check GPA if 0 the gpa requriments will not be displayed
+    final bool hasGpa = gpa5 > 0 || gpa4 > 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -96,7 +103,7 @@ class OpportunityDetailsPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            // About the Company Section
+            // About the Company
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -129,7 +136,7 @@ class OpportunityDetailsPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            // Location Section
+            // Location
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -139,7 +146,8 @@ class OpportunityDetailsPage extends StatelessWidget {
                   ? ExpansionTile(
                       title: Row(
                         children: [
-                          const Icon(Icons.location_on, color: Color(0xFF096499)),
+                          const Icon(Icons.location_on,
+                              color: Color(0xFF096499)),
                           const SizedBox(width: 8),
                           const Text(
                             "Locations",
@@ -165,7 +173,8 @@ class OpportunityDetailsPage extends StatelessWidget {
                       padding: const EdgeInsets.all(16),
                       child: Row(
                         children: [
-                          const Icon(Icons.location_on, color: Color(0xFF096499)),
+                          const Icon(Icons.location_on,
+                              color: Color(0xFF096499)),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
@@ -181,8 +190,87 @@ class OpportunityDetailsPage extends StatelessWidget {
                       ),
                     ),
             ),
-            const SizedBox(height: 16),
-            // Skills Section
+            if (hasGpa) const SizedBox(height: 16),
+            // GPA
+            if (hasGpa)
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.school,
+                            color: Color(0xFF096499),
+                            size: 24,
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            "GPA Requirements",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF096499),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (gpa5 > 0)
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.star,
+                                  color: Colors.orange,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "GPA out of 5: ${gpa5.toStringAsFixed(2)}",
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          if (gpa4 > 0)
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.star,
+                                  color: Colors.blue,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "GPA out of 4: ${gpa4.toStringAsFixed(2)}",
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            // Skills
+            if (!hasGpa) const SizedBox(height: 16),
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -191,7 +279,8 @@ class OpportunityDetailsPage extends StatelessWidget {
               child: ExpansionTile(
                 title: Row(
                   children: [
-                    const Icon(Icons.lightbulb_outline, color: Color(0xFF096499)),
+                    const Icon(Icons.lightbulb_outline,
+                        color: Color(0xFF096499)),
                     const SizedBox(width: 8),
                     const Text(
                       "Skills Required",
@@ -212,7 +301,8 @@ class OpportunityDetailsPage extends StatelessWidget {
                           .map(
                             (skill) => Row(
                               children: [
-                                const Icon(Icons.circle, size: 8, color: Color(0xFF096499)), // Bullet point
+                                const Icon(Icons.circle,
+                                    size: 8, color: Color(0xFF096499)),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
@@ -232,47 +322,13 @@ class OpportunityDetailsPage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
-            // Match Percent Section
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.bar_chart,
-                      color: Color(0xFF096499),
-                      size: 24,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        "Match Percent: ${(similarity * 100).toStringAsFixed(2)}%",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: similarity >= 0.7
-                              ? Colors.green
-                              : similarity >= 0.5
-                                  ? const Color.fromARGB(255, 233, 109, 0)
-                                  : const Color.fromARGB(255, 200, 14, 1),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
             const SizedBox(height: 24),
-            // Apply Now Button
+            // Apply button
             Center(
               child: ElevatedButton(
                 onPressed: () async {
-                  if (applyUrl.isNotEmpty && await canLaunchUrl(Uri.parse(applyUrl))) {
+                  if (applyUrl.isNotEmpty &&
+                      await canLaunchUrl(Uri.parse(applyUrl))) {
                     await launchUrl(Uri.parse(applyUrl));
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -284,8 +340,8 @@ class OpportunityDetailsPage extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF096499),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 40, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),

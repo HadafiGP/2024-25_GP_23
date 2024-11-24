@@ -58,7 +58,7 @@ class HadafiDrawer extends StatelessWidget {
               leading: const Icon(Icons.contact_mail, color: Color(0xFF113F67)),
               title: const Text('Contact us'),
               onTap: () {
-                _launchEmail(); 
+                _launchEmail();
               },
             ),
             const Divider(),
@@ -66,8 +66,8 @@ class HadafiDrawer extends StatelessWidget {
               leading: const Icon(Icons.logout, color: Color(0xFF113F67)),
               title: const Text('Log Out'),
               onTap: () {
-                Navigator.pop(context); 
-                _logout(context); 
+                Navigator.pop(context);
+                _logout(context);
               },
             ),
           ],
@@ -82,7 +82,7 @@ class HadafiDrawer extends StatelessWidget {
       leading: Icon(icon, color: const Color(0xFF113F67)),
       title: Text(title),
       onTap: () {
-        Navigator.pop(context); 
+        Navigator.pop(context);
         if (page != null) {
           Navigator.push(
             context,
@@ -235,11 +235,42 @@ class _StudentHomePageState extends State<StudentHomePage> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
       child: SizedBox(
-        height: 490,
+        height: 530, 
         child: DefaultTabController(
           length: 2,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE3F2FD),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.info_outline,
+                        color: Color(0xFF113F67),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: const Text(
+                          'Opportunities are sorted from the best match to the least.',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF113F67),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               const TabBar(
                 labelColor: Color(0xFF113F67),
                 unselectedLabelColor: Colors.grey,
@@ -257,7 +288,9 @@ class _StudentHomePageState extends State<StudentHomePage> {
                       opportunities: recommendations,
                     ),
                     OpportunitiesList(
-                        title: 'Other Opportunities', opportunities: []),
+                      title: 'Other Opportunities',
+                      opportunities: [],
+                    ),
                   ],
                 ),
               ),
@@ -321,7 +354,7 @@ class OpportunitiesList extends StatelessWidget {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       itemCount: opportunities.length,
       itemBuilder: (context, index) {
         final opportunity = opportunities[index];
@@ -331,15 +364,15 @@ class OpportunitiesList extends StatelessWidget {
         final description =
             opportunity['Description'] ?? "No description available.";
         final applyUrl = opportunity['Apply url'] ?? "";
-        final similarity = opportunity['Total Similarity'] ?? 0.0;
+        final gpa5 = opportunity['GPA out of 5'] ?? 0.0;
+        final gpa4 = opportunity['GPA out of 4'] ?? 0.0;
 
         return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFF113F67), width: 2),
+              borderRadius: BorderRadius.circular(12),
               boxShadow: const [
                 BoxShadow(
                   color: Colors.black12,
@@ -360,22 +393,11 @@ class OpportunitiesList extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(companyName),
-                  const SizedBox(height: 5),
-                  Text(
-                    "Match Percent: ${(similarity * 100).toStringAsFixed(2)}%",
-                    style: TextStyle(
-                      color: similarity >= 0.7
-                          ? Colors.green
-                          : similarity >= 0.5
-                              ? const Color.fromARGB(255, 233, 109, 0)
-                              : const Color.fromARGB(255, 200, 14, 1),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
                 ],
               ),
               trailing: IconButton(
-                icon: const Icon(Icons.more),
+                icon: const Icon(Icons.more,
+                    color: Color(0xFF113F67)),
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -385,9 +407,11 @@ class OpportunitiesList extends StatelessWidget {
                         companyName: companyName,
                         description: description,
                         applyUrl: applyUrl,
-                        similarity: opportunity['Total Similarity'] ?? 0.0,
+                        similarity: 0.0, 
                         skills: List<String>.from(opportunity['Skills'] ?? []),
                         location: (opportunity['Locations'] ?? []).join(', '),
+                        gpa5: gpa5,
+                        gpa4: gpa4,
                       ),
                     ),
                   );

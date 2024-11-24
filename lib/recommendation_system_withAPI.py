@@ -182,6 +182,8 @@ def recommend():
                     'Company Name': row.get('Company Name', 'N/A'),
                     'Skills': row['Skills'],
                     'Locations': row['Location'],
+                    'GPA out of 5': row['GPA out of 5'],
+                    'GPA out of 4': row['GPA out of 4'],
                     'Total Similarity': total_similarity
                 })
 
