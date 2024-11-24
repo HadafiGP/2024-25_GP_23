@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hadafi_application/logIn_page.dart';
 import 'package:hadafi_application/signup_widget.dart';
 import 'package:flutter/gestures.dart';
 
@@ -46,7 +45,10 @@ class ResetSuccessPage extends StatelessWidget {
             Text(
               'A password reset email has been sent. Please check your email to proceed.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(
+                fontSize: 16,
+                color: Color(0xFF113F67),
+              ),
             ),
             const SizedBox(height: 25),
             ElevatedButton(
@@ -72,21 +74,39 @@ class ResetSuccessPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            GestureDetector(
-              onTap: () {
-                onResendEmail();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Reset email resent successfully')),
-                );
-              },
-              child: Text(
-                "Did not receive the link? Check your spam folder or click here to resend the email.",
-                textAlign: TextAlign.center,
+            RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                text: "Did not receive the link? Check your spam folder or ",
                 style: TextStyle(
                   fontSize: 16,
                   color: Color(0xFF113F67),
-                  decoration: TextDecoration.underline,
                 ),
+                children: [
+                  TextSpan(
+                    text: "click here",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        onResendEmail();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text('Reset email resent successfully')),
+                        );
+                      },
+                  ),
+                  TextSpan(
+                    text: " to resend the email.",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF113F67),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
