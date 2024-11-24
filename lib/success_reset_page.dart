@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hadafi_application/signup_widget.dart';
+import 'package:hadafi_application/logIn_page.dart';
+
 import 'package:flutter/gestures.dart';
 
 class ResetSuccessPage extends StatelessWidget {
@@ -53,7 +55,11 @@ class ResetSuccessPage extends StatelessWidget {
             const SizedBox(height: 25),
             ElevatedButton(
               onPressed: () {
-                Navigator.popUntil(context, (route) => route.isFirst);
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                  (route) => false,
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF113F67),
