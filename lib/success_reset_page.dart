@@ -99,9 +99,44 @@ class ResetSuccessPage extends StatelessWidget {
                     recognizer: TapGestureRecognizer()
                       ..onTap = () {
                         onResendEmail();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text('Reset email resent successfully')),
+
+                        // Show a popup dialog with an OK button
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text(
+                                'Success',
+                                style: TextStyle(
+                                  fontWeight:
+                                      FontWeight.bold, // Make "Success" bold
+                                  color: Color(0xFF113F67), // New blue color
+                                ),
+                              ),
+                              content: Text(
+                                'Reset email sent successfully. Please check your email.',
+                                style: TextStyle(
+                                  color: Color(
+                                      0xFF113F67), // New blue color for content
+                                  fontSize: 16,
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pop(); // Close the popup
+                                  },
+                                  child: Text(
+                                    'OK',
+                                    style: TextStyle(
+                                        color: Color(
+                                            0xFF113F67)), // Button text color
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         );
                       },
                   ),
