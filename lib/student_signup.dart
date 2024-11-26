@@ -334,7 +334,12 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     'Agricultural Engineering',
     'Animal Science',
     'Food Science and Nutrition',
-    'Plant Science'
+    'Plant Science',
+    'Auditing',
+    'Public Relations',
+    'Frontend Development',
+    'Economics'
+    
   ];
 
   void _validatePassword(String password) {
