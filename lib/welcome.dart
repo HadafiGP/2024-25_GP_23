@@ -132,7 +132,7 @@ class WelcomeScreen extends StatelessWidget {
                           text: 'Already have an account? ',
                           style: const TextStyle(
                             color: Colors.black54,
-                            fontSize: 16,
+                            fontSize: 18,
                           ),
                           children: [
                             WidgetSpan(
@@ -148,9 +148,17 @@ class WelcomeScreen extends StatelessWidget {
                                 child: Text(
                                   'Log in',
                                   style: TextStyle(
-                                    color: Color(0xFF113F67), // Link color
-                                    fontSize: 16,
+                                    color: Color(0xFF113F67),
+                                    fontSize: 18,
                                     fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline,
+                                    shadows: [
+                                      Shadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        offset: Offset(0, 2),
+                                        blurRadius: 4,
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
