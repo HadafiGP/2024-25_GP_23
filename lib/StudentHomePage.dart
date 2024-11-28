@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import "package:hadafi_application/OpportunityDetailsPage.dart";
+import "package:hadafi_application/button.dart";
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -105,7 +106,8 @@ class HadafiDrawer extends StatelessWidget {
       final String userId = user.uid;
 
       final String email = 'Hadafi.GP@gmail.com';
-      final String subject = Uri.encodeComponent('App Support - User ID: $userId');
+      final String subject =
+          Uri.encodeComponent('App Support - User ID: $userId');
       final String body = Uri.encodeComponent(
           'Dear Admin, I encountered the following issues:');
 
@@ -300,14 +302,14 @@ class _StudentHomePageState extends State<StudentHomePage> {
                               const Icon(
                                 Icons.info_outline,
                                 color: Color(0xFF113F67),
-                                size: 20, 
+                                size: 20,
                               ),
                               const SizedBox(width: 8),
                               const Expanded(
                                 child: Text(
                                   'Opportunities are sorted from the best match to the least',
                                   style: TextStyle(
-                                    fontSize: 12, 
+                                    fontSize: 12,
                                     color: Color(0xFF113F67),
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -316,7 +318,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                             ],
                           ),
                         )
-                      : const SizedBox.shrink(), 
+                      : const SizedBox.shrink(),
                 );
               },
             ),
@@ -443,8 +445,12 @@ class OpportunitiesList extends StatelessWidget {
                   Text(companyName),
                 ],
               ),
-              trailing: IconButton(
-                icon: const Icon(Icons.more, color: Color(0xFF113F67)),
+              trailing: GradientButton(
+                text: "More",
+                gradientColors: [
+              Color(0xFF113F67), 
+              Color.fromARGB(255, 105, 185, 255), 
+                ],
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -456,8 +462,7 @@ class OpportunitiesList extends StatelessWidget {
                         applyUrl: applyUrl,
                         similarity: 0.0,
                         skills: List<String>.from(opportunity['Skills'] ?? []),
-                        location:
-                            (opportunity['Locations'] ?? []).join(', '),
+                        location: (opportunity['Locations'] ?? []).join(', '),
                         gpa5: gpa5,
                         gpa4: gpa4,
                       ),
