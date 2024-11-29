@@ -228,16 +228,6 @@ class _StudentHomePageState extends State<StudentHomePage> {
             drawer: const HadafiDrawer(),
             appBar: AppBar(
               backgroundColor: const Color(0xFF113F67),
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.all(1),
-                  child: Image.asset(
-                    'Hadafi/images/LOGO.png',
-                    fit: BoxFit.contain,
-                    height: 300,
-                  ),
-                ),
-              ],
               iconTheme: const IconThemeData(color: Colors.white),
             ),
             body: isLoading
@@ -309,7 +299,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                                 child: Text(
                                   'Opportunities are sorted from the best match to the least',
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 13,
                                     color: Color(0xFF113F67),
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -448,8 +438,8 @@ class OpportunitiesList extends StatelessWidget {
               trailing: GradientButton(
                 text: "More",
                 gradientColors: [
-              Color(0xFF113F67), 
-              Color.fromARGB(255, 105, 185, 255), 
+                  Color(0xFF113F67),
+                  Color.fromARGB(255, 105, 185, 255),
                 ],
                 onPressed: () {
                   Navigator.push(
