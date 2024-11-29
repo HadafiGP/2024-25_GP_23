@@ -339,7 +339,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     'Public Relations',
     'Frontend Development',
     'Economics'
-    
   ];
 
   void _validatePassword(String password) {
@@ -349,6 +348,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
       _hasLowercase = RegExp(r'[a-z]').hasMatch(password);
       _hasNumber = RegExp(r'[0-9]').hasMatch(password);
       _hasSpecialChar = RegExp(r'[!@#\$&*~]').hasMatch(password);
+      _hasSpecialChar = RegExp(r'[!@#\$&*\.\~]').hasMatch(password);
       _hasAttemptedSubmit = false;
     });
   }
