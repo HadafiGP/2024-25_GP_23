@@ -217,10 +217,10 @@ class _TrainingProviderSignupScreenState
                               RegExp(r'[A-Z]').hasMatch(value) &&
                               RegExp(r'[a-z]').hasMatch(value) &&
                               RegExp(r'[0-9]').hasMatch(value) &&
-                              RegExp(r'[!@#\$&*~]').hasMatch(value);
+                              RegExp(r'[!@#\$&*\.\~]').hasMatch(value);
 
                           if (!passwordValid) {
-                            return 'Password must be at least 8 characters long, include \nuppercase/lowercase letters, and at least one number \nand special character.';
+                            return '';
                           }
 
                           return null;
