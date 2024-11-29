@@ -18,6 +18,11 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _majorKey = GlobalKey();
+  final _locationKey = GlobalKey();
+  final _nationalityKey = GlobalKey();
+
+  final ScrollController _scrollController = ScrollController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -341,6 +346,63 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     'Economics'
   ];
 
+  final GlobalKey<FormFieldState<String>> _nameKey = GlobalKey();
+  final GlobalKey<FormFieldState<String>> _emailKey = GlobalKey();
+  final GlobalKey<FormFieldState<String>> _passwordKey = GlobalKey();
+  final GlobalKey<FormFieldState<String>> _gpaKey = GlobalKey();
+
+  void _scrollToFirstError() {
+    // تحقق من الحقول المرتبطة بـ TextFormField
+    for (var key in [_nameKey, _emailKey, _passwordKey, _gpaKey]) {
+      if (key.currentState != null && key.currentState is FormFieldState) {
+        final fieldState = key.currentState as FormFieldState<String>;
+        if (!fieldState.validate()) {
+          final context = key.currentContext;
+          if (context != null) {
+            final renderBox = context.findRenderObject() as RenderBox;
+            final offset = renderBox.localToGlobal(Offset.zero).dy;
+
+            _scrollController.animateTo(
+              offset - 100, // تعديل المسافة لتكون واضحة أسفل الحقل
+              duration: Duration(milliseconds: 500),
+              curve: Curves.easeInOut,
+            );
+          }
+          return; // توقف بعد العثور على أول حقل يحتوي على خطأ
+        }
+      }
+    }
+
+    // تحقق من القيم غير المرتبطة بـ FormFieldState
+    if (_selectedMajor == null) {
+      _scrollToElement(_majorKey);
+      return;
+    }
+    if (_selectedLocations.isEmpty) {
+      _scrollToElement(_locationKey);
+      return;
+    }
+    if (_selectedNationality == null) {
+      _scrollToElement(_nationalityKey);
+      return;
+    }
+  }
+
+// دالة مساعدة لتحريك الشاشة إلى الحقل بناءً على GlobalKey
+  void _scrollToElement(GlobalKey key) {
+    final context = key.currentContext;
+    if (context != null) {
+      final renderBox = context.findRenderObject() as RenderBox;
+      final offset = renderBox.localToGlobal(Offset.zero).dy;
+
+      _scrollController.animateTo(
+        offset - 100, // مسافة أعلى الحقل
+        duration: Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
   void _validatePassword(String password) {
     setState(() {
       _isMinLength = password.length >= 8;
@@ -395,6 +457,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                 ],
               ),
               child: SingleChildScrollView(
+                controller: _scrollController, // ScrollController
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -410,7 +473,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                       ),
                       const SizedBox(height: 20),
                       _buildTextField('Full Name (required)', _nameController,
-                          validator: (value) {
+                          key: _nameKey, validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your full name';
                         }
@@ -421,6 +484,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                       _buildTextField(
                         'Email (required)',
                         _emailController,
+                        key: _emailKey,
                         validator: (value) {
                           if (_emailError != null) {
                             return _emailError; // Display the email aleardy in use error
@@ -439,7 +503,8 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                       const SizedBox(height: 15),
                       _buildTextField(
                         'Password (required)',
-                        _passwordController,
+                        _passwordController, key: _passwordKey,
+
                         isPassword: true,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -451,10 +516,10 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                               RegExp(r'[A-Z]').hasMatch(value) &&
                               RegExp(r'[a-z]').hasMatch(value) &&
                               RegExp(r'[0-9]').hasMatch(value) &&
-                              RegExp(r'[!@#\$&*~]').hasMatch(value);
+                              RegExp(r'[!@#\$&*\.\~]').hasMatch(value);
 
                           if (!passwordValid) {
-                            return 'Password must be at least 8 characters long, include \nuppercase/lowercase letters, and at least one number \nand special character.';
+                            return '';
                           }
 
                           return null;
@@ -479,12 +544,11 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
 
                       const SizedBox(height: 15),
 
-                      // Major Dropdown
-                      _buildMajorDropdown(),
+                      _buildMajorDropdown(key: _majorKey),
                       const SizedBox(height: 15),
-                      _buildLocationSelector(),
+                      _buildLocationSelector(key: _locationKey),
                       const SizedBox(height: 15),
-                      _buildNationalitySelector(),
+                      _buildNationalitySelector(key: _nationalityKey),
                       const SizedBox(height: 15),
 
 // GPA Scale and GPA Field Placement
@@ -503,6 +567,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                                         .clear(); // Clear the GPA field if scale changes
                                   });
                                 },
+                                key: _gpaKey,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: _selectedGpaScale == 4.0
                                       ? Color(0xFF113F67)
@@ -654,7 +719,10 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                                       _selectedManagementSkills.isNotEmpty ||
                                       _selectedSoftSkills.isNotEmpty;
                                 });
-
+                                if (!_formKey.currentState!.validate()) {
+                                  _scrollToFirstError();
+                                  return;
+                                }
                                 if (_formKey.currentState!.validate() &&
                                     _isSkillsSelected) {
                                   _signUp(); // Proceed if form and skills validation pass
@@ -692,6 +760,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   Widget _buildTextField(
     String label,
     TextEditingController controller, {
+    Key? key,
     bool isPassword = false,
     bool enabled = true,
     String? Function(String?)? validator,
@@ -699,6 +768,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     Widget? suffixIcon, // New parameter for suffix icon
   }) {
     return TextFormField(
+      key: key,
       controller: controller,
       obscureText: isPassword && !_isPasswordVisible, // Toggle visibility
       validator: validator,
@@ -764,13 +834,14 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     );
   }
 
-  Widget _buildMajorDropdown() {
+  Widget _buildMajorDropdown({Key? key}) {
     return GestureDetector(
       onTap: () {
         _showMajorDialog();
       },
       child: AbsorbPointer(
         child: TextFormField(
+          key: key,
           decoration: InputDecoration(
             labelText: 'Select Major (required)',
             suffixIcon: const Icon(Icons.arrow_drop_down),
@@ -1064,7 +1135,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     });
   }
 
-  Widget _buildLocationSelector() {
+  Widget _buildLocationSelector({Key? key}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1074,6 +1145,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
           },
           child: AbsorbPointer(
             child: TextFormField(
+              key: key,
               decoration: InputDecoration(
                 labelText: 'Select Locations (required)',
                 suffixIcon: const Icon(Icons.arrow_drop_down),
@@ -1191,13 +1263,14 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     });
   }
 
-  Widget _buildNationalitySelector() {
+  Widget _buildNationalitySelector({Key? key}) {
     return GestureDetector(
       onTap: () {
         _showNationalityDialog();
       },
       child: AbsorbPointer(
         child: TextFormField(
+          key: key,
           controller: _nationalityController,
           decoration: InputDecoration(
             labelText: 'Select Nationality (required)',
