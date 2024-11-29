@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hadafi_application/training_provider_profile.dart';
 import 'package:hadafi_application/welcome.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TrainingProviderHomePage extends StatelessWidget {
   const TrainingProviderHomePage({super.key});
@@ -17,11 +18,6 @@ class TrainingProviderHomePage extends StatelessWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
-            child: Image.asset(
-              'Hadafi/images/LOGO.png', // Path to the logo
-              fit: BoxFit.contain,
-              height: 50,
-            ),
           ),
         ],
       ),
@@ -176,6 +172,13 @@ class TrainingProviderHomePage extends StatelessWidget {
                 Navigator.pop(context);
               },
             ),
+            ListTile(
+              leading: const Icon(Icons.contact_mail, color: Color(0xFF113F67)),
+              title: const Text('Contact us'),
+              onTap: () {
+                _launchEmail();
+              },
+            ),
             Divider(),
             ListTile(
               leading: Icon(Icons.logout, color: Color(0xFF113F67)),
@@ -213,6 +216,35 @@ class TrainingProviderHomePage extends StatelessWidget {
           backgroundColor: Colors.red,
         ),
       );
+    }
+  }
+
+  void _launchEmail() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        print("User is not logged in.");
+        return;
+      }
+
+      final String userId = user.uid;
+
+      final String email = 'Hadafi.GP@gmail.com';
+      final String subject =
+          Uri.encodeComponent('App Support - User ID: $userId');
+      final String body = Uri.encodeComponent(
+          'Dear Admin, I encountered the following issues:');
+
+      final String emailUrl = 'mailto:$email?subject=$subject&body=$body';
+
+      if (await canLaunchUrl(Uri.parse(emailUrl))) {
+        await launchUrl(Uri.parse(emailUrl));
+      } else {
+        throw 'Could not launch email client';
+      }
+    } catch (e) {
+      print("An error occurred while launching the email: $e");
     }
   }
 }
