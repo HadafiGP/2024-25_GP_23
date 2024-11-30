@@ -669,6 +669,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           RichText(
+                            textAlign: TextAlign.left,
                             text: TextSpan(
                               children: [
                                 TextSpan(
