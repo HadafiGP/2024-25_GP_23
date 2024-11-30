@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hadafi_application/interview.dart';
-import 'package:hadafi_application/student_profile.dart';
 import 'package:hadafi_application/welcome.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
@@ -40,8 +39,7 @@ class HadafiDrawer extends StatelessWidget {
                 height: 80,
               ),
             ),
-            _buildDrawerItem(
-                context, Icons.person, 'Profile', const ProfilePage()),
+            _buildDrawerItem(context, Icons.person, 'Profile', null),
             _buildDrawerItem(
                 context, Icons.home, 'Home', const StudentHomePage()),
             _buildDrawerItem(

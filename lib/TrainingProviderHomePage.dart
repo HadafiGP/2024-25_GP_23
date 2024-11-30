@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:hadafi_application/training_provider_profile.dart';
 import 'package:hadafi_application/welcome.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -155,15 +154,7 @@ class TrainingProviderHomePage extends StatelessWidget {
             ListTile(
               leading: Icon(Icons.person, color: Color(0xFF113F67)),
               title: Text('Profile'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProviderProfilePage(),
-                  ),
-                );
-              },
+              onTap: () {},
             ),
             ListTile(
               leading: Icon(Icons.home, color: Color(0xFF113F67)),
