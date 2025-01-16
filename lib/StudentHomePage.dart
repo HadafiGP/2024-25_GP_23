@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hadafi_application/CV.dart';
 import 'package:hadafi_application/interview.dart';
 import 'package:hadafi_application/welcome.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -43,7 +44,7 @@ class HadafiDrawer extends StatelessWidget {
             _buildDrawerItem(
                 context, Icons.home, 'Home', const StudentHomePage()),
             _buildDrawerItem(
-                context, Icons.assignment, 'CV Enhancement Tool', null),
+                context, Icons.assignment, 'CV Enhancement Tool', CVPage()),
             _buildDrawerItem(
               context,
               Icons.chat,

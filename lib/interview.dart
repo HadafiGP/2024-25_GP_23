@@ -46,7 +46,7 @@ class _InterviewPageState extends State<InterviewPage> {
   Timer?
       _ITimer; //A timer instance that starts a timer with a specific duration when used.
   Duration IDuration = Duration(
-      minutes: 7); //A variable that indicates the length of the interview
+      minutes: 3); //A variable that indicates the length of the interview
   String? promptMsg;
   bool sentRestartQuestion =
       false; //A variable that indicates if the restart question has been shown to the user
@@ -121,7 +121,7 @@ class _InterviewPageState extends State<InterviewPage> {
     endInterview();
     //A prompt that controls how the chatbot will start the interview.
     _handleInitialMessage(
-      'Introduce yourself as "Hadafi application COOP/internship interviewer", and tell the user that you would conduct a 7 minute interview about the COOP/internship Position he is interested in. Make the introduction short.',
+      'Introduce yourself as "Hadafi application COOP/internship interviewer", and tell the user that you would conduct an interview about the COOP/internship Position he is interested in. Make the introduction short.',
     );
   }
 
@@ -283,6 +283,7 @@ class _InterviewPageState extends State<InterviewPage> {
                 textController:
                     _messageController, // controller to use for the (Enter) action
                 focusNode: _focusNode, // focus
+
                 sendOnEnter: true, // send on (Enter) key press
                 textInputAction: TextInputAction.send, // Show 'send' action
                 inputDecoration: InputDecoration(
@@ -299,6 +300,7 @@ class _InterviewPageState extends State<InterviewPage> {
                       color: Color(0xFF113F67),
                     ),
                   ),
+        
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30.0),
                     borderSide: const BorderSide(
