@@ -25,8 +25,8 @@ class _InterviewPageState extends State<InterviewPage> {
   final _openAI = OpenAI.instance.build(
     token: dotenv.env['openAI_api_interview_key'] ?? '',
     baseOption: HttpSetup(
-      receiveTimeout: const Duration(seconds: 15),
-      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 30),
+      connectTimeout: const Duration(seconds: 30),
     ),
     enableLog: true,
   );
@@ -43,10 +43,6 @@ class _InterviewPageState extends State<InterviewPage> {
       <ChatMessage>[]; //A list that store all the messages.
   final List<ChatMessage> _displayedMessages =
       []; //A list that store the messages displayed in the UI
-  Timer?
-      _ITimer; //A timer instance that starts a timer with a specific duration when used.
-  Duration IDuration = Duration(
-      minutes: 3); //A variable that indicates the length of the interview
   String? promptMsg;
   bool sentRestartQuestion =
       false; //A variable that indicates if the restart question has been shown to the user
@@ -117,8 +113,6 @@ class _InterviewPageState extends State<InterviewPage> {
 
     // Check connectivity first
     checkConnectivity(context);
-    //Call rhe endInterview function to start a timer with 10min duration
-    endInterview();
     //A prompt that controls how the chatbot will start the interview.
     _handleInitialMessage(
       'Introduce yourself as "Hadafi application COOP/internship interviewer", and tell the user that you would conduct an interview about the COOP/internship Position he is interested in. Make the introduction short.',
@@ -176,7 +170,8 @@ class _InterviewPageState extends State<InterviewPage> {
       ChatMessage stopMessage = ChatMessage(
         user: _chatGPTUser,
         createdAt: DateTime.now(),
-        text: 'If you want to stop the interview, just type "STOP".',
+        text:
+            'If you want to stop the interview, type "STOP" and answer the last interview question',
       );
 
       //insert the stop message _messages/_displayedMessages list.
@@ -384,17 +379,12 @@ class _InterviewPageState extends State<InterviewPage> {
       });
 
       noMoreQuestions = true;
-      isLastQuestion = false;
+      isLastQuestion = true;
       isWaiting = true;
-      _ITimer?.cancel();
-      interviewFeedback();
-
-      setState(() {
-        isTyping = false; // Stop typing indicator after STOP
-      });
-
+      endInterview();
       return;
     }
+
 
     // Handle user response to the restart question
     if (sentRestartQuestion == true) {
@@ -464,7 +454,10 @@ class _InterviewPageState extends State<InterviewPage> {
 
     // If the lastQuestion is sent call feedback function
     if (isLastQuestion) {
-      isLastQuestion = false;
+      setState(() {
+        isLastQuestion = false;
+      });
+
       interviewFeedback();
       return;
     }
@@ -549,10 +542,13 @@ class _InterviewPageState extends State<InterviewPage> {
           Map.of({
             "role": "assistant",
             "content":
-                "Utilize the user's message history to ask ONE interview question. Reask the user if their text appears gibberish or irrelevant. Play the role of an interviewer, keeping in mind that users are recent graduates with little work experience."
+                "Act as a professional interviewer while keeping in mind that users are recent graduates with little work experience. Utilize the user's message history to ask ONE random and unique interview question from a diverse pool of topics, including technical skills, soft skills, problem-solving, teamwork, and career aspirations, Use your internal randomness to generate unique questions every time. Reask the user if their text appears gibberish, irrelevant, or unresponsive. Avoid repeating questions."
           })
         ],
-        maxToken: 200,
+        temperature: 1.0,
+        topP: 0.95,
+        presencePenalty: 0.8,
+        frequencyPenalty: 0.5,
       );
 
       final response = await _openAI.onChatCompletion(request: request);
@@ -572,57 +568,49 @@ class _InterviewPageState extends State<InterviewPage> {
   }
 
   // Set an interview timer of 10 minutes and send the last question of the interview after the timer ends.
-  void endInterview() {
-    _ITimer = Timer(IDuration, () async {
-      Timer.periodic(Duration(milliseconds: 100), (timer) async {
-        if (isWaiting == false) {
-          noMoreQuestions = true;
-          timer.cancel();
+  void endInterview() async {
 
-          List<Map<String, dynamic>> _messagesHistory =
-              _displayedMessages.reversed.map((m) {
-            if (m.user == _currentUser) {
-              return {"role": "user", "content": m.text};
-            } else {
-              return {"role": "assistant", "content": m.text};
-            }
-          }).toList();
+    List<Map<String, dynamic>> messagesHistory =
+        _displayedMessages.reversed.map((m) {
+      if (m.user == _currentUser) {
+        return {"role": "user", "content": m.text};
+      } else {
+        return {"role": "assistant", "content": m.text};
+      }
+    }).toList();
 
-          final request = ChatCompleteText(
-            model: Gpt4ChatModel(),
-            messages: [
-              ..._messagesHistory,
-              Map.of({
-                "role": "assistant",
-                "content":
-                    "Using the user’s previous responses, ask a closing QUESTION. Ensure to write only a question, and clarify it's the last question."
-              })
-            ],
-            maxToken: 200,
-          );
+    final request = ChatCompleteText(
+      model: Gpt4ChatModel(),
+      messages: [
+        ...messagesHistory,
+        Map.of({
+          "role": "assistant",
+          "content":
+              "Using the user’s previous responses, ask one closing QUESTION (clarify it's the last question). If there are insufficient responses to formulate a closing question (The user only provided their position or stopped without answering any questions), explicitly state: 'There is not enough interview history to ask a closing question. Please ensure to answer at leat one question in the interview. Resond with an \"OK\" if you understand' Ensure the output is either a clear closing question or this message about insufficient responses."
+        })
+      ],
+      maxToken: 200,
+    );
 
-          final response = await _openAI.onChatCompletion(request: request);
+    final response = await _openAI.onChatCompletion(request: request);
 
-          ChatMessage message = ChatMessage(
-            user: _chatGPTUser,
-            createdAt: DateTime.now(),
-            text: response!.choices.first.message!.content.trim(),
-          );
+    ChatMessage lastQuestion = ChatMessage(
+      user: _chatGPTUser,
+      createdAt: DateTime.now(),
+      text: response!.choices.first.message!.content.trim(),
+    );
 
-          setState(() {
-            _messages.insert(0, message);
-            _displayedMessages.insert(0, message);
-            saveHistoryMessages(); //save messages permantely
-            isLastQuestion = true;
-          });
-        }
-      });
+    setState(() {
+      _messages.insert(0, lastQuestion);
+      _displayedMessages.insert(0, lastQuestion);
+      saveHistoryMessages();
+      isLastQuestion = true;
+      isTyping = false;
     });
   }
 
   //sends a feedback on all the interview questions after the interview ends or when the user types "stop". Calls restartInterviewQuestion() after sneding the feedback
   void interviewFeedback() async {
-    // Set typing indicator before feedback
     setState(() {
       isTyping = true;
     });
@@ -644,11 +632,9 @@ class _InterviewPageState extends State<InterviewPage> {
     bool hasHistory = _messagesHistory.any((msg) => msg["role"] == "user");
     int messageCount =
         _messagesHistory.where((msg) => msg["role"] == "user").length;
+
     if (!hasHistory || messageCount == 1) {
       setState(() {
-        // Show typing indicator before "There are no interview answers"
-        isTyping = true;
-
         _messages.insert(
           0,
           ChatMessage(
@@ -665,38 +651,73 @@ class _InterviewPageState extends State<InterviewPage> {
             text: "There are no interview answers to give feedback on.",
           ),
         );
-        saveHistoryMessages(); //save messages permantely
-        isTyping =
-            false; // Stop typing indicator after "There are no interview answers"
+        saveHistoryMessages();
+        isTyping = false;
       });
     } else {
-      final request = ChatCompleteText(
+      setState(() {
+        isTyping = true;
+      });
+
+      final feedbackRequest = ChatCompleteText(
         model: Gpt4ChatModel(),
         messages: [
           ..._messagesHistory,
           Map.of({
             "role": "assistant",
             "content":
-                "Analyze the user’s entire interview answers and offer constructive feedback on the strengths and areas of improvements, and mention any unanswered questions (except for the last one after “stop”)."
+                "Act as a professional HR recruiter and analyze the user's entire interview answers in detail. Provide constructive feedback on their strengths (if any) and areas for improvement, ensuring your assessment is realistic and straightforward. Avoid overgeneralizations or unwarranted praise—do not state the answers are 'good' overall unless they genuinely meet high standards. If there are no strengths, explicitly state this and explain why. Highlight specific weaknesses and unanswered questions, except for the one where the user stopped the interview. Offer real and sometimes harsh feedback if necessary, without sugar-coating or being vague. If there are insufficient responses to provide feedback (The user only provided their position or stopped without answering any questions), explicitly state: 'There is not enough interview history to provide' Ensure the output is either a constructive feedback or this message about insufficient responses."
           })
         ],
         maxToken: 1000,
       );
 
-      final response = await _openAI.onChatCompletion(request: request);
+      final feedbackResponse =
+          await _openAI.onChatCompletion(request: feedbackRequest);
 
-      ChatMessage message = ChatMessage(
+      ChatMessage feedbackMessage = ChatMessage(
         user: _chatGPTUser,
         createdAt: DateTime.now(),
-        text: response!.choices.first.message!.content.trim(),
+        text: feedbackResponse!.choices.first.message!.content.trim(),
       );
 
       setState(() {
-        _messages.insert(0, message);
-        _displayedMessages.insert(0, message);
-        saveHistoryMessages(); //save messages permantely
-        sentFeedback = true;
-        isTyping = false; // Stop typing indicator after feedback
+        _messages.insert(0, feedbackMessage);
+        _displayedMessages.insert(0, feedbackMessage);
+        saveHistoryMessages();
+      });
+
+      setState(() {
+        isTyping = true;
+      });
+
+      final resourceRequest = ChatCompleteText(
+        model: Gpt4ChatModel(),
+        messages: [
+          ..._messagesHistory,
+          Map.of({
+            "role": "assistant",
+            "content":
+                "Analyze the user's interview responses and feedback to identify weaknesses. For each weakness, provide 2-3 improvement resources, including: Books: Title, short description, and relevance to position and weakness. Online Courses/Websites: Name, link, and relevance to position and weakness. YouTube Videos/Channels: Specific links and relevance to position and weakness. Organize resources by weakness and ensure recommendations are specific and clear. Avoid generic responses like 'we will review your application.' If there are insufficient responses to recommend resources (The user only provided their position or stopped without answering any questions), explicitly state: 'There is not enough interview history to recommend resources.' Ensure the output is either weaknesses and relevant recommendations or this message about insufficient responses."
+          })
+        ],
+        maxToken: 1000,
+      );
+
+      final resourceResponse =
+          await _openAI.onChatCompletion(request: resourceRequest);
+
+      ChatMessage resourceMessage = ChatMessage(
+        user: _chatGPTUser,
+        createdAt: DateTime.now(),
+        text: resourceResponse!.choices.first.message!.content.trim(),
+      );
+
+      setState(() {
+        _messages.insert(0, resourceMessage);
+        _displayedMessages.insert(0, resourceMessage);
+        saveHistoryMessages();
+        isTyping = false;
       });
     }
 
@@ -705,7 +726,6 @@ class _InterviewPageState extends State<InterviewPage> {
 
   @override
   void dispose() {
-    _ITimer?.cancel();
     _messageController.dispose();
     _focusNode.dispose();
     super.dispose();
@@ -745,8 +765,6 @@ class _InterviewPageState extends State<InterviewPage> {
 
   //Handles the restart logic by cleaning the UI, resetting the variables, and calling _handleInitialMessage(character)
   void restartInterview() {
-    _ITimer?.cancel();
-
     // Show typing indicator before "Your new interview will start now."
     setState(() {
       isTyping = true;
@@ -785,8 +803,8 @@ class _InterviewPageState extends State<InterviewPage> {
         isWaiting = true;
         _displayedMessages.clear();
         _handleInitialMessage(
-            'Introduce yourself as "Hadafi application COOP/internship interviewer", and tell the user that you would conduct a 7 minute interview about the COOP/internship Position he is interested in. Make the introduction short.');
-        endInterview();
+          'Introduce yourself as "Hadafi application COOP/internship interviewer", and tell the user that you would conduct an interview about the COOP/internship Position he is interested in. Make the introduction short.',
+        );
       });
     });
   }
