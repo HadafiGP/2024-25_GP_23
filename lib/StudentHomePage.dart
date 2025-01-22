@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:hadafi_application/CV.dart';
 import 'package:hadafi_application/interview.dart';
 import 'package:hadafi_application/welcome.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -9,6 +8,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import "package:hadafi_application/OpportunityDetailsPage.dart";
 import "package:hadafi_application/button.dart";
+import 'package:hadafi_application/studentProfilePage.dart';
+import 'package:hadafi_application/CV.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -40,7 +41,7 @@ class HadafiDrawer extends StatelessWidget {
                 height: 80,
               ),
             ),
-            _buildDrawerItem(context, Icons.person, 'Profile', null),
+            _buildDrawerItem(context, Icons.person, 'Profile', ProfilePage()),
             _buildDrawerItem(
                 context, Icons.home, 'Home', const StudentHomePage()),
             _buildDrawerItem(

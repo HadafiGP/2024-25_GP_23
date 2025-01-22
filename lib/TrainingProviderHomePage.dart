@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hadafi_application/welcome.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:hadafi_application/trainingProviderProfilePage.dart';
 
 class TrainingProviderHomePage extends StatelessWidget {
   const TrainingProviderHomePage({super.key});
@@ -154,7 +155,15 @@ class TrainingProviderHomePage extends StatelessWidget {
             ListTile(
               leading: Icon(Icons.person, color: Color(0xFF113F67)),
               title: Text('Profile'),
-              onTap: () {},
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TrainingProviderProfilePage(),
+                  ),
+                );
+              },
             ),
             ListTile(
               leading: Icon(Icons.home, color: Color(0xFF113F67)),
