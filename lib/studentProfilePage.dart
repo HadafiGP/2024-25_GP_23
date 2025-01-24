@@ -48,6 +48,7 @@ class _ProfilePageState extends State<ProfilePage> {
   List<String> _tempTechnicalSkills = [];
   List<String> _tempManagementSkills = [];
   List<String> _tempSoftSkills = [];
+  List<String> _filteredCities = [];
 
   double? _selectedGpaScale;
   String? _tempNationality;
@@ -432,7 +433,6 @@ class _ProfilePageState extends State<ProfilePage> {
             _locationController.text = _selectedLocations.join(', ');
             _selectedNationality = doc['nationality'] ?? '';
             _nationalityController.text = _selectedNationality!;
-            // Separate skills based on predefined lists
             List<String> allSkills = List<String>.from(doc['skills'] ?? []);
             _selectedTechnicalSkills = allSkills
                 .where((skill) => scientificTechnicalSkills.contains(skill))
@@ -490,7 +490,7 @@ class _ProfilePageState extends State<ProfilePage> {
           'gpaScale': _selectedGpaScale,
           'location': _selectedLocations,
           'nationality': _selectedNationality,
-          'skills': allSkills, // Save all skills as a single array
+          'skills': allSkills,
         });
 
         setState(() {
@@ -607,13 +607,26 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               SizedBox(height: 15),
               _buildSkillsSelector('Technical Skills', _selectedTechnicalSkills,
-                  _technicalSkillsController),
-              SizedBox(height: 10),
-              _buildSkillsSelector('Management Skills',
-                  _selectedManagementSkills, _managementSkillsController),
+                  (updatedSkills) {
+                setState(() {
+                  _selectedTechnicalSkills = updatedSkills;
+                });
+              }),
               SizedBox(height: 10),
               _buildSkillsSelector(
-                  'Soft Skills', _selectedSoftSkills, _softSkillsController),
+                  'Management Skills', _selectedManagementSkills,
+                  (updatedSkills) {
+                setState(() {
+                  _selectedManagementSkills = updatedSkills;
+                });
+              }),
+              SizedBox(height: 10),
+              _buildSkillsSelector('Soft Skills', _selectedSoftSkills,
+                  (updatedSkills) {
+                setState(() {
+                  _selectedSoftSkills = updatedSkills;
+                });
+              }),
               if (_isEditing)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -786,7 +799,10 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildSkillsSelector(String label, List<String> selectedSkills,
-      TextEditingController controller) {
+      void Function(List<String>) onSkillsChanged) {
+    TextEditingController controller =
+        TextEditingController(text: selectedSkills.join(', '));
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -797,16 +813,22 @@ class _ProfilePageState extends State<ProfilePage> {
                 ? () {
                     _showSkillsDialog(
                       title: label,
-                      selectedSkills: selectedSkills,
-                      controller: controller,
+                      selectedSkills: List.from(selectedSkills),
+                      onSkillsChanged: (updatedSkills) {
+                        setState(() {
+                          selectedSkills.clear();
+                          selectedSkills.addAll(updatedSkills);
+                          controller.text = updatedSkills.join(', ');
+                          onSkillsChanged(updatedSkills);
+                        });
+                      },
                     );
                   }
                 : null,
             child: AbsorbPointer(
+              absorbing: true,
               child: TextFormField(
-                controller: TextEditingController(
-                  text: selectedSkills.join(', '),
-                ),
+                controller: controller,
                 decoration: InputDecoration(
                   labelText: label,
                   suffixIcon: const Icon(Icons.arrow_drop_down),
@@ -827,9 +849,11 @@ class _ProfilePageState extends State<ProfilePage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                enabled: _isEditing,
+                style: TextStyle(
+                  color: _isEditing ? Colors.black : Colors.grey,
+                ),
+                enabled: false,
                 validator: (value) {
-                  // Check if at least one skill is selected in any category
                   if (_selectedTechnicalSkills.isEmpty &&
                       _selectedManagementSkills.isEmpty &&
                       _selectedSoftSkills.isEmpty &&
@@ -847,18 +871,13 @@ class _ProfilePageState extends State<ProfilePage> {
             runSpacing: 6.0,
             children: selectedSkills.map((skill) {
               return Chip(
-                label: Text(
-                  skill,
-                  style: TextStyle(
-                    color: Color(0xFF113F67),
-                  ),
-                ),
+                label: Text(skill, style: TextStyle(color: Color(0xFF113F67))),
                 onDeleted: _isEditing
                     ? () {
                         setState(() {
                           selectedSkills.remove(skill);
-                          // Update the controller text after removing the skill
                           controller.text = selectedSkills.join(', ');
+                          onSkillsChanged(selectedSkills);
                         });
                       }
                     : null,
@@ -873,14 +892,14 @@ class _ProfilePageState extends State<ProfilePage> {
   void _showSkillsDialog({
     required String title,
     required List<String> selectedSkills,
-    required TextEditingController controller,
+    required void Function(List<String>) onSkillsChanged,
   }) {
     List<String> availableSkills = [];
 
     // Retrieve the major from the profile
     String major = _majorController.text;
 
-    // Check if the major is in the health majors list
+    // Assign the skills based on the major
     final healthMajors = [
       'Clinical Laboratory Sciences',
       'Occupational Therapy',
@@ -921,38 +940,46 @@ class _ProfilePageState extends State<ProfilePage> {
       'Economics'
     ];
 
-    // Check the major and assign the appropriate skills list
+    // Assign skills based on the major
     if (healthMajors.contains(major)) {
       if (title.contains('Technical')) {
-        availableSkills = healthTechnicalSkills;
+        availableSkills =
+            healthTechnicalSkills; // Use health-related technical skills
       } else if (title.contains('Management')) {
-        availableSkills = healthManagementSkills;
+        availableSkills =
+            healthManagementSkills; // Use health-related management skills
       } else {
-        availableSkills = healthSoftSkills;
+        availableSkills = healthSoftSkills; // Use health-related soft skills
       }
     } else if (humanitiesMajors.contains(major)) {
       if (title.contains('Technical')) {
-        availableSkills = humanitiesTechnicalSkills;
+        availableSkills =
+            humanitiesTechnicalSkills; // Use humanities-related technical skills
       } else if (title.contains('Management')) {
-        availableSkills = humanitiesManagementSkills;
+        availableSkills =
+            humanitiesManagementSkills; // Use humanities-related management skills
       } else {
-        availableSkills = humanitiesSoftSkills;
+        availableSkills =
+            humanitiesSoftSkills; // Use humanities-related soft skills
       }
     } else {
       // Default to scientific majors
       if (title.contains('Technical')) {
-        availableSkills = scientificTechnicalSkills;
+        availableSkills =
+            scientificTechnicalSkills; // Use scientific-related technical skills
       } else if (title.contains('Management')) {
-        availableSkills = scientificManagementSkills;
+        availableSkills =
+            scientificManagementSkills; // Use scientific-related management skills
       } else {
-        availableSkills = scientificSoftSkills;
+        availableSkills =
+            scientificSoftSkills; // Use scientific-related soft skills
       }
     }
 
-    // Show the dialog with the available skills list
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        List<String> dialogSelectedSkills = List<String>.from(selectedSkills);
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
@@ -962,18 +989,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: availableSkills.map((skill) {
                     return CheckboxListTile(
                       title: Text(skill),
-                      value: selectedSkills.contains(skill),
+                      value: dialogSelectedSkills.contains(skill),
                       onChanged: (bool? value) {
                         setState(() {
                           if (value == true) {
-                            // Add the selected skill to the list
-                            selectedSkills.add(skill);
+                            dialogSelectedSkills.add(skill);
                           } else {
-                            // Remove the unselected skill from the list
-                            selectedSkills.remove(skill);
+                            dialogSelectedSkills.remove(skill);
                           }
-                          // Update the controller text after modification
-                          controller.text = selectedSkills.join(', ');
                         });
                       },
                     );
@@ -981,10 +1004,15 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               actions: [
-                ElevatedButton(
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
                   onPressed: () {
-                    // Update the controller to reflect the selected skills
-                    controller.text = selectedSkills.join(', ');
+                    selectedSkills.clear();
+                    selectedSkills.addAll(dialogSelectedSkills);
+                    onSkillsChanged(selectedSkills);
                     Navigator.of(context).pop();
                   },
                   child: const Text('OK'),
@@ -1050,7 +1078,6 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _showNationalityDialog() {
-    // Initialize _filteredNationalities with the full list of nationalities
     setState(() {
       _filteredNationalities = List.from(_nationalities);
     });
@@ -1115,87 +1142,115 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildLocationSelector() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GestureDetector(
-            onTap: _isEditing
-                ? () {
-                    _showLocationDialog();
-                  }
-                : null,
-            child: AbsorbPointer(
-              child: TextFormField(
-                controller: _locationController,
-                decoration: InputDecoration(
-                  labelText: 'Location',
-                  suffixIcon: const Icon(Icons.arrow_drop_down),
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF113F67)),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF113F67)),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF113F67)),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  disabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF113F67)),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: _isEditing
+              ? () {
+                  _showLocationDialog();
+                }
+              : null,
+          child: AbsorbPointer(
+            child: TextFormField(
+              decoration: InputDecoration(
+                labelText: 'Location *',
+                labelStyle: TextStyle(
+                  color: Colors.grey,
                 ),
-                enabled: _isEditing,
+                suffixIcon: const Icon(Icons.arrow_drop_down),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFF113F67)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFF113F67)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFF113F67)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                disabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFF113F67)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
+              style: TextStyle(
+                color: _isEditing ? Colors.black : Colors.grey,
+              ),
+              controller: TextEditingController(
+                text: _selectedLocations.join(', '),
+              ),
+              validator: (value) {
+                if (_selectedLocations.isEmpty) {
+                  return 'Please select at least one location';
+                }
+                return null;
+              },
             ),
           ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 6.0,
-            runSpacing: 6.0,
-            children: _selectedLocations.map((location) {
-              return Chip(
-                label: Text(
-                  location,
-                  style: TextStyle(
-                    color: Color(0xFF113F67),
-                  ),
-                ),
-                onDeleted: _isEditing
-                    ? () {
-                        setState(() {
-                          _selectedLocations.remove(location);
-                          _selectedLocations = _selectedLocations
-                              .where((item) => item != location)
-                              .toList();
-                          _locationController.text =
-                              _selectedLocations.join(', ');
-                        });
-                      }
-                    : null, // No action when not in editing mode
-              );
-            }).toList(),
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 6.0,
+          runSpacing: 6.0,
+          children: _selectedLocations.map((location) {
+            return Chip(
+              label: Text(location),
+              onDeleted: _isEditing
+                  ? () {
+                      setState(() {
+                        _selectedLocations.remove(location);
+                        _locationController.text =
+                            _selectedLocations.join(', ');
+                      });
+                    }
+                  : null, // Only allow deletion in edit mode
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 
   void _showLocationDialog() {
+    _filteredCities = _cities;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Select Location'),
+              title: Column(
+                children: [
+                  Text('Select Locations (required)'),
+                  SizedBox(height: 10),
+                  TextField(
+                    decoration: InputDecoration(
+                      labelText: 'Search Cities',
+                      prefixIcon: Icon(Icons.search),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        if (value.isEmpty) {
+                          _filteredCities = _cities;
+                        } else {
+                          _filteredCities = _cities
+                              .where((city) => city
+                                  .toLowerCase()
+                                  .startsWith(value.toLowerCase()))
+                              .toList();
+                        }
+                      });
+                    },
+                  ),
+                ],
+              ),
               content: SingleChildScrollView(
                 child: Column(
-                  children: _cities.map((city) {
+                  children: _filteredCities.map((city) {
                     return CheckboxListTile(
                       title: Text(city),
                       value: _selectedLocations.contains(city),
@@ -1215,8 +1270,10 @@ class _ProfilePageState extends State<ProfilePage> {
               actions: [
                 ElevatedButton(
                   onPressed: () {
-                    _locationController.text = _selectedLocations.join(', ');
                     Navigator.of(context).pop();
+                    setState(() {
+                      _locationController.text = _selectedLocations.join(', ');
+                    });
                   },
                   child: const Text('OK'),
                 ),
@@ -1225,7 +1282,11 @@ class _ProfilePageState extends State<ProfilePage> {
           },
         );
       },
-    );
+    ).then((_) {
+      setState(() {
+        _locationController.text = _selectedLocations.join(', ');
+      });
+    });
   }
 
   String? _validateGPA(String? value) {
@@ -1263,8 +1324,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   onPressed: () {
                     setState(() {
                       _selectedGpaScale = 4.0;
-                      _gpaController
-                          .clear(); // Clear the GPA field if scale changes
+                      _gpaController.clear();
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -1287,8 +1347,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   onPressed: () {
                     setState(() {
                       _selectedGpaScale = 5.0;
-                      _gpaController
-                          .clear(); // Clear the GPA field if scale changes
+                      _gpaController.clear();
                     });
                   },
                   style: ElevatedButton.styleFrom(
