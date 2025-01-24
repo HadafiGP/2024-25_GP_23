@@ -465,6 +465,13 @@ class _ProfilePageState extends State<ProfilePage> {
       User? user = _auth.currentUser;
 
       if (user != null) {
+        // Combine all selected skills into a single array
+        List<String> allSkills = [
+          ..._selectedTechnicalSkills,
+          ..._selectedManagementSkills,
+          ..._selectedSoftSkills
+        ];
+
         await _firestore.collection('Student').doc(user.uid).update({
           'name': _nameController.text,
           'email': _emailController.text,
@@ -472,9 +479,7 @@ class _ProfilePageState extends State<ProfilePage> {
           'gpaScale': _selectedGpaScale,
           'location': _selectedLocations,
           'nationality': _selectedNationality,
-          'technicalSkills': _selectedTechnicalSkills,
-          'managementSkills': _selectedManagementSkills,
-          'softSkills': _selectedSoftSkills,
+          'skills': allSkills,
         });
 
         setState(() {
