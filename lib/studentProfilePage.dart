@@ -465,6 +465,16 @@ class _ProfilePageState extends State<ProfilePage> {
       User? user = _auth.currentUser;
 
       if (user != null) {
+        // Check if the user has at least one skill selected from any category
+        if (_selectedTechnicalSkills.isEmpty &&
+            _selectedManagementSkills.isEmpty &&
+            _selectedSoftSkills.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please select at least one skill')),
+          );
+          return;
+        }
+
         // Combine all selected skills into a single array
         List<String> allSkills = [
           ..._selectedTechnicalSkills,
@@ -472,6 +482,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ..._selectedSoftSkills
         ];
 
+        // Save the profile data
         await _firestore.collection('Student').doc(user.uid).update({
           'name': _nameController.text,
           'email': _emailController.text,
@@ -479,7 +490,7 @@ class _ProfilePageState extends State<ProfilePage> {
           'gpaScale': _selectedGpaScale,
           'location': _selectedLocations,
           'nationality': _selectedNationality,
-          'skills': allSkills,
+          'skills': allSkills, // Save all skills as a single array
         });
 
         setState(() {
@@ -578,6 +589,22 @@ class _ProfilePageState extends State<ProfilePage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              // Display error message if no skills are selected
+              if (_selectedTechnicalSkills.isEmpty &&
+                  _selectedManagementSkills.isEmpty &&
+                  _selectedSoftSkills.isEmpty &&
+                  _isEditing)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    'Please select at least one skill from any category',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               SizedBox(height: 15),
               _buildSkillsSelector('Technical Skills', _selectedTechnicalSkills,
                   _technicalSkillsController),
@@ -802,8 +829,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 enabled: _isEditing,
                 validator: (value) {
-                  if (selectedSkills.isEmpty && _isEditing) {
-                    return 'Please select at least one skill in $label';
+                  // Check if at least one skill is selected in any category
+                  if (_selectedTechnicalSkills.isEmpty &&
+                      _selectedManagementSkills.isEmpty &&
+                      _selectedSoftSkills.isEmpty &&
+                      _isEditing) {
+                    return 'Please select at least one skill in any category';
                   }
                   return null;
                 },
@@ -826,9 +857,11 @@ class _ProfilePageState extends State<ProfilePage> {
                     ? () {
                         setState(() {
                           selectedSkills.remove(skill);
+                          // Update the controller text after removing the skill
+                          controller.text = selectedSkills.join(', ');
                         });
                       }
-                    : null, // No action when not in editing mode
+                    : null,
               );
             }).toList(),
           ),
@@ -933,10 +966,14 @@ class _ProfilePageState extends State<ProfilePage> {
                       onChanged: (bool? value) {
                         setState(() {
                           if (value == true) {
+                            // Add the selected skill to the list
                             selectedSkills.add(skill);
                           } else {
+                            // Remove the unselected skill from the list
                             selectedSkills.remove(skill);
                           }
+                          // Update the controller text after modification
+                          controller.text = selectedSkills.join(', ');
                         });
                       },
                     );
