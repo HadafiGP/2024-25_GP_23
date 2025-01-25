@@ -13,6 +13,8 @@ import 'main.dart';
 import 'StudentHomePage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_parsed_text/flutter_parsed_text.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class InterviewPage extends StatefulWidget {
   const InterviewPage({super.key});
@@ -267,9 +269,30 @@ class _InterviewPageState extends State<InterviewPage> {
           Expanded(
             child: DashChat(
               currentUser: _currentUser,
-              messageOptions: messageOptions,
-              messages: _displayedMessages,
-              typingUsers: isTyping ? [_chatGPTUser] : [],
+              messageOptions: MessageOptions(
+                currentUserContainerColor: Colors.cyan,
+                containerColor: const Color(0xFF113F67),
+                textColor: Colors.white,
+                parsePatterns: [
+                  MatchText(
+                    pattern: r'(?<!\w)(https:\/\/[^\s\)]+)',
+                    style: TextStyle(
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
+                    onTap: (url) async {
+                      if (await canLaunch(url)) {
+                        await launch(url);
+                      } else {
+                        throw 'Could not launch $url';
+                      }
+                    },
+                  ),
+                ],
+              ),
+              messages:
+                  _displayedMessages, //A list of messages displayed in the UI
+              typingUsers: isTyping ? [_chatGPTUser] : [], // typing indicator
               onSend: (ChatMessage message) {
                 getChatResponse(message); // Handle message sending
                 _messageController.clear(); // clear input field after sending
@@ -278,7 +301,6 @@ class _InterviewPageState extends State<InterviewPage> {
                 textController:
                     _messageController, // controller to use for the (Enter) action
                 focusNode: _focusNode, // focus
-
                 sendOnEnter: true, // send on (Enter) key press
                 textInputAction: TextInputAction.send, // Show 'send' action
                 inputDecoration: InputDecoration(
@@ -295,7 +317,6 @@ class _InterviewPageState extends State<InterviewPage> {
                       color: Color(0xFF113F67),
                     ),
                   ),
-        
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30.0),
                     borderSide: const BorderSide(
@@ -384,7 +405,6 @@ class _InterviewPageState extends State<InterviewPage> {
       endInterview();
       return;
     }
-
 
     // Handle user response to the restart question
     if (sentRestartQuestion == true) {
@@ -569,7 +589,6 @@ class _InterviewPageState extends State<InterviewPage> {
 
   // Set an interview timer of 10 minutes and send the last question of the interview after the timer ends.
   void endInterview() async {
-
     List<Map<String, dynamic>> messagesHistory =
         _displayedMessages.reversed.map((m) {
       if (m.user == _currentUser) {
@@ -698,9 +717,13 @@ class _InterviewPageState extends State<InterviewPage> {
           Map.of({
             "role": "assistant",
             "content":
-                "Analyze the user's interview responses and feedback to identify weaknesses. For each weakness, provide 2-3 improvement resources, including: Books: Title, short description, and relevance to position and weakness. Online Courses/Websites: Name, link, and relevance to position and weakness. YouTube Videos/Channels: Specific links and relevance to position and weakness. Organize resources by weakness and ensure recommendations are specific and clear. Avoid generic responses like 'we will review your application.' If there are insufficient responses to recommend resources (The user only provided their position or stopped without answering any questions), explicitly state: 'There is not enough interview history to recommend resources.' Ensure the output is either weaknesses and relevant recommendations or this message about insufficient responses."
+                "Analyze the user's interview responses and feedback to identify weaknesses. For each weakness, provide 6-9 improvement resources the output format: The weakness, related book, course, or youtube video. Ensure to mention the name of the source, a short description of it, and its relevance to the interview position and the weakness, and the link of the resource (Ensure it is a valid link and highlight only the link!). Organize resources by weakness and ensure recommendations are specific and clear. Avoid generic responses like 'we will review your application.' If there are insufficient responses to recommend resources (The user only provided their position or stopped without answering any questions), explicitly state: 'There is not enough interview history to recommend resources.' Ensure the output is either weaknesses and relevant recommendations or this message about insufficient responses."
           })
         ],
+        temperature: 1.0,
+        topP: 0.95,
+        presencePenalty: 0.8,
+        frequencyPenalty: 0.5,
         maxToken: 1000,
       );
 
@@ -870,10 +893,26 @@ class PastInterviewsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const messageOptions = MessageOptions(
+    final messageOptions = MessageOptions(
       currentUserContainerColor: Colors.cyan,
       containerColor: Color(0xFF113F67),
       textColor: Colors.white,
+      parsePatterns: [
+        MatchText(
+          pattern: r'(?<!\w)(https:\/\/[^\s\)]+)', // Match URLs
+          style: TextStyle(
+            color: Colors.blue,
+            decoration: TextDecoration.underline,
+          ),
+          onTap: (url) async {
+            if (await canLaunch(url)) {
+              await launch(url);
+            } else {
+              throw 'Could not launch $url';
+            }
+          },
+        ),
+      ],
     );
     if (_messages.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {

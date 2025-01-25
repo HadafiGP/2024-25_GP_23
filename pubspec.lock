@@ -375,7 +375,7 @@ packages:
     source: hosted
     version: "0.7.3+2"
   flutter_parsed_text:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: flutter_parsed_text
       sha256: "529cf5793b7acdf16ee0f97b158d0d4ba0bf06e7121ef180abe1a5b59e32c1e2"
