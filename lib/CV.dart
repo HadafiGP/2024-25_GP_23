@@ -5,6 +5,26 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'StudentHomePage.dart';
+import 'CV.dart';
+import 'interview.dart';
+import 'welcome.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
+
+// import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
+// import 'package:dash_chat_2/dash_chat_2.dart';
+// import 'package:flutter/material.dart';
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
+// import 'package:file_picker/file_picker.dart';
+// import 'dart:io';
+// import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 class CVPage extends StatefulWidget {
   const CVPage({super.key});
@@ -67,14 +87,17 @@ class _CVPageState extends State<CVPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF3F9FB),
       appBar: AppBar(
         backgroundColor: const Color(0xFF113F67),
         title: const Text(
           'CV Enhancement',
           style: TextStyle(color: Colors.white),
         ),
+        iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
       ),
+      drawer: HadafiDrawer(),
       body: Stack(
         children: [
           DashChat(
