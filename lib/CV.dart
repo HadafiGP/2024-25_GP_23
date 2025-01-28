@@ -5,7 +5,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -15,16 +14,9 @@ import 'interview.dart';
 import 'welcome.dart';
 import 'dart:async';
 import 'dart:convert';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-
-// import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
-// import 'package:dash_chat_2/dash_chat_2.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_dotenv/flutter_dotenv.dart';
-// import 'package:file_picker/file_picker.dart';
-// import 'dart:io';
-// import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 class CVPage extends StatefulWidget {
   const CVPage({super.key});
@@ -56,12 +48,40 @@ class _CVPageState extends State<CVPage> {
   bool _cvRequested = false;
   bool _isLoading = false; // Track loading state
   String? _enteredPosition;
+  String connectionErrorMessage = ''; // For displaying internet error
+  
+  late SharedPreferences _preferences; // For saving and loading history
+  String historyKey = "cvEnhancementHistory"; // Key for SharedPreferences
+
 
   @override
   void initState() {
     super.initState();
+    _initializeSharedPreferences();
+    _checkInternetConnection(); // Check internet connection on load
     _sendWelcomeMessage();
   }
+
+  Future<void> _initializeSharedPreferences() async {
+    _preferences = await SharedPreferences.getInstance();
+    _loadHistory();
+  }
+
+  /// Check for internet connection
+  Future<void> _checkInternetConnection() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      setState(() {
+        connectionErrorMessage =
+            'No internet connection. Please check your network.';
+      });
+    } else {
+      setState(() {
+        connectionErrorMessage = ''; // Clear the error message if connected
+      });
+    }
+  }
+ 
 
   void _sendWelcomeMessage() {
     setState(() {
@@ -84,94 +104,177 @@ class _CVPageState extends State<CVPage> {
     _positionRequested = true;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF3F9FB),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF113F67),
-        title: const Text(
-          'CV Enhancement',
-          style: TextStyle(color: Colors.white),
-        ),
-        iconTheme: const IconThemeData(color: Colors.white),
-        centerTitle: true,
-      ),
-      drawer: HadafiDrawer(),
-      body: Stack(
-        children: [
-          DashChat(
-            currentUser: _currentUser,
-            messageOptions: MessageOptions(
-              currentUserContainerColor: Colors.cyan,
-              containerColor: const Color(0xFF113F67),
-              textColor: Colors.white,
-            ),
-            inputOptions: _cvRequested
-                ? InputOptions(
-                    inputDecoration: InputDecoration(
-                      hintText: "Upload your CV using the attach button",
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    trailing: [
-                      IconButton(
-                        icon: const Icon(Icons.attach_file),
-                        onPressed: _pickMedia,
-                      ),
-                    ],
-                    sendButtonBuilder: (_) => const SizedBox.shrink(),
-                  )
-                : InputOptions(
-                    inputDecoration: InputDecoration(
-                      hintText: "Enter the position you're applying for...",
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        
-                      ),
-                    ),
-                    sendOnEnter: true,
-                  ),
-            quickReplyOptions: QuickReplyOptions(
-              onTapQuickReply: (QuickReply reply) {
-                _handleQuickReply(reply.value!);
-              },
-            ),
-            onSend: (ChatMessage message) => _handleSend(message),
-            messages: _messages.reversed.toList(),
-          ),
-          if (_isLoading)
-            Positioned.fill(
-              child: Container(
-                color: Colors.black.withOpacity(0.5),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    CircularProgressIndicator(
-                      color: Colors.white,
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      "We are uploading your CV! Please wait...",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
+  Future<void> _saveHistory() async {
+    List<String> messagesJson = _messages.map((e) => jsonEncode(e.toJson())).toList();
+    await _preferences.setStringList(historyKey, messagesJson);
   }
+
+    void _loadHistory() {
+    List<String>? messagesJson = _preferences.getStringList(historyKey);
+    if (messagesJson != null && messagesJson.isNotEmpty) {
+      setState(() {
+        _messages = messagesJson
+            .map((e) => ChatMessage.fromJson(jsonDecode(e)))
+            .toList();
+      });
+    }
+  }
+
+
+ /// Show connectivity error banner
+  Widget _showConnectionError() {
+    if (connectionErrorMessage.isNotEmpty) {
+      return Container(
+        color: Colors.red,
+        padding: const EdgeInsets.all(12.0),
+        child: Text(
+          connectionErrorMessage,
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+    return const SizedBox.shrink(); // Empty widget if no error
+  }
+
+
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: const Color(0xFFF3F9FB),
+    appBar: AppBar(
+      backgroundColor: const Color(0xFF113F67),
+      title: const Text(
+        'CV Enhancement',
+        style: TextStyle(color: Colors.white),
+      ),
+      iconTheme: const IconThemeData(color: Colors.white),
+      centerTitle: true,
+    ),
+    drawer: HadafiDrawer(),
+    body: Column(
+      children: [
+        _showConnectionError(), // Show internet error if any
+        Expanded(
+          child: Stack(
+            children: [
+              DashChat(
+                currentUser: _currentUser,
+                messageOptions: MessageOptions(
+                  currentUserContainerColor: Colors.cyan,
+                  containerColor: const Color(0xFF113F67),
+                  textColor: Colors.white,
+                ),
+                inputOptions: _cvRequested
+                    ? InputOptions(
+                        inputDecoration: InputDecoration(
+                          hintText: "Upload your CV using the attach button",
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        trailing: [
+                          IconButton(
+                            icon: const Icon(Icons.attach_file),
+                            onPressed: () async {
+                              bool isConnected =
+                                  await _checkInternetBeforeAction();
+                              if (isConnected) _pickMedia();
+                            },
+                          ),
+                        ],
+                        sendButtonBuilder: (_) => const SizedBox.shrink(),
+                      )
+                    : InputOptions(
+                        inputDecoration: InputDecoration(
+                          hintText: "Enter the position you're applying for...",
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        sendOnEnter: true,
+                      ),
+                quickReplyOptions: QuickReplyOptions(
+                  onTapQuickReply: (QuickReply reply) async {
+                    bool isConnected = await _checkInternetBeforeAction();
+                    if (isConnected) _handleQuickReply(reply.value!);
+                  },
+                ),
+                onSend: (ChatMessage message) async {
+                  bool isConnected = await _checkInternetBeforeAction();
+                  if (isConnected) _handleSend(message);
+                },
+                messages: _messages.reversed.toList(),
+              ),
+              if (_isLoading)
+                Positioned.fill(
+                  child: Container(
+                    color: Colors.black.withOpacity(0.5),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
+                        SizedBox(height: 20),
+                        Text(
+                          "We are uploading your CV! Please wait...",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    ),
+    floatingActionButton: Container(
+      margin: const EdgeInsets.only(bottom: 590.0), // Adjust if needed
+      child: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CVHistoryPage(messages: _messages),
+            ),
+          );
+        },
+        mini: true,
+        backgroundColor: const Color.fromARGB(200, 194, 215, 240), // Match your app's theme
+        child: const Icon(Icons.history, color: const Color(0xFF113F67)),
+      ),
+    ),
+    floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+  );
+}
+
+
+    /// Reusable method to check internet connection before actions
+  Future<bool> _checkInternetBeforeAction() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      setState(() {
+        connectionErrorMessage =
+            'No internet connection. Please check your network.';
+      });
+      return false; // No internet
+    }
+    setState(() {
+      connectionErrorMessage = ''; // Clear error if connected
+    });
+    return true; // Internet is connected
+  }
+
 
   void _handleQuickReply(String reply) {
     setState(() {
@@ -316,5 +419,92 @@ class _CVPageState extends State<CVPage> {
         ),
       );
     });
+  }
+}
+
+class CVHistoryPage extends StatelessWidget {
+  final List<ChatMessage> messages;
+
+  const CVHistoryPage({super.key, required this.messages});
+
+  @override
+  Widget build(BuildContext context) {
+    final ChatUser _currentUser = ChatUser(id: "1", firstName: "User", lastName: "User");
+    final ChatUser _chatGPTUser = ChatUser(
+      id: "2",
+      firstName: "Hadafi",
+      profileImage: "https://i.imgur.com/Be1jZ9c.jpeg",
+    );
+
+    final messageOptions = MessageOptions(
+      currentUserContainerColor: Colors.cyan,
+      containerColor: const Color(0xFF113F67),
+      textColor: Colors.white,
+      parsePatterns: [
+        MatchText(
+          pattern: r'(?<!\w)(https:\/\/[^\s\)]+)', // Match URLs
+          style: const TextStyle(
+            color: Colors.blue,
+            decoration: TextDecoration.underline,
+          ),
+          onTap: (url) async {
+            if (await canLaunch(url)) {
+              await launch(url);
+            } else {
+              throw 'Could not launch $url';
+            }
+          },
+        ),
+      ],
+    );
+
+    if (messages.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('No History'),
+              content: const Text('There\'s no CV Enhancement history to display!'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      });
+    }
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF3F9FB),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF113F67),
+        title: const Text(
+          'CV Enhancement History',
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+        centerTitle: true,
+      ),
+      body: DashChat(
+        currentUser: _currentUser,
+        messages: messages.reversed.toList(), // Display messages chronologically
+        readOnly: true, // Makes the chat read-only
+        inputOptions: const InputOptions(
+          inputDisabled: true, // Disables the input field
+        ),
+        onSend: (ChatMessage message) {}, // No send action
+        messageOptions: messageOptions,
+      ),
+    );
   }
 }
