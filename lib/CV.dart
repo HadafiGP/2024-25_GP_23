@@ -196,10 +196,19 @@ class _CVPageState extends State<CVPage> {
                         onTap: (matchedText) => _handleOptionClick(matchedText),
                       ),
                       MatchText(
-                        pattern: r"/All|Certification Name:",
+                        pattern: r"Certification Name:",
                         style: const TextStyle(
                             color: Color(0xFF00BB95),
                             fontWeight: FontWeight.bold),
+                        onTap: (matchedText) => _handleOptionClick(matchedText),
+                      ),
+                      MatchText(
+                        pattern:
+                            r"/All\b", 
+                        style: const TextStyle(
+                          color: Color(0xFFFFA500),
+                          fontWeight: FontWeight.bold,
+                        ),
                         onTap: (matchedText) => _handleOptionClick(matchedText),
                       ),
                       MatchText(
@@ -243,8 +252,9 @@ class _CVPageState extends State<CVPage> {
                         )
                       : InputOptions(
                           inputDecoration: InputDecoration(
-                            hintText:
-                                "Enter the position you're applying for...",
+                            hintText: disableInput
+                                ? "Choose an option from above to review your CV!"
+                                : "Enter the position you're applying for...",
                             filled: true,
                             fillColor: Colors.white,
                             border: OutlineInputBorder(
