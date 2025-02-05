@@ -53,6 +53,7 @@ class _ProfilePageState extends State<ProfilePage> {
   double? _selectedGpaScale;
   String? _tempNationality;
   String? _selectedNationality;
+  String? _emailError;
   bool _isEditing = false;
 
   final List<String> healthTechnicalSkills = [
@@ -415,6 +416,25 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
+  Future<bool> checkEmailInUse(String email) async {
+    try {
+      User? user = _auth.currentUser;
+      if (user != null && user.email == email) {
+        return false;
+      }
+
+      final querySnapshot = await _firestore
+          .collection('Student')
+          .where('email', isEqualTo: email)
+          .get();
+
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      print("Error checking email: $e");
+      return false;
+    }
+  }
+
   Future<void> _loadStudentData() async {
     try {
       User? user = _auth.currentUser;
@@ -460,6 +480,18 @@ class _ProfilePageState extends State<ProfilePage> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
+
+    // Checl if the email is already in use
+    bool isEmailInUse = await checkEmailInUse(_emailController.text.trim());
+    if (isEmailInUse) {
+      setState(() {
+        _emailError = 'This email is already in use';
+      });
+      return;
+    }
+    setState(() {
+      _emailError = null;
+    });
 
     try {
       User? user = _auth.currentUser;
@@ -655,27 +687,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       onPressed: () {
                         setState(() {
                           _isEditing = false; // Exit edit mode
-                          // Restore state variables
-                          _selectedNationality = _tempNationality;
-                          _selectedLocations =
-                              List<String>.from(_tempLocations);
-                          _selectedTechnicalSkills =
-                              List<String>.from(_tempTechnicalSkills);
-                          _selectedManagementSkills =
-                              List<String>.from(_tempManagementSkills);
-                          _selectedSoftSkills =
-                              List<String>.from(_tempSoftSkills);
-                          // Update controllers
-                          _nationalityController.text =
-                              _selectedNationality ?? '';
-                          _locationController.text =
-                              _selectedLocations.join(', ');
-                          _technicalSkillsController.text =
-                              _selectedTechnicalSkills.join(', ');
-                          _managementSkillsController.text =
-                              _selectedManagementSkills.join(', ');
-                          _softSkillsController.text =
-                              _selectedSoftSkills.join(', ');
+                          _loadStudentData();
                         });
                       },
                       style: ElevatedButton.styleFrom(
@@ -761,39 +773,56 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildEmailField() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
-      child: TextFormField(
-        controller: _emailController,
-        decoration: InputDecoration(
-          labelText: 'Email',
-          border: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF113F67)),
-            borderRadius: BorderRadius.circular(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextFormField(
+            controller: _emailController,
+            decoration: InputDecoration(
+              labelText: 'Email',
+              border: OutlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF113F67)),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF113F67)),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF113F67)),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              disabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF113F67)),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            enabled: _isEditing,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Email cannot be empty';
+              }
+              final emailRegex =
+                  RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+              if (!emailRegex.hasMatch(value)) {
+                return 'Please enter a valid email address';
+              }
+              return null;
+            },
           ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF113F67)),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF113F67)),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          disabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF113F67)),
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-        enabled: _isEditing,
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Email cannot be empty';
-          }
-          final emailRegex =
-              RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\$');
-          if (!emailRegex.hasMatch(value)) {
-            return 'Enter a valid email';
-          }
-          return null;
-        },
+          if (_emailError != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 9.0),
+              child: Text(
+                _emailError!,
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -1297,6 +1326,10 @@ class _ProfilePageState extends State<ProfilePage> {
     final gpa = double.tryParse(value);
     if (gpa == null) {
       return 'Please enter a valid GPA number';
+    }
+
+    if (gpa == 0) {
+      return 'GPA cannot be 0. Please enter a valid GPA';
     }
 
     if (gpa > _selectedGpaScale!) {
