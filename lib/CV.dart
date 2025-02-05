@@ -466,6 +466,7 @@ class _CVPageState extends State<CVPage> {
     } catch (e) {
       debugPrint("Media selection error: $e");
     } finally {
+      await Future.delayed(const Duration(seconds: 2));
       setState(() {
         _isLoading = false; // Hide loading indicator
       });
