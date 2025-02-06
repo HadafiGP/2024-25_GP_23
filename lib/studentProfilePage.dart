@@ -1183,7 +1183,7 @@ class _ProfilePageState extends State<ProfilePage> {
           child: AbsorbPointer(
             child: TextFormField(
               decoration: InputDecoration(
-                labelText: 'Location *',
+                labelText: 'Location',
                 labelStyle: TextStyle(
                   color: Colors.grey,
                 ),
