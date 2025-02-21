@@ -49,6 +49,10 @@ dependencies:
   file_picker: ^5.0.0
   flutter_gemini: ^3.0.0
   syncfusion_flutter_pdf: ^21.1.36
+  firebase_storage: ^12.4.3
+  flutter_riverpod: ^2.6.1
+  dartz: ^0.10.1
+  fpdart: ^1.1.1
 
 
 

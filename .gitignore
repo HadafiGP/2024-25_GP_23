@@ -10,6 +10,10 @@
 .svn/
 migrate_working_dir/
 lib/hadafi-a7971-firebase-adminsdk-3k84a-901d21ad25.json
+android/app/google-services.json
+lib/firebase_options.dart
+firebase.json
+
 
 
 # IntelliJ related

@@ -10,6 +10,7 @@ import "package:hadafi_application/OpportunityDetailsPage.dart";
 import "package:hadafi_application/button.dart";
 import 'package:hadafi_application/studentProfilePage.dart';
 import 'package:hadafi_application/CV.dart';
+import 'package:hadafi_application/Community/CommunityHomeScreen.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -53,7 +54,7 @@ class HadafiDrawer extends StatelessWidget {
               const InterviewPage(),
             ),
             _buildDrawerItem(context, Icons.feedback, 'Feedback', null),
-            _buildDrawerItem(context, Icons.group, 'Communities', null),
+            _buildDrawerItem(context, Icons.group, 'Communities', Communityhomescreen()),
             _buildDrawerItem(context, Icons.favorite, 'Favorites List', null),
             ListTile(
               leading: const Icon(Icons.contact_mail, color: Color(0xFF113F67)),
