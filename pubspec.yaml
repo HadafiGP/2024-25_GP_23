@@ -47,7 +47,6 @@ dependencies:
   google_ml_kit: ^0.13.0
   image: ^3.2.0
   file_picker: ^5.0.0
-  flutter_gemini: ^3.0.0
   syncfusion_flutter_pdf: ^21.1.36
   firebase_storage: ^12.4.3
   flutter_riverpod: ^2.6.1
