@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:hadafi_application/Community/Providers/storage_repository_providers.dart';
 import 'package:hadafi_application/Community/provider.dart';
 
 
@@ -40,4 +41,8 @@ final userDataProvider = StreamProvider.family<Map<String, dynamic>?, String>((r
 
 
 
+final storageRepositoryProvider = Provider<StorageRepository>((ref) {
+  final firebaseStorage = ref.watch(storageProvider);
+  return StorageRepository(firebaseStorage: firebaseStorage);
+});
 

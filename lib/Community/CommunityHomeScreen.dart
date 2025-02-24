@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import Riverpod
+import 'package:hadafi_application/Community/CommunityProfile.dart';
+import 'package:hadafi_application/Community/createCommunity.dart';
+import 'package:hadafi_application/Community/delegates/search_community_delegate.dart';
+import 'package:hadafi_application/Community/model/community_model.dart';
 import 'package:hadafi_application/StudentHomePage.dart';
-import 'createCommunity.dart';
 
-class Communityhomescreen extends StatefulWidget {
+
+class Communityhomescreen extends ConsumerStatefulWidget { 
   final int initialIndex;
-  Communityhomescreen({this.initialIndex = 0}); // Default is home
+  Communityhomescreen({super.key, this.initialIndex = 0}); 
 
   @override
   _CommunityhomescreenState createState() => _CommunityhomescreenState();
 }
 
-class _CommunityhomescreenState extends State<Communityhomescreen> {
+class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> { 
   late int index;
 
   @override
@@ -22,6 +27,7 @@ class _CommunityhomescreenState extends State<Communityhomescreen> {
   final List<Widget> screens = [
     Center(child: Text("Home")),
     createCommunityUI(),
+   
   ];
 
   @override
@@ -35,7 +41,12 @@ class _CommunityhomescreenState extends State<Communityhomescreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
-            onPressed: () {},
+            onPressed: () {
+              showSearch(
+                context: context, 
+                delegate: SearchCommunityDelegate(ref), 
+              );
+            },
           ),
         ],
       ),
