@@ -56,35 +56,74 @@ class CommunityController extends StateNotifier<bool> {
         _storageRepository = storageRepository,
         super(false);
 
-  void createCommunity(String name, String desciption, String Avatar,
-      String Banner, List<String> topic, BuildContext context) async {
-    state = true;
-    final uid = _ref.read(uidProvider) ?? '';
+void createCommunity(
+    String name,
+    String description,
+    String? avatarPath,
+    String? bannerPath,
+    List<String> topics,
+    BuildContext context) async {
+  state = true;
+  final uid = _ref.read(uidProvider) ?? '';
 
-    Community community = Community(
-        id: name,
-        name: name,
-        description: desciption,
-        avatar: Avatar,
-        banner: Banner,
-        topics: topic,
-        members: [uid],
-        mods: [uid]);
-
-    final res = await _communityRepoistory.createCommunity(community);
-    state = false;
-    res.fold(
-      (l) => showSnackBar(context, l.message),
-      (r) {
-        showSnackBar(context, "Community created successfully!");
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => Communityhomescreen(initialIndex: 1)),
-        );
-      },
+  // Upload avatar if provided
+  String avatarUrl = Constants.avatarDefault;
+  if (avatarPath != null && avatarPath.isNotEmpty) {
+    final avatarRes = await _storageRepository.storeFile(
+      path: 'communities/avatar',
+      id: name,
+      file: File(avatarPath),
+    );
+    avatarRes.fold(
+      (l) => showSnackBar(context, "Failed to upload avatar: ${l.message}"),
+      (r) => avatarUrl = r,
     );
   }
+
+  // Upload banner if provided
+  String bannerUrl = Constants.bannerDefault;
+  if (bannerPath != null && bannerPath.isNotEmpty) {
+    final bannerRes = await _storageRepository.storeFile(
+      path: 'communities/banner',
+      id: name,
+      file: File(bannerPath),
+    );
+    bannerRes.fold(
+      (l) => showSnackBar(context, "Failed to upload banner: ${l.message}"),
+      (r) => bannerUrl = r,
+    );
+  }
+
+  // Create community object
+  Community community = Community(
+    id: name,
+    name: name,
+    description: description,
+    avatar: avatarUrl,
+    banner: bannerUrl,
+    topics: topics,
+    members: [uid],
+    mods: [uid],
+  );
+
+  // Save community details in Firestore
+  final res = await _communityRepoistory.createCommunity(community);
+  state = false;
+
+  res.fold(
+    (l) => showSnackBar(context, l.message),
+    (r) {
+      showSnackBar(context, "Community created successfully!");
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Communityhomescreen(initialIndex: 1),
+        ),
+      );
+    },
+  );
+}
+
 
   Future<bool> checkIfCommunityExists(String name) async {
     return await _communityRepoistory.checkIfCommunityExists(name);
