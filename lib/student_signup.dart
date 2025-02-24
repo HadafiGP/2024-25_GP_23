@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hadafi_application/Community/provider.dart';
 import 'package:hadafi_application/signup_widget.dart';
 import 'package:hadafi_application/StudentHomepage.dart';
 import 'package:crypto/crypto.dart';
@@ -1607,6 +1609,9 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
           'uid': user.uid,
           'role': 'student', // Store the user role as 'student'
         });
+
+        ProviderScope.containerOf(context).read(uidProvider.notifier).state =
+            user.uid;
 
         // Navigate to Student Home Page after successful sign-up
         Navigator.pushReplacement(

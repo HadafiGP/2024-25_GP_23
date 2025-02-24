@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hadafi_application/Community/provider.dart';
 import 'package:hadafi_application/interview.dart';
 import 'package:hadafi_application/welcome.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -11,6 +13,8 @@ import "package:hadafi_application/button.dart";
 import 'package:hadafi_application/studentProfilePage.dart';
 import 'package:hadafi_application/CV.dart';
 import 'package:hadafi_application/Community/CommunityHomeScreen.dart';
+import 'package:hadafi_application/favoriteProvider.dart';
+import 'package:hadafi_application/favoriteList.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -54,8 +58,10 @@ class HadafiDrawer extends StatelessWidget {
               const InterviewPage(),
             ),
             _buildDrawerItem(context, Icons.feedback, 'Feedback', null),
-            _buildDrawerItem(context, Icons.group, 'Communities', Communityhomescreen()),
-            _buildDrawerItem(context, Icons.favorite, 'Favorites List', null),
+            _buildDrawerItem(
+                context, Icons.group, 'Communities', Communityhomescreen()),
+            _buildDrawerItem(
+                context, Icons.favorite, 'Favorites List', FavoritePage()),
             ListTile(
               leading: const Icon(Icons.contact_mail, color: Color(0xFF113F67)),
               title: const Text('Contact us'),
@@ -127,6 +133,8 @@ class HadafiDrawer extends StatelessWidget {
   Future<void> _logout(BuildContext context) async {
     try {
       await FirebaseAuth.instance.signOut();
+       ProviderScope.containerOf(context, listen: false).read(uidProvider.notifier).state = null;
+       
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const WelcomeScreen()),
@@ -400,7 +408,7 @@ class OpportunitiesList extends StatelessWidget {
       itemBuilder: (context, index) {
         final opportunity = opportunities[index];
 
-        final jobTitle = opportunity['Job Title'] ?? "Unknown Title";
+        final oppTitle = opportunity['Job Title'] ?? "Unknown Title";
         final companyName = opportunity['Company Name'] ?? "Unknown Company";
         final description =
             opportunity['Description'] ?? "No description available.";
@@ -409,7 +417,7 @@ class OpportunitiesList extends StatelessWidget {
         final gpa4 = opportunity['GPA out of 4'] ?? 0.0;
 
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 8.0),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -424,8 +432,9 @@ class OpportunitiesList extends StatelessWidget {
             ),
             child: ListTile(
               title: Text(
-                jobTitle,
+                oppTitle,
                 style: const TextStyle(
+                  fontSize: 14,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF113F67),
                 ),
@@ -433,31 +442,68 @@ class OpportunitiesList extends StatelessWidget {
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(companyName),
+                  Text(companyName,
+                      style: const TextStyle(
+                        fontSize: 13,
+                      )),
                 ],
               ),
-              trailing: GradientButton(
-                text: "More",
-                gradientColors: [
-                  Color(0xFF113F67),
-                  Color.fromARGB(255, 105, 185, 255),
-                ],
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => OpportunityDetailsPage(
-                        jobTitle: jobTitle,
-                        companyName: companyName,
-                        description: description,
-                        applyUrl: applyUrl,
-                        similarity: 0.0,
-                        skills: List<String>.from(opportunity['Skills'] ?? []),
-                        location: (opportunity['Locations'] ?? []).join(', '),
-                        gpa5: gpa5,
-                        gpa4: gpa4,
+              trailing: Consumer(
+                builder: (context, ref, child) {
+                  final favoriteOpp = ref.watch(favoriteProvider);
+                  final isFavorited = favoriteOpp.favOpportunities
+                      .any((opp) => opp['Job Title'] == oppTitle);
+
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          isFavorited ? Icons.favorite : Icons.favorite_border,
+                          color: isFavorited ? Colors.red : Colors.grey,
+                          size: 28.0,
+                        ),
+                        onPressed: () {
+                          ref.read(favoriteProvider.notifier).toggleFavorite({
+                            'Job Title': oppTitle,
+                            'Company Name': companyName,
+                            'Description': description,
+                            'Apply url': applyUrl,
+                            'GPA out of 5': gpa5,
+                            'GPA out of 4': gpa4,
+                            'Locations': opportunity['Locations'] ?? [],
+                            'Skills': opportunity['Skills'] ?? []
+                          });
+                        },
                       ),
-                    ),
+                      GradientButton(
+                        text: "More",
+                        gradientColors: [
+                          const Color(0xFF113F67),
+                          Color.fromARGB(255, 105, 185, 255),
+                        ],
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => OpportunityDetailsPage(
+                                jobTitle: oppTitle,
+                                companyName: companyName,
+                                description: description,
+                                applyUrl: applyUrl,
+                                similarity: 0.0,
+                                skills: List<String>.from(
+                                    opportunity['Skills'] ?? []),
+                                location:
+                                    (opportunity['Locations'] ?? []).join(', '),
+                                gpa5: gpa5,
+                                gpa4: gpa4,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   );
                 },
               ),

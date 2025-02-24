@@ -60,56 +60,54 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
     _pageController.dispose();
   }
 
-void nextPage() async {
-  if (_currentPage == 0) {
-    if (communityNameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please enter a community name"),
-          duration: Duration(seconds: 2),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
+  void nextPage() async {
+    if (_currentPage == 0) {
+      if (communityNameController.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Please enter a community name"),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      if (communityDescription.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Please enter a description"),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      bool communityExists = await ref
+          .read(communityControllerProvider.notifier)
+          .checkIfCommunityExists(communityNameController.text.trim());
+
+      if (communityExists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                "Community with this name already exists! Choose another name."),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
     }
 
-    if (communityDescription.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please enter a description"),
-          duration: Duration(seconds: 2),
-          backgroundColor: Colors.red,
-        ),
+    if (_currentPage < 2) {
+      _pageController.nextPage(
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
       );
-      return;
-    }
-
-
-    bool communityExists = await ref.read(communityControllerProvider.notifier)
-        .checkIfCommunityExists(communityNameController.text.trim());
-
-    if (communityExists) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Community with this name already exists! Choose another name."),
-          duration: Duration(seconds: 2),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return; 
     }
   }
-
-
-  if (_currentPage < 2) {
-    _pageController.nextPage(
-      duration: Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
-  }
-}
-
-
 
   void previousPage() {
     if (_currentPage > 0) {
@@ -156,14 +154,15 @@ void nextPage() async {
       return;
     }
 
+    
+
     ref.read(communityControllerProvider.notifier).createCommunity(
-          communityNameController.text.trim(),
-          communityDescription.text.trim(),
-          avatarPath ?? Constants.avatarDefault,
-          bannerPath ?? Constants.bannerDefault,
-          selectedTopics,
-          context
-        );
+        communityNameController.text.trim(),
+        communityDescription.text.trim(),
+        avatarPath ?? Constants.avatarDefault,
+        bannerPath ?? Constants.bannerDefault,
+        selectedTopics,
+        context);
   }
 
   @override
@@ -209,34 +208,26 @@ void nextPage() async {
       padding: const EdgeInsets.all(10.0),
       child: Column(
         children: [
-          const Text(
-            "Step 1 of 3",
-            style: TextStyle(
-                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey),
-          ),
-          const SizedBox(height: 10),
           Align(
-            alignment: Alignment.topLeft,
+            alignment: Alignment.bottomCenter,
             child: const Text(
-              "Write community name & description",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              "Step 1 of 3",
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey),
             ),
           ),
           const SizedBox(height: 5),
-          Align(
-            alignment: Alignment.center,
-            child: const Text(
-              "A description will help pepole understand your community",
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey),
-            ),
-          ),
-          const SizedBox(height: 10),
           const Align(
             alignment: Alignment.topLeft,
             child: Text(
               'Community Name (Required)',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF113F67),
+              ),
             ),
           ),
           const SizedBox(height: 10),
@@ -244,6 +235,10 @@ void nextPage() async {
             controller: communityNameController,
             decoration: InputDecoration(
               hintText: "r/Community_name",
+              hintStyle: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 152, 161, 168),
+              ),
               filled: true,
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -256,14 +251,23 @@ void nextPage() async {
             alignment: Alignment.topLeft,
             child: Text(
               'Community Description (Required)',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF113F67),
+              ),
             ),
           ),
           const SizedBox(height: 10),
           TextField(
             controller: communityDescription,
             decoration: InputDecoration(
-              hintText: "Description",
+              hintText:
+                  "A description will help pepole understand your community",
+              hintStyle: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 152, 161, 168),
+              ),
               filled: true,
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -272,7 +276,7 @@ void nextPage() async {
             maxLength: 500,
             maxLines: 5,
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 40),
           GestureDetector(
             onTap: () {
               nextPage();
@@ -296,6 +300,7 @@ void nextPage() async {
               ),
             ),
           ),
+          const SizedBox(height: 165),
         ],
       ),
     );
@@ -319,29 +324,28 @@ void nextPage() async {
                       color: Colors.grey),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 5),
               Align(
                 alignment: Alignment.topLeft,
                 child: const Text(
                   "Style your community",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF113F67),
+                  ),
                 ),
               ),
-              const SizedBox(height: 5),
-              Align(
-                alignment: Alignment.center,
-                child: const Text(
-                  "Select the banner and avatar of your community",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 15),
               Align(
                 alignment: Alignment.topLeft,
                 child: const Text(
                   'Choose a Banner (Optional)',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF113F67),
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
@@ -360,7 +364,8 @@ void nextPage() async {
                           color: const Color.fromARGB(255, 236, 236, 236)),
                     ),
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF113F67)),
+                        backgroundColor:
+                            const Color.fromARGB(255, 0, 118, 208)),
                   ),
                   SizedBox(width: 10),
                   ElevatedButton.icon(
@@ -376,7 +381,7 @@ void nextPage() async {
                           color: const Color.fromARGB(255, 236, 236, 236)),
                     ),
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF113F67)),
+                        backgroundColor: const Color.fromARGB(255, 0, 176, 15)),
                   ),
                 ],
               ),
@@ -385,14 +390,19 @@ void nextPage() async {
                 Align(
                     alignment: Alignment.topLeft,
                     child: Text("✅ Banner selected!",
-                        style: TextStyle(color: Colors.green))),
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 0, 176, 15)))),
               ],
               const SizedBox(height: 20),
               Align(
                 alignment: Alignment.topLeft,
                 child: const Text(
                   'Choose an Avatar (Optional)',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF113F67),
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
@@ -411,7 +421,8 @@ void nextPage() async {
                           color: const Color.fromARGB(255, 236, 236, 236)),
                     ),
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF113F67)),
+                        backgroundColor:
+                            const Color.fromARGB(255, 0, 118, 208)),
                   ),
                   SizedBox(width: 10),
                   ElevatedButton.icon(
@@ -427,7 +438,7 @@ void nextPage() async {
                           color: const Color.fromARGB(255, 236, 236, 236)),
                     ),
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF113F67)),
+                        backgroundColor: const Color.fromARGB(255, 0, 176, 15)),
                   ),
                 ],
               ),
@@ -436,9 +447,10 @@ void nextPage() async {
                 Align(
                     alignment: Alignment.topLeft,
                     child: Text("✅ Avatar selected!",
-                        style: TextStyle(color: Colors.green))),
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 0, 176, 15)))),
               ],
-              const SizedBox(height: 30),
+              const SizedBox(height: 40),
               GestureDetector(
                 onTap: () {
                   nextPage();
@@ -474,7 +486,7 @@ void nextPage() async {
   Widget _buildCommunityTopicsPage() {
     List<Map<String, dynamic>> topics = [
       {
-        "category": "Training Opportunities Related",
+        "category": "💼 Training Opportunities Related",
         "topics": [
           "Summer Internships",
           "COOP Training",
@@ -483,7 +495,7 @@ void nextPage() async {
         ]
       },
       {
-        "category": "Industry-Specific Discussions",
+        "category": "📚 Industry-Specific Discussions",
         "topics": [
           "Technology & IT",
           "Engineering & Design",
@@ -495,7 +507,7 @@ void nextPage() async {
         ]
       },
       {
-        "category": "Soft Skills  & Personal Development",
+        "category": "🌱 Soft Skills  & Personal Development",
         "topics": [
           "Communication Skills",
           "Leadership & Teamwork",
@@ -503,7 +515,7 @@ void nextPage() async {
         ]
       },
       {
-        "category": "University Life & Support",
+        "category": "🏫 University Life & Support",
         "topics": [
           "University Advice",
           "Scholarships & Grants",
@@ -511,7 +523,7 @@ void nextPage() async {
         ]
       },
       {
-        "category": "Student Networking & Growth",
+        "category": "🌐 Student Networking & Growth",
         "topics": [
           "Events & Career Fairs",
           "Internship Meetups",
@@ -520,7 +532,7 @@ void nextPage() async {
         ]
       },
       {
-        "category": "Locations",
+        "category": "📍 Locations",
         "topics": [
           'Abha',
           'Al Ahsa',
@@ -558,31 +570,30 @@ void nextPage() async {
                       color: Colors.grey),
                 ),
               ),
-              const SizedBox(height: 10),
-              Align(
-                alignment: Alignment.topLeft,
-                child: const Text(
-                  "Choose community topics",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ),
               const SizedBox(height: 5),
-              Align(
-                alignment: Alignment.center,
-                child: const Text(
-                  "Add up to 3 topics to help users find your community",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                "Topics: ${selectedTopics.length}/3",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: selectedTopics.length == 3
-                        ? Colors.green
-                        : Colors.black),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Choose community topics",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF113F67),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    "(${selectedTopics.length}/3)",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: selectedTopics.length == 3
+                          ? Colors.red
+                          : Colors.black,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 10),
               Expanded(
@@ -595,7 +606,10 @@ void nextPage() async {
                         Text(
                           topics[index]["category"],
                           style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF113F67),
+                          ),
                         ),
                         Wrap(
                           spacing: 8.0,
@@ -608,17 +622,28 @@ void nextPage() async {
                                       color: selectedTopics.contains(topic)
                                           ? Colors.white
                                           : Colors.black,
-                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   selected: selectedTopics.contains(topic),
-                                  selectedColor: const Color(0xFF113F67),
+                                  selectedColor:
+                                      const Color.fromARGB(255, 0, 118, 208),
                                   checkmarkColor: Colors.white,
                                   onSelected: (selected) {
                                     setState(() {
                                       if (selected) {
                                         if (selectedTopics.length < 3) {
                                           selectedTopics.add(topic);
+                                        } else {
+                                          // Show a SnackBar when trying to add more than 3 topics.
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                  "Only 3 topics can be added"),
+                                              duration: Duration(seconds: 2),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
                                         }
                                       } else {
                                         selectedTopics.remove(topic);

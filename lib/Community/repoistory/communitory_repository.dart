@@ -37,9 +37,9 @@ class CommunitntyRepository {
     return _communities
         .where('members', arrayContains: uid)
         .snapshots()
-        .map((snapshot) {
+        .map((event) {
       List<Community> communities = [];
-      for (var doc in snapshot.docs) {
+      for (var doc in event.docs) {
         communities.add(Community.fromMap(doc.data() as Map<String, dynamic>));
       }
       return communities;
@@ -69,25 +69,27 @@ class CommunitntyRepository {
     }
   }
 
-Stream<List<Community>> searchCommunity(String query) {
-  if (query.isEmpty) {
+  Stream<List<Community>> searchCommunity(String query) {
+    if (query.isEmpty) {
+      return _communities.snapshots().map((snapshot) {
+        return snapshot.docs
+            .map((doc) => Community.fromMap(doc.data() as Map<String, dynamic>))
+            .toList();
+      });
+    }
+
     return _communities.snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => Community.fromMap(doc.data() as Map<String, dynamic>))
+          .where((community) =>
+              community.name.toLowerCase().contains(query.toLowerCase()) ||
+              (community.description
+                      ?.toLowerCase()
+                      .contains(query.toLowerCase()) ??
+                  false))
           .toList();
     });
   }
-
-  return _communities.snapshots().map((snapshot) {
-    return snapshot.docs
-        .map((doc) => Community.fromMap(doc.data() as Map<String, dynamic>))
-        .where((community) =>
-            community.name.toLowerCase().contains(query.toLowerCase()) ||
-            (community.description?.toLowerCase().contains(query.toLowerCase()) ?? false))
-        .toList();
-  });
-}
-
 
   CollectionReference get _communities =>
       _firestore.collection(FirebaseConstants.communitiesCollection);

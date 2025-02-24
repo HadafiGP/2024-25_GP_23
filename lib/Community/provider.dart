@@ -27,16 +27,22 @@ final authStateProvider = StreamProvider<User?>((ref) {
 });
 
 
-final uidProvider = Provider<String>((ref) {
+final uidProvider = StateProvider<String?>((ref) {
   final authUser = ref.watch(authStateProvider).value;
-  return authUser?.uid ?? '';
+  print("Auth state changed, new UID: ${authUser?.uid}"); 
+  return authUser?.uid;
 });
 
 
 // Fetch User Data from Firestore
-final userDataProvider = StreamProvider.family<Map<String, dynamic>?, String>((ref, uid) {
+final userDataProvider =
+    StreamProvider.family<Map<String, dynamic>?, String>((ref, uid) {
   final firestore = ref.watch(firestoreProvider);
-  return firestore.collection('Student').doc(uid).snapshots().map((doc) => doc.data());
+  return firestore
+      .collection('Student')
+      .doc(uid)
+      .snapshots()
+      .map((doc) => doc.data());
 });
 
 

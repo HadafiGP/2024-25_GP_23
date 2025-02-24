@@ -14,9 +14,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:hadafi_application/Community/edit_community_screen.dart';
 import 'package:hadafi_application/Community/provider.dart';
 
-final userCommunityProvider = StreamProvider((ref) {
+final userCommunityProvider =
+    StreamProvider.family<List<Community>, String>((ref, uid) {
   final communityController = ref.watch(communityControllerProvider.notifier);
-  return communityController.getUserCommunities();
+  return communityController.getUserCommunities(uid);
 });
 
 final communityControllerProvider =
@@ -35,12 +36,9 @@ final getCommunityByNameProvider = StreamProvider.family((ref, String name) {
       .getCommunityByName(name);
 });
 
-final searchCommunityProvider = StreamProvider.family( (ref , String query) {
+final searchCommunityProvider = StreamProvider.family((ref, String query) {
   return ref.watch(communityControllerProvider.notifier).searchCommunity(query);
-
-
 });
-
 
 class CommunityController extends StateNotifier<bool> {
   final CommunitntyRepository _communityRepoistory;
@@ -95,8 +93,10 @@ class CommunityController extends StateNotifier<bool> {
     );
   }
 
-  Stream<List<Community>> getUserCommunities() {
-    final uid = _ref.read(uidProvider);
+  Stream<List<Community>> getUserCommunities(String uid) {
+    if (uid.isEmpty) {
+      return Stream.value([]);
+    }
     return _communityRepoistory.getUserCommunities(uid);
   }
 
@@ -104,50 +104,44 @@ class CommunityController extends StateNotifier<bool> {
     return _communityRepoistory.getCommunityByName(name);
   }
 
-void editCommunity({
-  required File? profileFile,
-  required File? bannerFile,
-  required BuildContext context,
-  required Community community,
-}) async {
-  state=true;
-  if (profileFile != null) {
-    final res = await _storageRepository.storeFile(
-        path: 'communities/profile', id: community.name, file: profileFile);
+  void editCommunity({
+    required File? profileFile,
+    required File? bannerFile,
+    required BuildContext context,
+    required Community community,
+  }) async {
+    state = true;
+    if (profileFile != null) {
+      final res = await _storageRepository.storeFile(
+          path: 'communities/profile', id: community.name, file: profileFile);
+      res.fold(
+        (l) => showSnackBar(context, l.message),
+        (r) => community = community.copyWith(avatar: r),
+      );
+    }
+
+    if (bannerFile != null) {
+      final res = await _storageRepository.storeFile(
+          path: 'communities/banner', id: community.name, file: bannerFile);
+      res.fold(
+        (l) => showSnackBar(context, l.message),
+        (r) => community = community.copyWith(banner: r),
+      );
+    }
+
+    final res = await _communityRepoistory.editCommunity(community);
+    state = false;
+
     res.fold(
       (l) => showSnackBar(context, l.message),
-      (r) => community = community.copyWith(avatar: r),
+      (r) {
+        showSnackBar(context, "Community updated successfully!");
+        Navigator.pop(context);
+      },
     );
   }
 
-  if (bannerFile != null) {
-    final res = await _storageRepository.storeFile(
-        path: 'communities/banner', id: community.name, file: bannerFile);
-    res.fold(
-      (l) => showSnackBar(context, l.message),
-      (r) => community = community.copyWith(banner: r),
-    );
+  Stream<List<Community>> searchCommunity(String query) {
+    return _communityRepoistory.searchCommunity(query);
   }
-
-  final res = await _communityRepoistory.editCommunity(community);
-  state=false;
-
-  res.fold(
-    (l) => showSnackBar(context, l.message), 
-    (r) {
-      showSnackBar(context, "Community updated successfully!"); 
-      Navigator.pop(context); 
-    },
-  );
 }
-
-Stream<List<Community>> searchCommunity(String query){
-
-return _communityRepoistory.searchCommunity(query);
-  
-}
-
-
-
-  }
-

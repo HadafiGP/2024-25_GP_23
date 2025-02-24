@@ -7,10 +7,13 @@ import 'package:hadafi_application/Community/controller/community_controller.dar
 import 'package:hadafi_application/Community/common/loader.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hadafi_application/Community/firebase_constants.dart';
+import 'package:hadafi_application/Community/provider.dart';
 
 class createCommunityUI extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final userId = ref.watch(uidProvider);
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -46,48 +49,52 @@ class createCommunityUI extends ConsumerWidget {
             const SizedBox(height: 24),
             const Text(
               "Your Communities",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF113F67),
+              ),
             ),
             const SizedBox(height: 12),
-            Expanded(
-              child: ref.watch(userCommunityProvider).when(
-                    data: (communities) => ListView.builder(
-                      itemCount: communities.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        final community = communities[index];
+            if (userId == null)
+              Center(child: Text("No user logged in"))
+            else
+              Expanded(
+                child: ref.watch(userCommunityProvider(userId)).when(
+                      data: (communities) => ListView.builder(
+                        itemCount: communities.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          final community = communities[index];
+                          bool isNetworkImage =
+                              Uri.parse(community.avatar).isAbsolute;
 
-                        bool isNetworkImage =
-                            Uri.parse(community.avatar).isAbsolute;
-
-                        return ListTile(
-                          leading: CircleAvatar(
-                            backgroundImage: isNetworkImage
-                                ? NetworkImage(community.avatar)
-                                    as ImageProvider
-                                : FileImage(File(community.avatar)),
-                          ),
-                          title: Text('r/${community.name}'),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    Communityprofile(name: community.name),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
-                    error: (error, stackTrace) => Center(
-                      child: Text(
-                        "Error: $error",
-                        style: const TextStyle(color: Colors.red),
+                          return ListTile(
+                            leading: CircleAvatar(
+                              backgroundImage: isNetworkImage
+                                  ? NetworkImage(community.avatar)
+                                      as ImageProvider
+                                  : FileImage(File(community.avatar)),
+                            ),
+                            title: Text('r/${community.name}'),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      Communityprofile(name: community.name),
+                                ),
+                              );
+                            },
+                          );
+                        },
                       ),
+                      error: (error, stackTrace) => Center(
+                        child: Text("Error: $error",
+                            style: const TextStyle(color: Colors.red)),
+                      ),
+                      loading: () => const Loader(),
                     ),
-                    loading: () => const Loader(),
-                  ),
-            ),
+              ),
           ],
         ),
       ),

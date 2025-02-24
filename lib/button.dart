@@ -23,7 +23,7 @@ class GradientButton extends StatelessWidget {
       onTap: onPressed,
       child: Container(
         height: 33,
-        width: 75,
+        width: 59,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: gradientColors,
@@ -39,15 +39,9 @@ class GradientButton extends StatelessWidget {
               text,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: fontSize ?? 15,
+                fontSize: fontSize ?? 14,
                 fontWeight: FontWeight.bold,
               ),
-            ),
-            const SizedBox(width: 3),
-            Icon(
-              Icons.arrow_forward,
-              color: Colors.white,
-              size: 20, 
             ),
           ],
         ),
