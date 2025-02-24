@@ -19,6 +19,11 @@ final firestoreProvider = Provider<FirebaseFirestore>((ref) {
   return firestore;
 });
 
+final userProvider = Provider<String?>((ref) {
+  final uid = ref.watch(uidProvider);
+  return uid;
+});
+
 
 
 final authStateProvider = StreamProvider<User?>((ref) {
@@ -51,4 +56,3 @@ final storageRepositoryProvider = Provider<StorageRepository>((ref) {
   final firebaseStorage = ref.watch(storageProvider);
   return StorageRepository(firebaseStorage: firebaseStorage);
 });
-

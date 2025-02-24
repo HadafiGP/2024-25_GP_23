@@ -15,6 +15,15 @@ class Communityprofile extends ConsumerWidget {
     required this.name,
   });
 
+  void joinCommunity(WidgetRef ref , Community community , BuildContext context){
+
+    ref.read(communityControllerProvider.notifier).joinCommunity(community, context);
+
+
+
+
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(uidProvider);
@@ -44,6 +53,7 @@ class Communityprofile extends ConsumerWidget {
                       expandedHeight: 180,
                       floating: false,
                       pinned: true,
+                      automaticallyImplyLeading: false,
                       flexibleSpace: Stack(
                         alignment: Alignment.bottomLeft,
                         children: [
@@ -57,7 +67,7 @@ class Communityprofile extends ConsumerWidget {
                           
                           Positioned.fill(
                             child: Container(
-                              color: Colors.black.withOpacity(0.4),
+                              color: Colors.black.withOpacity(0.3),
                             ),
                           ),
 
@@ -99,7 +109,7 @@ class Communityprofile extends ConsumerWidget {
                                           '${community.members.length} members',
                                           style: TextStyle(
                                             fontSize: 14,
-                                            color: Colors.white.withOpacity(0.9),
+                                            color: Colors.white.withOpacity(1),
                                           ),
                                         ),
                                       ],
@@ -129,7 +139,7 @@ class Communityprofile extends ConsumerWidget {
                                         ),
                                       )
                                     : ElevatedButton(
-                                        onPressed: () {},
+                                        onPressed: () => joinCommunity(ref , community ,context),
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: community.members.contains(user)
                                               ? Colors.grey
@@ -230,7 +240,7 @@ class Communityprofile extends ConsumerWidget {
                 left: 16,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.blue[800]?.withOpacity(0.3), 
+                    color: Colors.blue[800]?.withOpacity(0.7), 
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(

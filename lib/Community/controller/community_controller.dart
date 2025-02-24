@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:dartz/dartz.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hadafi_application/Community/Providers/storage_repository_providers.dart';
+import 'package:hadafi_application/Community/core/failure.dart';
 import 'package:hadafi_application/Community/model/community_model.dart';
 import 'package:hadafi_application/Community/repoistory/communitory_repository.dart';
 import 'package:hadafi_application/Community/provider.dart';
@@ -13,6 +15,7 @@ import 'package:hadafi_application/Community/model/community_model.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:hadafi_application/Community/edit_community_screen.dart';
 import 'package:hadafi_application/Community/provider.dart';
+
 
 final userCommunityProvider =
     StreamProvider.family<List<Community>, String>((ref, uid) {
@@ -92,6 +95,43 @@ class CommunityController extends StateNotifier<bool> {
       SnackBar(content: Text(message)),
     );
   }
+
+
+
+
+
+void joinCommunity(Community community, BuildContext context) async {
+  final userId = _ref.read(userProvider);
+
+  if (userId == null) {
+    showSnackBar(context, 'User not found!');
+    return;
+  }
+
+  final _communityRepository = _ref.read(communityRepositoryProvider);
+
+  final res = community.members.contains(userId)
+      ? await _communityRepository.leaveCommunity(community.name, userId)
+      : await _communityRepository.joinCommunity(community.name, userId);
+
+  res.fold(
+    (l) => showSnackBar(context, l.message),
+    (r) => showSnackBar(context, community.members.contains(userId) 
+      ? 'Community left successfully!' 
+      : 'Community joined successfully!'),
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
 
   Stream<List<Community>> getUserCommunities(String uid) {
     if (uid.isEmpty) {

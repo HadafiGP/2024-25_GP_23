@@ -33,6 +33,41 @@ class CommunitntyRepository {
     }
   }
 
+  ///Join community
+
+Future<Either<Failure, void>> joinCommunity(
+    String communityName, String userID) async {
+  try {
+    await _communities.doc(communityName).update({
+      'members': FieldValue.arrayUnion([userID])
+    });
+    return right(null); // right() expects a value, so use null
+  } on FirebaseException catch (e) {
+    return left(Failure(e.message ?? 'An unexpected error occurred.'));
+  } catch (e) {
+    return left(Failure(e.toString()));
+  }
+}
+
+
+  ///Leave community
+Future<Either<Failure, void>> leaveCommunity(
+    String communityName, String userID) async {
+  try {
+    await _communities.doc(communityName).update({
+      'members': FieldValue.arrayRemove([userID])
+    });
+    return right(null); // right() expects a value, so use null
+  } on FirebaseException catch (e) {
+    return left(Failure(e.message ?? 'An unexpected error occurred.'));
+  } catch (e) {
+    return left(Failure(e.toString()));
+  }
+}
+
+
+  ///////////////////////////////////////////////////////////////////////////////
+
   Stream<List<Community>> getUserCommunities(String uid) {
     return _communities
         .where('members', arrayContains: uid)
