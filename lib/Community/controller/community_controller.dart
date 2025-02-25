@@ -11,11 +11,8 @@ import 'package:hadafi_application/Community/repoistory/communitory_repository.d
 import 'package:hadafi_application/Community/provider.dart';
 import 'package:hadafi_application/Community/constants/constants.dart';
 import 'package:hadafi_application/Community/CommunityHomeScreen.dart';
-import 'package:hadafi_application/Community/model/community_model.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:hadafi_application/Community/edit_community_screen.dart';
-import 'package:hadafi_application/Community/provider.dart';
-
 
 final userCommunityProvider =
     StreamProvider.family<List<Community>, String>((ref, uid) {
@@ -34,9 +31,7 @@ final communityControllerProvider =
 });
 
 final getCommunityByNameProvider = StreamProvider.family((ref, String name) {
-  return ref
-      .watch(communityControllerProvider.notifier)
-      .getCommunityByName(name);
+  return ref.watch(communityControllerProvider.notifier).getCommunityByName(name);
 });
 
 final searchCommunityProvider = StreamProvider.family((ref, String query) {
@@ -56,121 +51,111 @@ class CommunityController extends StateNotifier<bool> {
         _storageRepository = storageRepository,
         super(false);
 
-void createCommunity(
-    String name,
-    String description,
-    String? avatarPath,
-    String? bannerPath,
-    List<String> topics,
-    BuildContext context) async {
-  state = true;
-  final uid = _ref.read(uidProvider) ?? '';
-
-  // Upload avatar if provided
-  String avatarUrl = Constants.avatarDefault;
-  if (avatarPath != null && avatarPath.isNotEmpty) {
-    final avatarRes = await _storageRepository.storeFile(
-      path: 'communities/avatar',
-      id: name,
-      file: File(avatarPath),
-    );
-    avatarRes.fold(
-      (l) => showSnackBar(context, "Failed to upload avatar: ${l.message}"),
-      (r) => avatarUrl = r,
-    );
-  }
-
-  // Upload banner if provided
-  String bannerUrl = Constants.bannerDefault;
-  if (bannerPath != null && bannerPath.isNotEmpty) {
-    final bannerRes = await _storageRepository.storeFile(
-      path: 'communities/banner',
-      id: name,
-      file: File(bannerPath),
-    );
-    bannerRes.fold(
-      (l) => showSnackBar(context, "Failed to upload banner: ${l.message}"),
-      (r) => bannerUrl = r,
-    );
-  }
-
-  // Create community object
-  Community community = Community(
-    id: name,
-    name: name,
-    description: description,
-    avatar: avatarUrl,
-    banner: bannerUrl,
-    topics: topics,
-    members: [uid],
-    mods: [uid],
-  );
-
-  // Save community details in Firestore
-  final res = await _communityRepoistory.createCommunity(community);
-  state = false;
-
-  res.fold(
-    (l) => showSnackBar(context, l.message),
-    (r) {
-      showSnackBar(context, "Community created successfully!");
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Communityhomescreen(initialIndex: 1),
+  void showSnackBar(BuildContext context, String message, {bool isSuccess = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(color: Colors.white),
         ),
-      );
-    },
-  );
-}
+        backgroundColor: isSuccess ? Colors.green : Colors.red, 
+      ),
+    );
+  }
 
+  void createCommunity(
+      String name,
+      String description,
+      String? avatarPath,
+      String? bannerPath,
+      List<String> topics,
+      BuildContext context) async {
+    state = true;
+    final uid = _ref.read(uidProvider) ?? '';
+
+    // Upload avatar if provided
+    String avatarUrl = Constants.avatarDefault;
+    if (avatarPath != null && avatarPath.isNotEmpty) {
+      final avatarRes = await _storageRepository.storeFile(
+        path: 'communities/avatar',
+        id: name,
+        file: File(avatarPath),
+      );
+      avatarRes.fold(
+        (l) => showSnackBar(context, "Failed to upload avatar: ${l.message}"),
+        (r) => avatarUrl = r,
+      );
+    }
+
+    // Upload banner if provided
+    String bannerUrl = Constants.bannerDefault;
+    if (bannerPath != null && bannerPath.isNotEmpty) {
+      final bannerRes = await _storageRepository.storeFile(
+        path: 'communities/banner',
+        id: name,
+        file: File(bannerPath),
+      );
+      bannerRes.fold(
+        (l) => showSnackBar(context, "Failed to upload banner: ${l.message}"),
+        (r) => bannerUrl = r,
+      );
+    }
+
+    // Create community object
+    Community community = Community(
+      id: name,
+      name: name,
+      description: description,
+      avatar: avatarUrl,
+      banner: bannerUrl,
+      topics: topics,
+      members: [uid],
+      mods: [uid],
+    );
+
+    // Save community details in Firestore
+    final res = await _communityRepoistory.createCommunity(community);
+    state = false;
+
+    res.fold(
+      (l) => showSnackBar(context, l.message),
+      (r) {
+        showSnackBar(context, "Community created successfully!", isSuccess: true);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Communityhomescreen(initialIndex: 1),
+          ),
+        );
+      },
+    );
+  }
 
   Future<bool> checkIfCommunityExists(String name) async {
     return await _communityRepoistory.checkIfCommunityExists(name);
   }
 
-  void showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+  void joinCommunity(Community community, BuildContext context) async {
+    final userId = _ref.read(userProvider);
+
+    if (userId == null) {
+      showSnackBar(context, 'User not found!');
+      return;
+    }
+
+    final _communityRepository = _ref.read(communityRepositoryProvider);
+
+    final res = community.members.contains(userId)
+        ? await _communityRepository.leaveCommunity(community.name, userId)
+        : await _communityRepository.joinCommunity(community.name, userId);
+
+    res.fold(
+      (l) => showSnackBar(context, l.message),
+      (r) => showSnackBar(context,
+          community.members.contains(userId) ? 'Community left successfully!' : 'Community joined successfully!',
+          isSuccess: true),
     );
   }
-
-
-
-
-
-void joinCommunity(Community community, BuildContext context) async {
-  final userId = _ref.read(userProvider);
-
-  if (userId == null) {
-    showSnackBar(context, 'User not found!');
-    return;
-  }
-
-  final _communityRepository = _ref.read(communityRepositoryProvider);
-
-  final res = community.members.contains(userId)
-      ? await _communityRepository.leaveCommunity(community.name, userId)
-      : await _communityRepository.joinCommunity(community.name, userId);
-
-  res.fold(
-    (l) => showSnackBar(context, l.message),
-    (r) => showSnackBar(context, community.members.contains(userId) 
-      ? 'Community left successfully!' 
-      : 'Community joined successfully!'),
-  );
-}
-
-
-
-
-
-
-
-
-
-
-
 
   Stream<List<Community>> getUserCommunities(String uid) {
     if (uid.isEmpty) {
@@ -214,7 +199,7 @@ void joinCommunity(Community community, BuildContext context) async {
     res.fold(
       (l) => showSnackBar(context, l.message),
       (r) {
-        showSnackBar(context, "Community updated successfully!");
+        showSnackBar(context, "Community updated successfully!", isSuccess: true);
         Navigator.pop(context);
       },
     );
@@ -222,5 +207,17 @@ void joinCommunity(Community community, BuildContext context) async {
 
   Stream<List<Community>> searchCommunity(String query) {
     return _communityRepoistory.searchCommunity(query);
+  }
+
+  void addMods(String communityName, List<String> uids, BuildContext context) async {
+    final res = await _communityRepoistory.addMods(communityName, uids);
+
+    res.fold(
+      (l) => showSnackBar(context, l.message),
+      (r) {
+        showSnackBar(context, "Moderators updated successfully!", isSuccess: true);
+        Navigator.pop(context);
+      },
+    );
   }
 }

@@ -22,6 +22,9 @@ class EditCommunityScreen extends ConsumerStatefulWidget {
 class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
   File? bannerFile;
   File? profileFile;
+  String? originalBanner;
+  String? originalAvatar;
+  bool initialized = false;
 
   void selectBannerImage() async {
     final XFile? res = await pickImage();
@@ -47,9 +50,10 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
           bannerFile: bannerFile,
           context: context,
           community: community,
-          
         );
   }
+
+  bool get hasChanges => bannerFile != null || profileFile != null;
 
   @override
   Widget build(BuildContext context) {
@@ -64,14 +68,20 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
               );
             }
 
-            bool isNetworkBanner = community.banner != null &&
-                Uri.parse(community.banner).isAbsolute;
-            bool isNetworkAvatar = community.avatar != null &&
-                Uri.parse(community.avatar).isAbsolute;
+            if (!initialized) {
+              originalBanner = community.banner;
+              originalAvatar = community.avatar;
+              initialized = true;
+            }
+
+            bool isNetworkBanner =
+                community.banner.isNotEmpty && Uri.parse(community.banner).isAbsolute;
+            bool isNetworkAvatar =
+                community.avatar.isNotEmpty && Uri.parse(community.avatar).isAbsolute;
 
             return Scaffold(
               appBar: AppBar(
-                backgroundColor: const Color(0xFF113F67), // Matches Mod Tools
+                backgroundColor: const Color(0xFF113F67),
                 centerTitle: true,
                 elevation: 0,
                 leading: IconButton(
@@ -94,33 +104,23 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Explanation Text
                           const Text(
                             "A banner and avatar attract members and establish your community's culture.",
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey,
-                            ),
+                            style: TextStyle(fontSize: 14, color: Colors.grey),
                           ),
                           const SizedBox(height: 20),
 
-                          // **Preview Section**
                           const Text(
                             "Preview",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 10),
 
-                          // Banner & Avatar in Stack for proper positioning
                           SizedBox(
                             height: 190,
                             child: Stack(
-                              clipBehavior: Clip.none, // Ensures avatar is not clipped
+                              clipBehavior: Clip.none,
                               children: [
-                                // Banner Image
                                 GestureDetector(
                                   onTap: selectBannerImage,
                                   child: DottedBorder(
@@ -139,15 +139,12 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
                                                 bannerFile!,
                                                 fit: BoxFit.cover,
                                               )
-                                            : community.banner == null ||
-                                                    community.banner.isEmpty ||
+                                            : community.banner.isEmpty ||
                                                     community.banner ==
-                                                        Constants
-                                                            .bannerDefault
+                                                        Constants.bannerDefault
                                                 ? const Center(
                                                     child: Icon(
-                                                      Icons
-                                                          .camera_alt_outlined,
+                                                      Icons.camera_alt_outlined,
                                                       size: 40,
                                                       color: Colors.grey,
                                                     ),
@@ -166,17 +163,16 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
                                   ),
                                 ),
 
-                                // Profile Image (Overlapping Banner)
                                 Positioned(
-                                  bottom: -1, // Moves avatar down to overlap banner
-                                  left: 20, // Aligns to left
+                                  bottom: -1,
+                                  left: 20,
                                   child: GestureDetector(
                                     onTap: selectProfileImage,
                                     child: Container(
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
                                         border: Border.all(
-                                          color: Colors.white, // White border
+                                          color: Colors.white,
                                           width: 2,
                                         ),
                                       ),
@@ -190,14 +186,10 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
                                               ? FileImage(profileFile!)
                                               : isNetworkAvatar
                                                   ? NetworkImage(community.avatar)
-                                                  : (community.avatar != null &&
-                                                          community
-                                                              .avatar.isNotEmpty
-                                                      ? FileImage(File(
-                                                          community.avatar))
-                                                      : const AssetImage(
-                                                              'assets/default_avatar.png')
-                                                          as ImageProvider),
+                                                  : community.avatar.isNotEmpty
+                                                      ? FileImage(File(community.avatar))
+                                                      : const AssetImage('assets/default_avatar.png')
+                                                          as ImageProvider,
                                         ),
                                       ),
                                     ),
@@ -209,23 +201,12 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
 
                           const SizedBox(height: 20),
 
-                          // Banner Selection
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Banner",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(height: 4),
-                    
-                                ],
+                              const Text(
+                                "Banner",
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                               ),
                               ElevatedButton.icon(
                                 onPressed: selectBannerImage,
@@ -241,18 +222,13 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
 
                           const SizedBox(height: 16),
 
-                          // Avatar Selection
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text(
                                 "Avatar",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                               ),
-                              
                               ElevatedButton.icon(
                                 onPressed: selectProfileImage,
                                 icon: const Icon(Icons.image_outlined),
@@ -267,13 +243,12 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
 
                           const Spacer(),
 
-                          // Save Button
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: () => save(community),
+                              onPressed: hasChanges ? () => save(community) : null, 
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF113F67),
+                                backgroundColor: hasChanges ? const Color(0xFF113F67) : Colors.grey,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),

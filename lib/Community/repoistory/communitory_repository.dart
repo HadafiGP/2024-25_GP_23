@@ -126,6 +126,23 @@ Future<Either<Failure, void>> leaveCommunity(
     });
   }
 
+
+
+
+    FutureEitherVoid addMods(String communityName , List<String> uids) async {
+    try {
+      return right(_communities.doc(communityName).update({
+
+        'mods':uids,
+      }));
+    } on FirebaseException catch (e) {
+      return left(Failure(e.message ?? 'Unknown Firebase error'));
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
+
   CollectionReference get _communities =>
       _firestore.collection(FirebaseConstants.communitiesCollection);
 }

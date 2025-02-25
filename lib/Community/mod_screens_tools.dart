@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hadafi_application/Community/add_mods.dart';
 import 'package:hadafi_application/Community/edit_community_screen.dart';
 
 class ModTools extends StatelessWidget {
@@ -25,26 +26,33 @@ class ModTools extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // ✅ Add Moderators
+            // Add moderators
             Card(
               elevation: 3,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               child: ListTile(
-                leading: const Icon(Icons.add_moderator_rounded, color: Colors.blue),
+                leading: const Icon(Icons.manage_accounts, color: Colors.blue),
                 title: const Text(
-                  'Add Moderators',
+                  'Manage Moderators',
                   style: TextStyle(fontSize: 16),
                 ),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 18, color: Colors.grey),
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddMods(name: name),
+                    ),
+                  );
+                },
               ),
             ),
 
             const SizedBox(height: 10),
 
-            // ✅ Edit Community
+            //Edit community
             Card(
               elevation: 3,
               shape: RoundedRectangleBorder(
