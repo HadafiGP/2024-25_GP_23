@@ -105,7 +105,7 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            "A banner and avatar attract members and establish your community's culture.",
+                            "A banner and avatar attract members and establish your community's culture",
                             style: TextStyle(fontSize: 14, color: Colors.grey),
                           ),
                           const SizedBox(height: 20),
