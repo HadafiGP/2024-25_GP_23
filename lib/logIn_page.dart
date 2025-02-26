@@ -11,29 +11,53 @@ import 'package:hadafi_application/forget_password_page.dart';
 final isLoadingProvider = StateProvider<bool>((ref) => false);
 final isPasswordVisibleProvider = StateProvider<bool>((ref) => false);
 final errorMessageProvider = StateProvider<String?>((ref) => null);
+final successMessageProvider = StateProvider<String?>((ref) => null);
 
-class LoginScreen extends ConsumerWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
-  static final TextEditingController _emailController = TextEditingController();
-  static final TextEditingController _passwordController =
-      TextEditingController();
-  static final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _emailController.clear();
+    _passwordController.clear();
+    ref.read(isPasswordVisibleProvider.notifier).state = false;
+    ref.read(errorMessageProvider.notifier).state = null;
+    ref.read(successMessageProvider.notifier).state = null;
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final FirebaseAuth _auth = FirebaseAuth.instance;
     final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
     final bool isLoading = ref.watch(isLoadingProvider);
     final bool isPasswordVisible = ref.watch(isPasswordVisibleProvider);
     final String? errorMessage = ref.watch(errorMessageProvider);
+    final String? successMessage = ref.watch(successMessageProvider);
 
     Future<void> _login() async {
       if (!_formKey.currentState!.validate()) return;
 
       ref.read(isLoadingProvider.notifier).state = true;
       ref.read(errorMessageProvider.notifier).state = null;
+      ref.read(successMessageProvider.notifier).state = null;
 
       try {
         UserCredential userCredential =
@@ -46,13 +70,8 @@ class LoginScreen extends ConsumerWidget {
 
         if (user != null && !user.emailVerified) {
           await user.sendEmailVerification();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content:
-                  Text("Verification email sent. Please verify to log in."),
-              backgroundColor: Colors.blue,
-            ),
-          );
+          ref.read(successMessageProvider.notifier).state =
+              "Verification email sent. Please verify to log in.";
         } else if (user != null && user.emailVerified) {
           final userDoc = await FirebaseFirestore.instance
               .collection('Student')
@@ -62,7 +81,6 @@ class LoginScreen extends ConsumerWidget {
 
           _emailController.clear();
           _passwordController.clear();
-
           ref.read(isPasswordVisibleProvider.notifier).state = false;
 
           if (userDoc.exists && userDoc.get('role') == 'student') {
@@ -98,6 +116,7 @@ class LoginScreen extends ConsumerWidget {
     }
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: SignupWidget(
         child: Column(
           children: [
@@ -140,16 +159,6 @@ class LoginScreen extends ConsumerWidget {
                         const SizedBox(height: 15),
                         _buildPasswordField(isPasswordVisible, ref),
                         const SizedBox(height: 15),
-                        if (errorMessage != null)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            child: Text(
-                              errorMessage,
-                              style: const TextStyle(
-                                  color: Colors.red, fontSize: 14),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
                         Align(
                           alignment: Alignment.centerLeft,
                           child: TextButton(
@@ -172,6 +181,38 @@ class LoginScreen extends ConsumerWidget {
                             ),
                           ),
                         ),
+                        if (errorMessage != null)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Text(
+                              errorMessage,
+                              style: const TextStyle(
+                                  color: Colors.red, fontSize: 14),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        if (successMessage != null)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.check_circle,
+                                  color: Colors.green,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  successMessage,
+                                  style: const TextStyle(
+                                    color: Color(0xFF113F67),
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         const SizedBox(height: 15),
                         isLoading
                             ? const CircularProgressIndicator()
