@@ -35,7 +35,8 @@ final uidProvider = StateProvider<String?>((ref) {
 });
 
 // Fetch User Data from Firestore
-final userDataProvider = StreamProvider.family<Map<String, dynamic>?, String>((ref, uid) {
+final userDataProvider =
+    StreamProvider.family<Map<String, dynamic>?, String>((ref, uid) {
   final firestore = ref.watch(firestoreProvider);
   return firestore
       .collection('Student')

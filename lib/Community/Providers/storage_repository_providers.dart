@@ -2,18 +2,18 @@ import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hadafi_application/Community/constants/constants.dart';
 import 'package:hadafi_application/Community/core/failure.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hadafi_application/Community/provider.dart';
 
-
 final storageProvider = Provider<FirebaseStorage>((ref) {
   return FirebaseStorage.instance;
 });
 
-final firebaseStorageProvider = Provider((ref) => 
-  StorageRepository(firebaseStorage: ref.watch(storageProvider)),
+final firebaseStorageProvider = Provider(
+  (ref) => StorageRepository(firebaseStorage: ref.watch(storageProvider)),
 );
 
 class StorageRepository {
@@ -36,6 +36,21 @@ class StorageRepository {
       return right(await snapshot.ref.getDownloadURL());
     } catch (e) {
       return left(Failure(e.toString()));
+    }
+  }
+
+  Future<String> uploadImageToStorage(
+      String folder, String userId, String imagePath) async {
+    try {
+      final storageRef =
+          FirebaseStorage.instance.ref().child(folder).child(userId);
+      final uploadTask = storageRef.putFile(File(imagePath));
+      final snapshot = await uploadTask;
+      final imageUrl = await snapshot.ref.getDownloadURL();
+      return imageUrl;
+    } catch (e) {
+      print('Error uploading image: $e');
+      return Constants.avatarDefault;
     }
   }
 }

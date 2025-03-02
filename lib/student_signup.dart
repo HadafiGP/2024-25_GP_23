@@ -6,6 +6,13 @@ import 'package:hadafi_application/Community/provider.dart';
 import 'package:hadafi_application/signup_widget.dart';
 import 'package:hadafi_application/StudentHomepage.dart';
 import 'package:crypto/crypto.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter/services.dart';
+import 'package:hadafi_application/Community/controller/community_controller.dart';
+import 'package:hadafi_application/Community/Providers/storage_repository_providers.dart';
+import 'package:hadafi_application/Community/common/loader.dart';
+import 'package:hadafi_application/Community/constants/constants.dart';
 import 'dart:convert';
 import 'dart:async';
 
@@ -44,7 +51,8 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   List<String> _currentManagementSkills = [];
 
 // Repeat for soft skills and management skills
-
+  String? avatarPath;
+  String? bannerPath;
   String? _emailError; // To hold the "email already in use" error
   String? _selectedNationality;
   String? _selectedMajor;
@@ -604,6 +612,32 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     _filteredMajors.addAll(_majors); // Initialize with all majors
   }
 
+  Future pickImage(ImageSource source) async {
+    try {
+      final pickedFile = await ImagePicker().pickImage(source: source);
+      if (pickedFile == null) return;
+
+      setState(() {
+        bannerPath = pickedFile.path;
+      });
+    } on PlatformException catch (e) {
+      print('Failed to pick image: $e');
+    }
+  }
+
+  Future pickImage2(ImageSource source) async {
+    try {
+      final pickedFile = await ImagePicker().pickImage(source: source);
+      if (pickedFile == null) return;
+
+      setState(() {
+        avatarPath = pickedFile.path;
+      });
+    } on PlatformException catch (e) {
+      print('Failed to pick image: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SignupWidget(
@@ -835,6 +869,128 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 15),
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: const Text(
+                          'Choose a Banner (Optional)',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF113F67),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              await pickImage(ImageSource.gallery);
+                              setState(() {});
+                            },
+                            icon: Icon(Icons.image, color: Colors.white),
+                            label: Text(
+                              "Gallery",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      const Color.fromARGB(255, 236, 236, 236)),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 0, 118, 208)),
+                          ),
+                          SizedBox(width: 10),
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              await pickImage(ImageSource.camera);
+                              setState(() {});
+                            },
+                            icon: Icon(Icons.camera_alt, color: Colors.white),
+                            label: Text(
+                              "Camera",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      const Color.fromARGB(255, 236, 236, 236)),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 0, 176, 15)),
+                          ),
+                        ],
+                      ),
+                      if (bannerPath != null) ...[
+                        const SizedBox(height: 10),
+                        Align(
+                            alignment: Alignment.topLeft,
+                            child: Text("✅ Banner selected!",
+                                style: TextStyle(
+                                    color: const Color.fromARGB(
+                                        255, 0, 176, 15)))),
+                      ],
+                      const SizedBox(height: 20),
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: const Text(
+                          'Choose an Avatar (Optional)',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF113F67),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              await pickImage2(ImageSource.gallery);
+                              setState(() {});
+                            },
+                            icon: Icon(Icons.image, color: Colors.white),
+                            label: Text(
+                              "Gallery",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      const Color.fromARGB(255, 236, 236, 236)),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 0, 118, 208)),
+                          ),
+                          SizedBox(width: 10),
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              await pickImage2(ImageSource.camera);
+                              setState(() {});
+                            },
+                            icon: Icon(Icons.camera_alt, color: Colors.white),
+                            label: Text(
+                              "Camera",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      const Color.fromARGB(255, 236, 236, 236)),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 0, 176, 15)),
+                          ),
+                        ],
+                      ),
+                      if (avatarPath != null) ...[
+                        const SizedBox(height: 10),
+                        Align(
+                            alignment: Alignment.topLeft,
+                            child: Text("✅ Avatar selected!",
+                                style: TextStyle(
+                                    color: const Color.fromARGB(
+                                        255, 0, 176, 15)))),
+                      ],
 
                       const SizedBox(height: 25),
 
@@ -1594,6 +1750,22 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
           ..._selectedManagementSkills,
           ..._selectedSoftSkills
         ];
+        // رفع الصور إلى Firebase Storage
+        String avatarUrl = Constants.avatarDefault;
+        String bannerUrl = Constants.bannerDefault;
+
+        final storageRepository =
+            ProviderScope.containerOf(context).read(firebaseStorageProvider);
+
+        if (avatarPath != null) {
+          avatarUrl = await storageRepository.uploadImageToStorage(
+              'avatars', user.uid, avatarPath!);
+        }
+
+        if (bannerPath != null) {
+          bannerUrl = await storageRepository.uploadImageToStorage(
+              'banners', user.uid, bannerPath!);
+        }
 
         // Store user data in Firestore
         await _firestore.collection('Student').doc(user.uid).set({
@@ -1608,6 +1780,8 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
           'nationality': _selectedNationality,
           'uid': user.uid,
           'role': 'student', // Store the user role as 'student'
+          'profilePic': avatarUrl, // Add profilePic URL
+          'banner': bannerUrl, // Add banner URL
         });
 
         ProviderScope.containerOf(context).read(uidProvider.notifier).state =

@@ -36,75 +36,79 @@ class SearchCommunityDelegate extends SearchDelegate {
     return const SizedBox();
   }
 
-@override
-Widget buildSuggestions(BuildContext context) {
-  final searchResults = ref.watch(searchCommunityProvider(query));
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final searchResults = ref.watch(searchCommunityProvider(query));
 
-  // ✅ Force UI update when new results arrive
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    query = query; // 🔥 Triggers UI update
-  });
+    // ✅ Force UI update when new results arrive
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      query = query; // 🔥 Triggers UI update
+    });
 
-  return searchResults.when(
-    data: (communities) {
-      if (query.isNotEmpty && communities.isEmpty) {
-        return const Center(
-          child: Text(
-            "No matching communities found",
-            style: TextStyle(color: Colors.grey, fontSize: 16),
-          ),
-        );
-      }
-
-      return ListView.builder(
-        itemCount: communities.length,
-        itemBuilder: (BuildContext context, int index) {
-          final community = communities[index];
-
-          return ListTile(
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage(community.avatar),
+    return searchResults.when(
+      data: (communities) {
+        if (query.isNotEmpty && communities.isEmpty) {
+          return const Center(
+            child: Text(
+              "No matching communities found",
+              style: TextStyle(color: Colors.grey, fontSize: 16),
             ),
-            title: RichText(
-              text: highlightQuery(
-                text: 'r/${community.name}',
-                query: query,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-                highlightColor: Colors.blue, // Highlights matchingGGG IN NAME
-              ),
-            ),
-            subtitle: community.description != null && community.description!.isNotEmpty
-                ? RichText(
-                    text: highlightQuery(
-                      text: community.description!,
-                      query: query,
-                      style: const TextStyle(fontSize: 14, color: Colors.grey),
-                      highlightColor: Colors.blue, //Highlights matching text in description
-                    ),
-                  )
-                : null,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Communityprofile(name: community.name),
-                ),
-              );
-            },
           );
-        },
-      );
-    },
-    loading: () => const Center(child: CircularProgressIndicator()), // STOP LOADER when there is data
-    error: (error, stackTrace) => Center(
-      child: Text(
-        "Error: $error",
-        style: const TextStyle(color: Colors.red),
-      ),
-    ),
-  );
-}
+        }
 
+        return ListView.builder(
+          itemCount: communities.length,
+          itemBuilder: (BuildContext context, int index) {
+            final community = communities[index];
+
+            return ListTile(
+              leading: CircleAvatar(
+                backgroundImage: NetworkImage(community.avatar),
+              ),
+              title: RichText(
+                text: highlightQuery(
+                  text: 'r/${community.name}',
+                  query: query,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  highlightColor: Colors.blue, // Highlights matchingGGG IN NAME
+                ),
+              ),
+              subtitle: community.description != null &&
+                      community.description!.isNotEmpty
+                  ? RichText(
+                      text: highlightQuery(
+                        text: community.description!,
+                        query: query,
+                        style:
+                            const TextStyle(fontSize: 14, color: Colors.grey),
+                        highlightColor: Colors
+                            .blue, //Highlights matching text in description
+                      ),
+                    )
+                  : null,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        Communityprofile(name: community.name),
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
+      loading: () => const Center(
+          child: CircularProgressIndicator()), // STOP LOADER when there is data
+      error: (error, stackTrace) => Center(
+        child: Text(
+          "Error: $error",
+          style: const TextStyle(color: Colors.red),
+        ),
+      ),
+    );
+  }
 
   /// **Helper Function: Highlight Matching Text in Results**
   TextSpan highlightQuery({
@@ -130,8 +134,10 @@ Widget buildSuggestions(BuildContext context) {
         spans.add(TextSpan(
             text: text.substring(
                 text.toLowerCase().indexOf(query.toLowerCase(), currentIndex),
-                text.toLowerCase().indexOf(query.toLowerCase(), currentIndex) + query.length),
-            style: style.copyWith(color: highlightColor, fontWeight: FontWeight.bold)));
+                text.toLowerCase().indexOf(query.toLowerCase(), currentIndex) +
+                    query.length),
+            style: style.copyWith(
+                color: highlightColor, fontWeight: FontWeight.bold)));
       }
       currentIndex += part.length + query.length;
     }

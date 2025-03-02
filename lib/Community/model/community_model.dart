@@ -6,7 +6,7 @@ class Community {
   final String banner;
   final String avatar;
   final String description;
-  final List<String> topics; 
+  final List<String> topics;
   final List<String> members;
   final List<String> mods;
 
@@ -16,10 +16,10 @@ class Community {
     required this.banner,
     required this.avatar,
     required this.description,
-    required List<String> topics, 
+    required List<String> topics,
     required this.members,
     required this.mods,
-  })  : topics = topics.length > 3 ? topics.sublist(0, 3) : topics; 
+  }) : topics = topics.length > 3 ? topics.sublist(0, 3) : topics;
 
   Community copyWith({
     String? id,
@@ -38,7 +38,7 @@ class Community {
       avatar: avatar ?? this.avatar,
       description: description ?? this.description,
       topics: topics != null
-          ? (topics.length > 3 ? topics.sublist(0, 3) : topics) 
+          ? (topics.length > 3 ? topics.sublist(0, 3) : topics)
           : this.topics,
       members: members ?? this.members,
       mods: mods ?? this.mods,
@@ -52,7 +52,7 @@ class Community {
       'banner': banner,
       'avatar': avatar,
       'description': description,
-      'topics': topics, 
+      'topics': topics,
       'members': members,
       'mods': mods,
     };
@@ -66,7 +66,7 @@ class Community {
       banner: map['banner'] as String,
       avatar: map['avatar'] as String,
       description: map['description'] as String,
-      topics: topicsList.length > 3 ? topicsList.sublist(0, 3) : topicsList, 
+      topics: topicsList.length > 3 ? topicsList.sublist(0, 3) : topicsList,
       members: List<String>.from(map['members']),
       mods: List<String>.from(map['mods']),
     );
@@ -86,7 +86,7 @@ class Community {
         other.banner == banner &&
         other.avatar == avatar &&
         other.description == description &&
-        listEquals(other.topics, topics) && 
+        listEquals(other.topics, topics) &&
         listEquals(other.members, members) &&
         listEquals(other.mods, mods);
   }
@@ -94,12 +94,12 @@ class Community {
   @override
   int get hashCode {
     return id.hashCode ^
-    name.hashCode ^
-    banner.hashCode ^
-    avatar.hashCode ^
-    description.hashCode ^
-    topics.hashCode ^ 
-    members.hashCode ^
-    mods.hashCode;
+        name.hashCode ^
+        banner.hashCode ^
+        avatar.hashCode ^
+        description.hashCode ^
+        topics.hashCode ^
+        members.hashCode ^
+        mods.hashCode;
   }
 }

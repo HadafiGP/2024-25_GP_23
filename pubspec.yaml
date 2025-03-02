@@ -54,7 +54,9 @@ dependencies:
   fpdart: ^1.1.1
   dotted_border: ^2.0.0
   csv: ^6.0.0
-
+  uuid: ^3.0.4
+  routemaster: ^0.5.0
+  any_link_preview: ^3.0.3
 
 
 dev_dependencies:
@@ -65,8 +67,11 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-
   assets:
     - .env
     - Hadafi/images/
-    
+
+  fonts:
+    - family: MyFlutterApp
+      fonts:
+        - asset: assets/fonts/MyFlutterApp.ttf

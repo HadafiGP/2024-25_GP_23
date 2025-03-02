@@ -20,6 +20,18 @@ final userCommunityProvider =
   return communityController.getUserCommunities(uid);
 });
 
+StreamProviderFamily<List<Community>, String> userCommunitiesProvider =
+    StreamProvider.family<List<Community>, String>((ref, userId) {
+  final firestore = ref.watch(firestoreProvider);
+  return firestore
+      .collection('Communities')
+      .where('userId', isEqualTo: userId)
+      .snapshots()
+      .map((snapshot) => snapshot.docs
+          .map((doc) => Community.fromMap(doc.data() as Map<String, dynamic>))
+          .toList());
+});
+
 final communityControllerProvider =
     StateNotifierProvider<CommunityController, bool>((ref) {
   final communityRepoistory = ref.watch(communityRepositoryProvider);
@@ -31,7 +43,9 @@ final communityControllerProvider =
 });
 
 final getCommunityByNameProvider = StreamProvider.family((ref, String name) {
-  return ref.watch(communityControllerProvider.notifier).getCommunityByName(name);
+  return ref
+      .watch(communityControllerProvider.notifier)
+      .getCommunityByName(name);
 });
 
 final searchCommunityProvider = StreamProvider.family((ref, String query) {
@@ -51,25 +65,21 @@ class CommunityController extends StateNotifier<bool> {
         _storageRepository = storageRepository,
         super(false);
 
-  void showSnackBar(BuildContext context, String message, {bool isSuccess = false}) {
+  void showSnackBar(BuildContext context, String message,
+      {bool isSuccess = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           message,
           style: const TextStyle(color: Colors.white),
         ),
-        backgroundColor: isSuccess ? Colors.green : Colors.red, 
+        backgroundColor: isSuccess ? Colors.green : Colors.red,
       ),
     );
   }
 
-  void createCommunity(
-      String name,
-      String description,
-      String? avatarPath,
-      String? bannerPath,
-      List<String> topics,
-      BuildContext context) async {
+  void createCommunity(String name, String description, String? avatarPath,
+      String? bannerPath, List<String> topics, BuildContext context) async {
     state = true;
     final uid = _ref.read(uidProvider) ?? '';
 
@@ -120,7 +130,8 @@ class CommunityController extends StateNotifier<bool> {
     res.fold(
       (l) => showSnackBar(context, l.message),
       (r) {
-        showSnackBar(context, "Community created successfully!", isSuccess: true);
+        showSnackBar(context, "Community created successfully!",
+            isSuccess: true);
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -151,8 +162,11 @@ class CommunityController extends StateNotifier<bool> {
 
     res.fold(
       (l) => showSnackBar(context, l.message),
-      (r) => showSnackBar(context,
-          community.members.contains(userId) ? 'Community left successfully!' : 'Community joined successfully!',
+      (r) => showSnackBar(
+          context,
+          community.members.contains(userId)
+              ? 'Community left successfully!'
+              : 'Community joined successfully!',
           isSuccess: true),
     );
   }
@@ -199,7 +213,8 @@ class CommunityController extends StateNotifier<bool> {
     res.fold(
       (l) => showSnackBar(context, l.message),
       (r) {
-        showSnackBar(context, "Community updated successfully!", isSuccess: true);
+        showSnackBar(context, "Community updated successfully!",
+            isSuccess: true);
         Navigator.pop(context);
       },
     );
@@ -209,13 +224,15 @@ class CommunityController extends StateNotifier<bool> {
     return _communityRepoistory.searchCommunity(query);
   }
 
-  void addMods(String communityName, List<String> uids, BuildContext context) async {
+  void addMods(
+      String communityName, List<String> uids, BuildContext context) async {
     final res = await _communityRepoistory.addMods(communityName, uids);
 
     res.fold(
       (l) => showSnackBar(context, l.message),
       (r) {
-        showSnackBar(context, "Moderators updated successfully!", isSuccess: true);
+        showSnackBar(context, "Moderators updated successfully!",
+            isSuccess: true);
         Navigator.pop(context);
       },
     );
