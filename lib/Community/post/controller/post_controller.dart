@@ -249,4 +249,74 @@ class PostController extends StateNotifier<bool> {
     }
     return Stream.value([]);
   }
+  
+  void deletePost (Post post, BuildContext context) async{
+    final res = await _postRepository.deletePost(post);
+    res.fold((l) => null, (r) => showSnackBar(context, 'Post deleted succesfully!', success: true));
+  }
+
+//   void upvote(Post post) async {
+//   final user = _ref.read(userProvider);
+  
+//   if (user == null) {
+//     print("User is not logged in!"); // Debugging message
+//     return; // Exit function if user is not logged in
+//   }
+
+//   _postRepository.upvote(post, user.uid);
+// }
+
+void upvote(Post post) async {
+  final userId = _ref.read(userProvider);
+  
+  if (userId == null) {
+    print("User is not logged in!"); // Debugging message (only in logs)
+    return;
+  }
+
+  final userDataAsync = _ref.read(userDataProvider(userId));
+
+  userDataAsync.when(
+    data: (userData) async {
+      if (userData == null) return; // No error shown to user
+
+      String userUid = userData['uid'] ?? '';
+      _postRepository.upvote(post, userUid);
+    },
+    error: (error, stackTrace) {
+      print("Error retrieving user data: $error"); // Only logs error
+    },
+    loading: () {
+      print('Loading user data for upvote...'); // Logs loading state
+    },
+  );
+}
+
+void downvote(Post post) async {
+  final userId = _ref.read(userProvider);
+  
+  if (userId == null) {
+    print("User is not logged in!"); // Debugging message (only in logs)
+    return;
+  }
+
+  final userDataAsync = _ref.read(userDataProvider(userId));
+
+  userDataAsync.when(
+    data: (userData) async {
+      if (userData == null) return; // No error shown to user
+
+      String userUid = userData['uid'] ?? '';
+      _postRepository.downvote(post, userUid);
+    },
+    error: (error, stackTrace) {
+      print("Error retrieving user data: $error"); // Only logs error
+    },
+    loading: () {
+      print('Loading user data for upvote...'); // Logs loading state
+    },
+  );
+}
+
+
 }
