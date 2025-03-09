@@ -60,26 +60,6 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
               );
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.account_circle),
-            onPressed: () {
-              final userUID = getUserUID();
-              if (userUID.isNotEmpty) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => UserProfileScreen(uid: userUID),
-                  ),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('You are not logged in!'),
-                  ),
-                );
-              }
-            },
-          ),
         ],
       ),
       bottomNavigationBar: NavigationBarTheme(

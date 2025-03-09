@@ -1,8 +1,15 @@
+import 'dart:io';
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hadafi_application/CV.dart';
+import 'package:hadafi_application/Community/CommunityHomeScreen.dart';
+import 'package:hadafi_application/favoriteList.dart';
 import 'package:hadafi_application/interview.dart';
 import 'package:hadafi_application/welcome.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -33,6 +40,9 @@ class _ProfilePageState extends State<ProfilePage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
+  File? _profileImageFile;
+  String? _profilePicUrl;
+  final ImagePicker _imagePicker = ImagePicker();
 
   final List<String> _technicalSkills = [];
   final List<String> _managementSkills = [];
@@ -435,6 +445,44 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Future<void> _selectProfileImage() async {
+    final pickedFile =
+        await _imagePicker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _profileImageFile = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<void> _uploadProfileImage() async {
+    if (_profileImageFile == null) return;
+
+    try {
+      User? user = _auth.currentUser;
+      if (user == null) return;
+
+      Reference storageRef = FirebaseStorage.instance
+          .ref()
+          .child('profile_images/${user.uid}.jpg');
+
+      await storageRef.putFile(_profileImageFile!);
+      String downloadUrl = await storageRef.getDownloadURL();
+
+      await _firestore.collection('Student').doc(user.uid).update({
+        'profilePic': downloadUrl,
+      });
+
+      setState(() {
+        _profilePicUrl = downloadUrl;
+        _profileImageFile = null;
+      });
+    } catch (e) {
+      print("Error uploading profile picture: $e");
+    }
+  }
+
   Future<void> _loadStudentData() async {
     try {
       User? user = _auth.currentUser;
@@ -445,6 +493,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
         if (doc.exists) {
           setState(() {
+            _profilePicUrl = doc['profilePic'] ?? ''; // Load profile picture
+
             _nameController.text = doc['name'] ?? '';
             _emailController.text = doc['email'] ?? '';
             _gpaController.text = doc['gpa'].toString();
@@ -488,6 +538,10 @@ class _ProfilePageState extends State<ProfilePage> {
         _emailError = 'This email is already in use';
       });
       return;
+    }
+
+    if (_profileImageFile != null) {
+      await _uploadProfileImage();
     }
     setState(() {
       _emailError = null;
@@ -600,6 +654,40 @@ class _ProfilePageState extends State<ProfilePage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              Center(
+                child: GestureDetector(
+                  onTap: _isEditing ? _selectProfileImage : null,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CircleAvatar(
+                        radius: 60,
+                        backgroundColor: Colors.grey[300],
+                        backgroundImage: _profileImageFile != null
+                            ? FileImage(_profileImageFile!)
+                            : _profilePicUrl != null &&
+                                    _profilePicUrl!.isNotEmpty
+                                ? NetworkImage(_profilePicUrl!)
+                                : AssetImage('assets/default_avatar.png')
+                                    as ImageProvider,
+                      ),
+                      if (_isEditing)
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: CircleAvatar(
+                            backgroundColor: Colors.blue,
+                            radius: 18,
+                            child: Icon(Icons.camera_alt,
+                                color: Colors.white, size: 20),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+
               SizedBox(height: 15),
               _buildEditableField('Name', _nameController),
               SizedBox(height: 10),
@@ -1458,7 +1546,7 @@ class HadafiDrawer extends StatelessWidget {
             _buildDrawerItem(
                 context, Icons.home, 'Home', const StudentHomePage()),
             _buildDrawerItem(
-                context, Icons.assignment, 'CV Enhancement Tool', null),
+                context, Icons.assignment, 'CV Enhancement Tool', CVPage()),
             _buildDrawerItem(
               context,
               Icons.chat,
@@ -1466,8 +1554,10 @@ class HadafiDrawer extends StatelessWidget {
               const InterviewPage(),
             ),
             _buildDrawerItem(context, Icons.feedback, 'Feedback', null),
-            _buildDrawerItem(context, Icons.group, 'Communities', null),
-            _buildDrawerItem(context, Icons.favorite, 'Favorites List', null),
+            _buildDrawerItem(
+                context, Icons.group, 'Communities', Communityhomescreen()),
+            _buildDrawerItem(
+                context, Icons.favorite, 'Favorites List', FavoritePage()),
             ListTile(
               leading: const Icon(Icons.contact_mail, color: Color(0xFF113F67)),
               title: const Text('Contact us'),
