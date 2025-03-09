@@ -16,7 +16,7 @@ import 'package:http/http.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:hadafi_application/Community/user_profile/screens/user_profile_screen.dart';
 import 'package:hadafi_application/Community/common/error_text.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 
 class PostCard extends ConsumerWidget {
   final Post post;
@@ -30,74 +30,80 @@ class PostCard extends ConsumerWidget {
   // }
 
   void deletePost(WidgetRef ref, BuildContext context) async {
-  bool confirmDelete = await showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text("Confirm Deletion"),
-        content: const Text("Are you sure you want to delete this post?"),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false); // ❌ Cancel
-            },
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true); // ✅ Confirm
-            },
-            child: const Text("Delete", style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      );
-    },
-  );
+    bool confirmDelete = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Confirm Deletion"),
+          content: const Text("Are you sure you want to delete this post?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // ❌ Cancel
+              },
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // ✅ Confirm
+              },
+              child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
 
-  // If the user confirmed deletion, proceed
-  if (confirmDelete == true) {
-    ref.read(PostControllerProvider.notifier).deletePost(post, context);
+    // If the user confirmed deletion, proceed
+    if (confirmDelete == true) {
+      ref.read(PostControllerProvider.notifier).deletePost(post, context);
+    }
   }
-}
 
-  void upvotePost(WidgetRef ref) async{
+  void upvotePost(WidgetRef ref) async {
     ref.read(PostControllerProvider.notifier).upvote(post);
   }
 
-  void downvotePost(WidgetRef ref) async{
+  void downvotePost(WidgetRef ref) async {
     ref.read(PostControllerProvider.notifier).downvote(post);
   }
 
-void navigateToUser(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => UserProfileScreen(uid: post.uid), // ✅ Pass UID
-    ),
-  );
-}
+  void navigateToUser(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => UserProfileScreen(uid: post.uid), // ✅ Pass UID
+      ),
+    );
+  }
 
-void navigateToCommunity(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => Communityprofile(name: post.communityName), // ✅ Pass Community Name
-    ),
-  );
-}
+  void navigateToCommunity(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            Communityprofile(name: post.communityName), // ✅ Pass Community Name
+      ),
+    );
+  }
 
-void navigateToComments(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => CommentsScreen(postId: post.id), // ✅ Pass Post ID
-    ),
-  );
-}
+  void navigateToComments(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CommentsScreen(postId: post.id), // ✅ Pass Post ID
+      ),
+    );
+  }
+
   Widget build(BuildContext context, WidgetRef ref) {
+    final isTypeLink = post.type == 'link';
+
+    if (isTypeLink && post.link != null && post.link!.isNotEmpty) {
+      debugLinkPreview(post.link!); // Call debug function here
+    }
     final isTypeImage = post.type == 'image';
     final isTypeText = post.type == 'text';
-    final isTypeLink = post.type == 'link';
     final userID = ref.watch(uidProvider) ?? '';
     if (userID.isEmpty) {
       return const Center(child: Text('User not logged in.'));
@@ -192,15 +198,85 @@ void navigateToComments(BuildContext context) {
                                 fit: BoxFit.cover,
                               ),
                             ),
-                          if (isTypeLink)
-                            SizedBox(
-                              height: 150,
-                              width: double.infinity,
-                              child: AnyLinkPreview(
-                                displayDirection:
-                                    UIDirection.uiDirectionHorizontal,
+                          if (isTypeLink &&
+                              post.link != null &&
+                              post.link!.isNotEmpty)
+                            FutureBuilder<Metadata?>(
+                              future: AnyLinkPreview.getMetadata(
                                 link: post.link!,
+                                cache: const Duration(hours: 1),
                               ),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                }
+
+                                if (!snapshot.hasData || snapshot.hasError) {
+                                  return const Text(
+                                      '⚠️ Invalid URL or Preview Unavailable');
+                                }
+
+                                final metadata = snapshot.data!;
+
+                                return Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(color: Colors.grey),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      if (metadata.image != null)
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                          child: Image.network(
+                                            metadata.image!,
+                                            fit: BoxFit.cover,
+                                            height: 150,
+                                            width: double.infinity,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return const Icon(
+                                                  Icons.broken_image,
+                                                  size: 50,
+                                                  color: Colors.red);
+                                            },
+                                          ),
+                                        ),
+                                      const SizedBox(height: 5),
+                                      Text(metadata.title ?? "No Title",
+                                          style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold)),
+                                      const SizedBox(height: 5),
+                                      GestureDetector(
+                                        onTap: () async {
+                                          final Uri uri = Uri.parse(post.link!);
+                                          if (await canLaunchUrl(uri)) {
+                                            await launchUrl(uri);
+                                          } else {
+                                            print(
+                                                "Could not open URL: ${post.link}");
+                                          }
+                                        },
+                                        child: Text(
+                                          metadata.url ?? post.link!,
+                                          style: const TextStyle(
+                                              color: Colors.blue,
+                                              decoration:
+                                                  TextDecoration.underline),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
                             ),
                           if (isTypeText)
                             Container(
@@ -250,7 +326,8 @@ void navigateToComments(BuildContext context) {
                               Row(
                                 children: [
                                   IconButton(
-                                    onPressed: () => navigateToComments(context),
+                                    onPressed: () =>
+                                        navigateToComments(context),
                                     icon: const Icon(
                                       Icons.comment,
                                       size: 25,
@@ -264,38 +341,41 @@ void navigateToComments(BuildContext context) {
                                   ),
                                 ],
                               ),
-                              ref.watch(getCommunityByNameProvider(post.communityName)).when(
-                                data: (data) {
-                                  if(data.mods.contains(userID)){
-
-                                    return IconButton(
-                                    onPressed: () => deletePost(ref, context),
-                                    icon: const Icon(
-                                      Icons.admin_panel_settings,
-                                      size: 25,
-                                    ),
-                                  );
-
-                                  }
-                                  return const SizedBox();
-                                 } ,
-                                error: (error, stackTrace) {
-                                  print("Error loading communities: $error"); // 🔍 Debugging Step
-                                  return Center(
-  child: Text(
-    "Error: ${error.toString()}",
-    style: TextStyle(color: Colors.red, fontSize: 16),
-  ),
-);
-                                },
-                                loading: () => const Loader(),),
-                              
+                              ref
+                                  .watch(getCommunityByNameProvider(
+                                      post.communityName))
+                                  .when(
+                                    data: (data) {
+                                      if (data.mods.contains(userID)) {
+                                        return IconButton(
+                                          onPressed: () =>
+                                              deletePost(ref, context),
+                                          icon: const Icon(
+                                            Icons.admin_panel_settings,
+                                            size: 25,
+                                          ),
+                                        );
+                                      }
+                                      return const SizedBox();
+                                    },
+                                    error: (error, stackTrace) {
+                                      print(
+                                          "Error loading communities: $error"); // 🔍 Debugging Step
+                                      return Center(
+                                        child: Text(
+                                          "Error: ${error.toString()}",
+                                          style: TextStyle(
+                                              color: Colors.red, fontSize: 16),
+                                        ),
+                                      );
+                                    },
+                                    loading: () => const Loader(),
+                                  ),
                             ],
                           ),
                         ],
                       ),
                     ),
-                    
                   ],
                 ),
               ),
@@ -305,5 +385,14 @@ void navigateToComments(BuildContext context) {
         const SizedBox(height: 2),
       ],
     );
+  }
+
+  Future<void> debugLinkPreview(String url) async {
+    try {
+      final response = await AnyLinkPreview.getMetadata(link: url);
+      print("Metadata fetched: $response");
+    } catch (e) {
+      print("Error fetching metadata: $e");
+    }
   }
 }

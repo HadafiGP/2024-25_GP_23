@@ -129,12 +129,6 @@ class UserProfileScreen extends ConsumerWidget {
                                 ),
                               ],
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 10),
-                              child: Text(
-                                '${user['karma'] ?? '0'} Karma',
-                              ),
-                            ),
                             const SizedBox(
                               height: 10,
                             ),

@@ -25,16 +25,16 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
   final linkController = TextEditingController();
-
+  bool isLoading = false; // ✅ Added loading state
   File? bannerFile;
   List<Community> communities = [];
   Community? selectedCommunity;
   @override
   void dispose() {
-    super.dispose();
     titleController.dispose();
     descriptionController.dispose();
-    linkController.dispose();
+    linkController.dispose(); // ✅ Dispose correctly
+    super.dispose();
   }
 
   void selectBannerImage() async {
@@ -48,31 +48,72 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
   }
 
 //////////////////////////////////////////
-  void sharePost() {
+  void sharePost() async {
+    setState(() {
+      isLoading = true; // ✅ Show loading indicator
+    });
+
+    await Future.delayed(
+        Duration(milliseconds: 200)); // ✅ Ensure input is captured
+
     if (widget.type == 'image' &&
         bannerFile != null &&
         titleController.text.isNotEmpty) {
-      ref.read(PostControllerProvider.notifier).sharedImagePost(
+      await ref.read(PostControllerProvider.notifier).sharedImagePost(
           context: context,
           title: titleController.text.trim(),
           selectedCommunity: selectedCommunity ?? communities[0],
           file: bannerFile);
-    } else if (widget.type == 'text' && titleController.text.isNotEmpty) {
-      ref.read(PostControllerProvider.notifier).sharedTextPost(
-          context: context,
-          title: titleController.text.trim(),
-          selectedCommunity: selectedCommunity ?? communities[0],
-          description: descriptionController.text.trim());
-    } else if (widget.type == 'link' &&
-        titleController.text.isNotEmpty &&
-        linkController.text.isNotEmpty) {
+    } else if (titleController.text.isEmpty) {
+      showSnackBar(context, 'Please enter a title.');
+    } else if (widget.type == 'image' && bannerFile == null) {
+      showSnackBar(context, 'Please select an image to upload.');
+    } else if (widget.type == 'text') {
+      if (titleController.text.isNotEmpty) {
+        ref.read(PostControllerProvider.notifier).sharedTextPost(
+            context: context,
+            title: titleController.text.trim(),
+            selectedCommunity: selectedCommunity ?? communities[0],
+            description: descriptionController.text.trim());
+      }
+    }
+    if (widget.type == 'link') {
+      String link = linkController.text.trim();
+
+      // Debugging step to ensure the linkController is correctly attached
+      print("Entered link before trimming: '${linkController.text}'");
+      print("Entered link after trimming: '$link'");
+
+      print("Entered link: '$link'");
+
+      if (titleController.text.isEmpty) {
+        showSnackBar(context, 'Please enter a title.');
+        return;
+      }
+
+      if (link.isEmpty) {
+        showSnackBar(context, 'Please enter a link URL.');
+        return;
+      }
+
+      Uri? parsedUri = Uri.tryParse(link);
+
+      print("Parsed URI: $parsedUri");
+      print("isAbsolute: ${parsedUri?.isAbsolute}");
+
+      if (parsedUri == null ||
+          !parsedUri.isAbsolute ||
+          parsedUri.scheme.isEmpty) {
+        showSnackBar(context, 'Please enter a valid URL.');
+        return;
+      }
+
       ref.read(PostControllerProvider.notifier).sharedLinkPost(
-          context: context,
-          title: titleController.text.trim(),
-          selectedCommunity: selectedCommunity ?? communities[0],
-          link: linkController.text.trim());
-    } else {
-      showSnackBar(context, 'Please enter a valid url');
+            context: context,
+            title: titleController.text.trim(),
+            selectedCommunity: selectedCommunity ?? communities[0],
+            link: link,
+          );
     }
   }
 
@@ -90,8 +131,22 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Post ${widget.type}'),
-        actions: [TextButton(onPressed: sharePost, child: const Text('Share'))],
+        backgroundColor:
+            const Color(0xFF113F67), // ✅ Same as "Create Community"
+        title: Text(
+          isTypeImage
+              ? 'Post Image'
+              : isTypeLink
+                  ? 'Post Link'
+                  : 'Post Text', // ✅ Dynamically change title
+          style: const TextStyle(color: Colors.white),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context), // ✅ Go back to previous page
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -148,13 +203,16 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
               ),
             if (isTypeLink)
               TextField(
-                controller: descriptionController,
+                controller: linkController,
                 decoration: const InputDecoration(
                   filled: true,
                   hintText: 'Enter Link Here',
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.all(18),
                 ),
+                onChanged: (val) {
+                  print("TextField Input: $val");
+                },
               ),
             const SizedBox(height: 20),
             const Align(
@@ -183,7 +241,36 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
                   error: (error, StackTrace) =>
                       ErrorText(error: error.toString()),
                   loading: () => const Loader(),
-                )
+                ),
+            const Spacer(), // ✅ Pushes the button to the bottom
+
+            GestureDetector(
+              onTap: isLoading
+                  ? null
+                  : sharePost, // ✅ Disable button while loading
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                decoration: BoxDecoration(
+                  color: isLoading
+                      ? Colors.grey
+                      : const Color(0xFF113F67), // ✅ Change color while loading
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Center(
+                  child: isLoading
+                      ? const CircularProgressIndicator(
+                          color: Colors.white) // ✅ Show loading
+                      : const Text(
+                          "Share",
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold),
+                        ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
