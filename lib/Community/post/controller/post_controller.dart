@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hadafi_application/Community/Providers/storage_repository_providers.dart';
+import 'package:hadafi_application/Community/model/comment_model.dart';
 import 'package:hadafi_application/Community/model/post_model.dart';
 import 'package:hadafi_application/Community/post/repository/post_repository.dart';
 import 'package:hadafi_application/Community/model/community_model.dart';
@@ -52,6 +53,16 @@ final userPostProvider =
     StreamProvider.family((ref, List<Community> communitities) {
   final PostController = ref.watch(PostControllerProvider.notifier);
   return PostController.fetchUserPosts(communitities);
+});
+
+final getPostByIdProvider = StreamProvider.family((ref, String postId){
+  final PostController = ref.watch(PostControllerProvider.notifier);
+  return PostController.getPostById(postId);
+});
+
+final getPostCommentsProvider = StreamProvider.family((ref, String postId){
+  final PostController = ref.watch(PostControllerProvider.notifier);
+  return PostController.fetchPostComments(postId);
 });
 
 class PostController extends StateNotifier<bool> {
@@ -317,6 +328,69 @@ void downvote(Post post) async {
     },
   );
 }
+
+
+Stream<Post> getPostById(String postId){
+  return _postRepository.getPostById(postId);
+}
+
+void addComment({
+  required BuildContext context,
+  required String text,
+  required Post post,
+}) async {
+  final userId = _ref.read(userProvider);
+  
+  if (userId == null) {
+    print("User is not logged in!"); // Debugging message (only in logs)
+    return;
+  }
+
+  final userDataAsync = _ref.read(userDataProvider(userId));
+
+  userDataAsync.when(
+    data: (userData) async {
+      if (userData == null) {
+        showSnackBar(context, 'Error: User data not found!');
+        return; 
+      }
+
+      String username = userData['name'] ?? 'Unknown';  // ✅ Get username
+      String profilePic = userData['profilePic'] ?? ''; // ✅ Get profile picture
+      String commentId = const Uuid().v1();
+
+      Comment comment = Comment(
+        id: commentId,
+        text: text,
+        createdAt: DateTime.now(),
+        postId: post.id,
+        username: username,         // ✅ Pass username
+        profilePic: profilePic,     // ✅ Pass profile picture
+      );
+
+      final res = await _postRepository.addComment(comment);
+      
+      res.fold(
+        (l) => showSnackBar(context, l.message), 
+        (r) => showSnackBar(context, 'Comment added successfully!', success: true),
+      );
+    },
+    error: (error, stackTrace) {
+      showSnackBar(context, 'Error retrieving user data: $error');
+    },
+    loading: () {
+      print('Loading user data for comment...');
+    },
+  );
+}
+
+Stream<List<Comment>> fetchPostComments(String postId){
+
+  return _postRepository.getCommentsOfPost(postId);
+
+}
+
+
 
 
 }

@@ -2,9 +2,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hadafi_application/Community/common/loader.dart';
+import 'package:hadafi_application/Community/common/post_card.dart';
 import 'package:hadafi_application/Community/controller/community_controller.dart';
 import 'package:hadafi_application/Community/mod_screens_tools.dart';
 import 'package:hadafi_application/Community/model/community_model.dart';
+import 'package:hadafi_application/Community/post/screens/add_post_type_screen.dart';
 import 'package:hadafi_application/Community/provider.dart';
 
 class Communityprofile extends ConsumerWidget {
@@ -226,8 +228,22 @@ class Communityprofile extends ConsumerWidget {
                       const SizedBox(height: 10),
 
                       
-                      const Expanded(
-                        child: Text('Displaying posts of the community'),
+                       Expanded(
+                        child: ref.watch(getCommunityPostsProvider(name)).when(
+                          data: (data){
+                            return ListView.builder(
+                              itemCount: data.length,
+                              itemBuilder: (BuildContext context, int index){
+                                final post = data[index];
+                                return PostCard(post: post);
+                              },
+                              );
+                          }, 
+                          error: (error, stackTrace) {
+                            return ErrorText(error: error.toString());
+                          }, 
+                          loading: () => const Loader(), 
+                          ),
                       ),
                     ],
                   ),

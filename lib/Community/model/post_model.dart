@@ -106,8 +106,12 @@ class Post {
       uid: map['uid'] ?? '',
       type: map['type'] ?? '',
       createdAt: map['createdAt'] is Timestamp
-          ? (map['createdAt'] as Timestamp).toDate()
-          : DateTime.now(), // ✅ Convert Firestore Timestamp to DateTime
+    ? (map['createdAt'] as Timestamp).toDate()
+    : map['createdAt'] is String
+        ? DateTime.parse(map['createdAt'])
+        : map['createdAt'] is DateTime
+            ? map['createdAt']
+            : DateTime.now(),// ✅ Convert Firestore Timestamp to DateTime
       awards: List<String>.from(
           map['awards'] ?? []), // ✅ Convert List<dynamic> to List<String>
     );

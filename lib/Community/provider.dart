@@ -3,6 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hadafi_application/Community/Providers/storage_repository_providers.dart';
 import 'package:hadafi_application/Community/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hadafi_application/Community/model/community_model.dart';
+import 'package:hadafi_application/Community/repoistory/communitory_repository.dart';
 
 // Firebase Authentication Provider
 final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
@@ -48,4 +51,10 @@ final userDataProvider =
 final storageRepositoryProvider = Provider<StorageRepository>((ref) {
   final firebaseStorage = ref.watch(storageProvider);
   return StorageRepository(firebaseStorage: firebaseStorage);
+});
+
+// ✅ Fetch all communities
+final communityProvider = StreamProvider<List<Community>>((ref) {
+  final communityRepo = ref.watch(communityRepositoryProvider);
+  return communityRepo.getAllCommunities();
 });

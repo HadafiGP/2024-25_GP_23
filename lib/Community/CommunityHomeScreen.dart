@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hadafi_application/Community/CommunityProfile.dart';
 import 'package:hadafi_application/Community/createCommunity.dart';
 import 'package:hadafi_application/Community/delegates/search_community_delegate.dart';
+import 'package:hadafi_application/Community/explore_page.dart';
 import 'package:hadafi_application/Community/model/community_model.dart';
 import 'package:hadafi_application/Community/post/screens/add_post_type_screen.dart';
 import 'package:hadafi_application/StudentHomePage.dart';
@@ -32,6 +33,7 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
 
   final List<Widget> screens = [
     FeedScreen(),
+    ExplorePage(),
     createCommunityUI(),
     AddPostScreen(),
   ];
@@ -99,6 +101,11 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
               icon: Icon(Icons.home_outlined),
               selectedIcon: Icon(Icons.home),
               label: "Home",
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.explore_outlined), // ✅ Explore icon
+              selectedIcon: Icon(Icons.explore),
+              label: "Explore",
             ),
             NavigationDestination(
               icon: Icon(Icons.add_box_outlined),

@@ -48,3 +48,4 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+lib/hadafi-a7971-firebase-adminsdk-3k84a-ec9ae5ddae.json

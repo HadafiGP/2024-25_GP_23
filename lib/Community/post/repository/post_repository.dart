@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hadafi_application/Community/core/failure.dart';
 import 'package:hadafi_application/Community/firebase_constants.dart';
+import 'package:hadafi_application/Community/model/comment_model.dart';
 import 'package:hadafi_application/Community/model/community_model.dart';
 import 'package:hadafi_application/Community/provider.dart';
 import 'package:hadafi_application/Community/repoistory/communitory_repository.dart';
@@ -23,6 +24,9 @@ class PostRepository {
 
   CollectionReference get _posts =>
       _firestore.collection(FirebaseConstants.postCollection);
+
+        CollectionReference get _comments =>
+      _firestore.collection(FirebaseConstants.commentsCollection);
 
   Future<Either<Failure, void>> addPost(Post post) async {
     try {
@@ -45,8 +49,13 @@ class PostRepository {
             final data = e.data() as Map<String, dynamic>;
             return Post.fromMap({
               ...data,
-              'createdAt': (data['createdAt'] as Timestamp)
-                  .toDate(), // ✅ Convert Firestore Timestamp to DateTime
+              'createdAt': data['createdAt'] is Timestamp
+    ? (data['createdAt'] as Timestamp).toDate()
+    : data['createdAt'] is String
+        ? DateTime.parse(data['createdAt'])
+        : data['createdAt'] is DateTime
+            ? data['createdAt']
+            : DateTime.now(), 
             });
           }).toList(),
         );
@@ -112,6 +121,45 @@ void downvote(Post post, String userId) async {
   }
 }
 
+Stream<Post> getPostById(String postId){
+  return _posts.doc(postId).snapshots().map((event) => Post.fromMap(event.data() as Map<String, dynamic>));
+}
 
+  Future<Either<Failure, void>> addComment(Comment comment) async {
+  try {
+    await _comments.doc(comment.id).set(comment.toMap());
+    return right(_posts.doc(comment.postId).update({
+      'commentCount' : FieldValue.increment(1),
+    }));
+  } on FirebaseException catch (e) {
+    return left(Failure(e.message!));
+  } catch (e) {
+    return left(Failure(e.toString()));
+  }
+}
+
+Stream<List<Comment>> getCommentsOfPost(String postId){
+
+  return _comments
+        .where('postId', isEqualTo: postId)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (event) => event.docs.map((e) {
+            final data = e.data() as Map<String, dynamic>;
+            return Comment.fromMap({
+  ...data,
+  'createdAt': data['createdAt'] is Timestamp
+      ? (data['createdAt'] as Timestamp).toDate()
+      : data['createdAt'] is String
+          ? DateTime.parse(data['createdAt'])
+          : data['createdAt'] is DateTime
+              ? data['createdAt']
+              : DateTime.now(),
+});
+          }).toList(),
+        );
+
+}
 
 }

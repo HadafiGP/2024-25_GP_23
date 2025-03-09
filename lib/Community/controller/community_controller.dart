@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hadafi_application/Community/Providers/storage_repository_providers.dart';
 import 'package:hadafi_application/Community/core/failure.dart';
 import 'package:hadafi_application/Community/model/community_model.dart';
+import 'package:hadafi_application/Community/model/post_model.dart';
 import 'package:hadafi_application/Community/repoistory/communitory_repository.dart';
 import 'package:hadafi_application/Community/provider.dart';
 import 'package:hadafi_application/Community/constants/constants.dart';
@@ -50,6 +51,11 @@ final getCommunityByNameProvider = StreamProvider.family((ref, String name) {
 
 final searchCommunityProvider = StreamProvider.family((ref, String query) {
   return ref.watch(communityControllerProvider.notifier).searchCommunity(query);
+});
+
+final getCommunityPostsProvider =
+    StreamProvider.family((ref, String name) {
+  return ref.read(communityControllerProvider.notifier).getCommunityPosts(name);
 });
 
 class CommunityController extends StateNotifier<bool> {
@@ -236,5 +242,9 @@ class CommunityController extends StateNotifier<bool> {
         Navigator.pop(context);
       },
     );
+  }
+
+  Stream<List<Post>> getCommunityPosts(String name){
+    return _communityRepoistory.getCommunityPosts(name);
   }
 }

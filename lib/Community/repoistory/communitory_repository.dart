@@ -1,10 +1,12 @@
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'package:hadafi_application/Community/firebase_constants.dart';
 import 'package:hadafi_application/Community/model/community_model.dart';
 import 'package:dartz/dartz.dart';
 import 'package:hadafi_application/Community/core/failure.dart';
+import 'package:hadafi_application/Community/model/post_model.dart';
 import 'package:hadafi_application/Community/provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,6 +20,17 @@ class CommunitntyRepository {
   final FirebaseFirestore _firestore;
   CommunitntyRepository({required FirebaseFirestore firestore})
       : _firestore = firestore;
+
+  Stream<List<Community>> getAllCommunities() {
+  return _firestore.collection('Community') // 🛠 Ensure it's 'Community' not 'Communities'
+      .snapshots()
+      .map((snapshot) {
+    return snapshot.docs.map((doc) {
+      return Community.fromMap(doc.data() as Map<String, dynamic>);
+    }).toList();
+  });
+}
+
 
   Future<Either<Failure, void>> createCommunity(Community community) async {
     try {
@@ -138,4 +151,29 @@ class CommunitntyRepository {
 
   CollectionReference get _communities =>
       _firestore.collection(FirebaseConstants.communitiesCollection);
+
+  CollectionReference get _posts =>
+      _firestore.collection(FirebaseConstants.postCollection);
+
+
+
+
+  Stream<List<Post>> getCommunityPosts(String name) {
+  return _posts
+      .where('communityName', isEqualTo: name).orderBy('createdAt', descending: true)
+      .snapshots()
+      .map(
+        (event) => event.docs
+        .map(
+          (e) => Post.fromMap(
+            e.data() as Map<String, dynamic>,
+          ),
+
+        )
+        .toList(), 
+        );
+}
+
+
+      
 }
