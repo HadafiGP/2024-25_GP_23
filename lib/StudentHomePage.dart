@@ -133,8 +133,10 @@ class HadafiDrawer extends StatelessWidget {
   Future<void> _logout(BuildContext context) async {
     try {
       await FirebaseAuth.instance.signOut();
-       ProviderScope.containerOf(context, listen: false).read(uidProvider.notifier).state = null;
-       
+      ProviderScope.containerOf(context, listen: false)
+          .read(uidProvider.notifier)
+          .state = null;
+
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const WelcomeScreen()),
@@ -419,52 +421,43 @@ class OpportunitiesList extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 8.0),
           child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 5,
-                  spreadRadius: 2,
-                ),
-              ],
-            ),
-            child: ListTile(
-              title: Text(
-                oppTitle,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF113F67),
-                ),
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(companyName,
-                      style: const TextStyle(
-                        fontSize: 13,
-                      )),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 5,
+                    spreadRadius: 2,
+                  ),
                 ],
               ),
-              trailing: Consumer(
-                builder: (context, ref, child) {
-                  final favoriteOpp = ref.watch(favoriteProvider);
-                  final isFavorited = favoriteOpp.favOpportunities
-                      .any((opp) => opp['Job Title'] == oppTitle);
+              child: ListTile(
+                title: Text(
+                  oppTitle,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF113F67),
+                  ),
+                  softWrap: true,
+                ),
+                subtitle: Text(
+                  companyName,
+                  style: const TextStyle(fontSize: 13),
+                ),
+                trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final favoriteOpps = ref.watch(favoriteProvider);
+                      final isFavorited = favoriteOpps.favOpportunities
+                          .any((opp) => opp['Job Title'] == oppTitle);
 
-                  return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          isFavorited ? Icons.favorite : Icons.favorite_border,
-                          color: isFavorited ? Colors.red : Colors.grey,
-                          size: 28.0,
-                        ),
-                        onPressed: () {
-                          ref.read(favoriteProvider.notifier).toggleFavorite({
+                      return GestureDetector(
+                        onTap: () {
+                          final wasFavorited = isFavorited;
+
+                          final favoriteOpp = {
                             'Job Title': oppTitle,
                             'Company Name': companyName,
                             'Description': description,
@@ -472,43 +465,84 @@ class OpportunitiesList extends StatelessWidget {
                             'GPA out of 5': gpa5,
                             'GPA out of 4': gpa4,
                             'Locations': opportunity['Locations'] ?? [],
-                            'Skills': opportunity['Skills'] ?? []
-                          });
-                        },
-                      ),
-                      GradientButton(
-                        text: "More",
-                        gradientColors: [
-                          const Color(0xFF113F67),
-                          Color.fromARGB(255, 105, 185, 255),
-                        ],
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => OpportunityDetailsPage(
-                                jobTitle: oppTitle,
-                                companyName: companyName,
-                                description: description,
-                                applyUrl: applyUrl,
-                                similarity: 0.0,
-                                skills: List<String>.from(
-                                    opportunity['Skills'] ?? []),
-                                location:
-                                    (opportunity['Locations'] ?? []).join(', '),
-                                gpa5: gpa5,
-                                gpa4: gpa4,
+                            'Skills': opportunity['Skills'] ?? [],
+                          };
+
+                          ref
+                              .read(favoriteProvider.notifier)
+                              .toggleFavorite(favoriteOpp);
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                wasFavorited
+                                    ? "Opportunity removed from favorite list"
+                                    : "Opportunity added to favorite list",
+                                style: const TextStyle(color: Colors.white),
                               ),
+                              action: wasFavorited
+                                  ? SnackBarAction(
+                                      label: "Undo",
+                                      textColor: Colors.white,
+                                      onPressed: () {
+                                        ref
+                                            .read(favoriteProvider.notifier)
+                                            .toggleFavorite(favoriteOpp);
+                                      },
+                                    )
+                                  : null,
+                              backgroundColor:
+                                  const Color.fromARGB(255, 0, 118, 208),
+                              duration: const Duration(seconds: 2),
                             ),
                           );
                         },
-                      ),
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          child: Icon(
+                            isFavorited
+                                ? Icons.bookmark_added
+                                : Icons.bookmark_add_outlined,
+                            color:
+                                isFavorited ? Colors.amber[400] : Colors.grey,
+                            size: 20.0,
+                            key: ValueKey<bool>(
+                                isFavorited), 
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  SizedBox(width: 5),
+                  GradientButton(
+                    text: "More",
+                    gradientColors: [
+                      const Color(0xFF113F67),
+                      Color.fromARGB(255, 105, 185, 255),
                     ],
-                  );
-                },
-              ),
-            ),
-          ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => OpportunityDetailsPage(
+                            jobTitle: oppTitle,
+                            companyName: companyName,
+                            description: description,
+                            applyUrl: applyUrl,
+                            similarity: 0.0,
+                            skills:
+                                List<String>.from(opportunity['Skills'] ?? []),
+                            location:
+                                (opportunity['Locations'] ?? []).join(', '),
+                            gpa5: gpa5,
+                            gpa4: gpa4,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ]),
+              )),
         );
       },
     );

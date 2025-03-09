@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:hadafi_application/favoriteProvider.dart';
+import 'package:hadafi_application/favoriteList.dart';
 
 class OpportunityDetailsPage extends StatelessWidget {
   final String jobTitle;
@@ -89,12 +92,91 @@ class OpportunityDetailsPage extends StatelessWidget {
                     children: [
                       const Icon(Icons.business, color: Colors.white, size: 20),
                       const SizedBox(width: 8),
-                      Text(
-                        companyName,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      Expanded(
+                        child: Text(
+                          companyName,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: true,
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Consumer(
+                          builder: (context, ref, child) {
+                            final favoriteOpps = ref.watch(favoriteProvider);
+                            final isFavorited = favoriteOpps.favOpportunities
+                                .any((opp) => opp['Job Title'] == jobTitle);
+
+                            return GestureDetector(
+                              onTap: () {
+                                final wasFavorited = isFavorited;
+
+                                final favoriteOpp = {
+                                  'Job Title': jobTitle,
+                                  'Company Name': companyName,
+                                  'Description': description,
+                                  'Apply url': applyUrl,
+                                  'GPA out of 5': gpa5,
+                                  'GPA out of 4': gpa4,
+                                  'Locations': location
+                                      .split(',')
+                                      .map((loc) => loc.trim())
+                                      .toList(),
+                                  'Skills': skills.isNotEmpty ? skills : [],
+                                };
+
+                                ref
+                                    .read(favoriteProvider.notifier)
+                                    .toggleFavorite(favoriteOpp);
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      wasFavorited
+                                          ? "Opportunity removed from favorite list"
+                                          : "Opportunity added to favorite list",
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                    action: wasFavorited
+                                        ? SnackBarAction(
+                                            label: "Undo",
+                                            textColor: Colors.white,
+                                            onPressed: () {
+                                              ref
+                                                  .read(
+                                                      favoriteProvider.notifier)
+                                                  .toggleFavorite(favoriteOpp);
+                                            },
+                                          )
+                                        : null,
+                                    backgroundColor:
+                                        const Color.fromARGB(255, 0, 118, 208),
+                                    duration: const Duration(seconds: 2),
+                                  ),
+                                );
+                              },
+                              child: AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 300),
+                                child: Icon(
+                                  isFavorited
+                                      ? Icons.bookmark_added
+                                      : Icons.bookmark_add_outlined,
+                                  color: isFavorited
+                                      ? Colors.amber[400]
+                                      : Colors.white,
+                                  size: 20.0,
+                                  key: ValueKey<bool>(
+                                      isFavorited), 
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],

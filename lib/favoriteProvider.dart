@@ -1,25 +1,88 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FavoriteProvider extends ChangeNotifier {
-  List<Map<String, dynamic>> favoriteOpps = [];
+  List<Map<String, dynamic>> _favoriteOpps = [];
+  bool _isLoading = true; 
+  String? _currentUserId;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  List<Map<String, dynamic>> get favOpportunities => favoriteOpps;
+  List<Map<String, dynamic>> get favOpportunities => _favoriteOpps;
+  bool get isLoading => _isLoading; 
 
-  void toggleFavorite(Map<String, dynamic> opportunity) {
-    final isExist =
-        favoriteOpps.any((opp) => opp['Job Title'] == opportunity['Job Title']);
-    if (isExist) {
-      favoriteOpps
-          .removeWhere((opp) => opp['Job Title'] == opportunity['Job Title']);
-    } else {
-      favoriteOpps.add(opportunity);
+  FavoriteProvider() {
+    FirebaseAuth.instance.authStateChanges().listen((user) {
+      if (user != null) {
+        _isLoading = true;
+        notifyListeners();
+        loadFavorites(); 
+      } else {
+        _favoriteOpps.clear();
+        _isLoading = false;
+        notifyListeners();
+      }
+    });
+  }
+
+  Future<void> loadFavorites() async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      _favoriteOpps.clear();
+      _isLoading = false;
+      notifyListeners();
+      return;
     }
+
+    _currentUserId = user.uid;
+    _isLoading = true; 
+    notifyListeners();
+
+    try {
+      final snapshot = await _firestore
+          .collection('Student')
+          .doc(_currentUserId)
+          .collection('favorites')
+          .get();
+
+      _favoriteOpps = snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;  
+        return data;
+      }).toList();
+
+    } catch (e) {
+      print("Error loading favorites: $e");
+    }
+
+    _isLoading = false; 
     notifyListeners();
   }
 
-  void clearFavorites() {
-    favoriteOpps.clear();
+  Future<void> toggleFavorite(Map<String, dynamic> opportunity) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    final collectionRef = _firestore
+        .collection('Student')
+        .doc(user.uid)
+        .collection('favorites');
+
+    final existingIndex =
+        _favoriteOpps.indexWhere((opp) => opp['Job Title'] == opportunity['Job Title']);
+
+    if (existingIndex != -1) {
+      final docId = _favoriteOpps[existingIndex]['id'];
+      await collectionRef.doc(docId).delete();
+      _favoriteOpps.removeAt(existingIndex);
+    } else {
+      final docRef = await collectionRef.add(opportunity);
+      opportunity['id'] = docRef.id;
+      _favoriteOpps.add(opportunity);
+    }
+
     notifyListeners();
   }
 }

@@ -6,6 +6,7 @@ import 'package:hadafi_application/Community/provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hadafi_application/Community/model/community_model.dart';
 import 'package:hadafi_application/Community/repoistory/communitory_repository.dart';
+import 'package:hadafi_application/favoriteProvider.dart';
 
 // Firebase Authentication Provider
 final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
@@ -33,8 +34,14 @@ final authStateProvider = StreamProvider<User?>((ref) {
 
 final uidProvider = StateProvider<String?>((ref) {
   final authUser = ref.watch(authStateProvider).value;
-  print("Auth state changed, new UID: ${authUser?.uid}");
-  return authUser?.uid;
+  final uid = authUser?.uid;
+
+  if (uid != null) {
+    ref.read(favoriteProvider).loadFavorites(); 
+  }
+
+  print("Auth state changed, new UID: $uid");
+  return uid;
 });
 
 // Fetch User Data from Firestore
@@ -52,6 +59,7 @@ final storageRepositoryProvider = Provider<StorageRepository>((ref) {
   final firebaseStorage = ref.watch(storageProvider);
   return StorageRepository(firebaseStorage: firebaseStorage);
 });
+
 
 // ✅ Fetch all communities
 final communityProvider = StreamProvider<List<Community>>((ref) {

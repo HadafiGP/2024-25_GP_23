@@ -8,6 +8,7 @@ import 'package:hadafi_application/Community/common/loader.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:hadafi_application/Community/constants/constants.dart';
 import 'package:hadafi_application/Community/repoistory/communitory_repository.dart';
+import "package:hadafi_application/Community/CommunityHomeScreen.dart";
 
 class AddCommunityScreen extends ConsumerStatefulWidget {
   const AddCommunityScreen({super.key});
@@ -154,8 +155,6 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
       return;
     }
 
-    
-
     ref.read(communityControllerProvider.notifier).createCommunity(
         communityNameController.text.trim(),
         communityDescription.text.trim(),
@@ -163,6 +162,13 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
         bannerPath ?? Constants.bannerDefault,
         selectedTopics,
         context);
+        
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+          builder: (context) => Communityhomescreen(initialIndex: 2)),
+      (route) => false,
+    );
   }
 
   @override
@@ -170,6 +176,7 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
     final isLoading = ref.watch(communityControllerProvider);
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: const Color(0xFF113F67),
         title: Text(
@@ -213,9 +220,10 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
             child: const Text(
               "Step 1 of 3",
               style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey),
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 152, 161, 168),
+              ),
             ),
           ),
           const SizedBox(height: 5),
@@ -234,7 +242,7 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
           TextField(
             controller: communityNameController,
             decoration: InputDecoration(
-              hintText: "r/Community_name",
+              hintText: "Pick a name that represents your community well.",
               hintStyle: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Color.fromARGB(255, 152, 161, 168),
@@ -245,6 +253,7 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
               contentPadding: const EdgeInsets.all(18),
             ),
             maxLength: 21,
+            maxLines: 2,
           ),
           const SizedBox(height: 20),
           const Align(
@@ -300,7 +309,6 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 165),
         ],
       ),
     );
@@ -319,9 +327,10 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
                 child: const Text(
                   "Step 2 of 3",
                   style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 152, 161, 168),
+                  ),
                 ),
               ),
               const SizedBox(height: 5),
@@ -336,7 +345,18 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 5),
+              Align(
+                alignment: Alignment.topLeft,
+                child: const Text(
+                  "A banner and avatar define your community's identity",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color.fromARGB(255, 152, 161, 168),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
               Align(
                 alignment: Alignment.topLeft,
                 child: const Text(
@@ -565,9 +585,10 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
                 child: const Text(
                   "Step 3 of 3",
                   style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 152, 161, 168),
+                  ),
                 ),
               ),
               const SizedBox(height: 5),
@@ -594,6 +615,17 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 5),
+              Align(
+                alignment: Alignment.topLeft,
+                child: const Text(
+                  "Add up to 3 topics to help others find your community.",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color.fromARGB(255, 152, 161, 168),
+                  ),
+                ),
               ),
               const SizedBox(height: 10),
               Expanded(

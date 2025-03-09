@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hadafi_application/CV.dart';
+import 'package:hadafi_application/favoriteProvider.dart';
 import 'package:hadafi_application/welcome.dart';
 import 'package:hadafi_application/Community/provider.dart';
 
@@ -33,6 +34,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateProvider);
+    ref.read(favoriteProvider).loadFavorites();
 
     return authState.when(
       data: (user) {
