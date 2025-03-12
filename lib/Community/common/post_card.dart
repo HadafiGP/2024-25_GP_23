@@ -149,7 +149,7 @@ class PostCard extends ConsumerWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'r/${post.communityName}',
+                                          'c/${post.communityName}',
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
@@ -158,7 +158,7 @@ class PostCard extends ConsumerWidget {
                                         GestureDetector(
                                           onTap: () => navigateToUser(context),
                                           child: Text(
-                                            'r/${post.username}',
+                                            'u/${post.username}',
                                             style: const TextStyle(
                                               fontSize: 12,
                                             ),
@@ -189,6 +189,22 @@ class PostCard extends ConsumerWidget {
                               ),
                             ),
                           ),
+                          // ✅ Show description for Image and Link posts
+                          if ((isTypeImage || isTypeLink) &&
+                              post.description != null &&
+                              post.description!.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 8.0, horizontal: 10),
+                              child: Text(
+                                post.description!,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ),
+
                           if (isTypeImage)
                             SizedBox(
                               height: MediaQuery.of(context).size.height * 0.35,
@@ -214,8 +230,7 @@ class PostCard extends ConsumerWidget {
                                 }
 
                                 if (!snapshot.hasData || snapshot.hasError) {
-                                  return const Text(
-                                      '⚠️ Invalid URL or Preview Unavailable');
+                                  return const Text('Invalid URL');
                                 }
 
                                 final metadata = snapshot.data!;

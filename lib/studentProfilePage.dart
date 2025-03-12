@@ -1521,128 +1521,51 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-class HadafiDrawer extends StatelessWidget {
-  const HadafiDrawer({super.key});
+// Email function
+void _launchEmail() async {
+  try {
+    final user = FirebaseAuth.instance.currentUser;
 
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      child: Container(
-        color: const Color(0xFFF3F9FB),
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: const BoxDecoration(
-                color: Color(0xFF113F67),
-              ),
-              child: Image.asset(
-                'Hadafi/images/LOGO.png',
-                fit: BoxFit.contain,
-                height: 80,
-              ),
-            ),
-            _buildDrawerItem(context, Icons.person, 'Profile', ProfilePage()),
-            _buildDrawerItem(
-                context, Icons.home, 'Home', const StudentHomePage()),
-            _buildDrawerItem(
-                context, Icons.assignment, 'CV Enhancement Tool', CVPage()),
-            _buildDrawerItem(
-              context,
-              Icons.chat,
-              'Interview Simulator',
-              const InterviewPage(),
-            ),
-            _buildDrawerItem(context, Icons.feedback, 'Feedback', null),
-            _buildDrawerItem(
-                context, Icons.group, 'Communities', Communityhomescreen()),
-            _buildDrawerItem(
-                context, Icons.favorite, 'Favorites List', FavoritePage()),
-            ListTile(
-              leading: const Icon(Icons.contact_mail, color: Color(0xFF113F67)),
-              title: const Text('Contact us'),
-              onTap: () {
-                _launchEmail();
-              },
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.logout, color: Color(0xFF113F67)),
-              title: const Text('Log Out'),
-              onTap: () {
-                Navigator.pop(context);
-                _logout(context);
-              },
-            ),
-          ],
-        ),
+    if (user == null) {
+      print("User is not logged in.");
+      return;
+    }
+
+    final String userId = user.uid;
+
+    final String email = 'Hadafi.GP@gmail.com';
+    final String subject =
+        Uri.encodeComponent('App Support - User ID: $userId');
+    final String body =
+        Uri.encodeComponent('Dear Admin, I encountered the following issues:');
+
+    final String emailUrl = 'mailto:$email?subject=$subject&body=$body';
+
+    if (await canLaunchUrl(Uri.parse(emailUrl))) {
+      await launchUrl(Uri.parse(emailUrl));
+    } else {
+      throw 'Could not launch email client';
+    }
+  } catch (e) {
+    print("An error occurred while launching the email: $e");
+  }
+}
+
+// Logout function
+Future<void> _logout(BuildContext context) async {
+  try {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+      (route) => false,
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Logout failed. Please try again.'),
+        backgroundColor: Colors.red,
       ),
     );
-  }
-
-  Widget _buildDrawerItem(
-      BuildContext context, IconData icon, String title, Widget? page) {
-    return ListTile(
-      leading: Icon(icon, color: const Color(0xFF113F67)),
-      title: Text(title),
-      onTap: () {
-        Navigator.pop(context);
-        if (page != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => page),
-          );
-        }
-      },
-    );
-  }
-
-  // Email function
-  void _launchEmail() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-
-      if (user == null) {
-        print("User is not logged in.");
-        return;
-      }
-
-      final String userId = user.uid;
-
-      final String email = 'Hadafi.GP@gmail.com';
-      final String subject =
-          Uri.encodeComponent('App Support - User ID: $userId');
-      final String body = Uri.encodeComponent(
-          'Dear Admin, I encountered the following issues:');
-
-      final String emailUrl = 'mailto:$email?subject=$subject&body=$body';
-
-      if (await canLaunchUrl(Uri.parse(emailUrl))) {
-        await launchUrl(Uri.parse(emailUrl));
-      } else {
-        throw 'Could not launch email client';
-      }
-    } catch (e) {
-      print("An error occurred while launching the email: $e");
-    }
-  }
-
-  // Logout function
-  Future<void> _logout(BuildContext context) async {
-    try {
-      await FirebaseAuth.instance.signOut();
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const WelcomeScreen()),
-        (route) => false,
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Logout failed. Please try again.'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
   }
 }

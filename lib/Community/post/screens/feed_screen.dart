@@ -23,6 +23,23 @@ class FeedScreen extends ConsumerWidget {
 
     return ref.watch(userCommunityProvider(userID)).when(
           data: (communities) {
+            // ✅ If user is not in any community, show a message
+            if (communities.isEmpty) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Text(
+                    "You're not in any community yet.\nJoin a community to see posts here.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black54),
+                  ),
+                ),
+              );
+            }
+
             return ref.watch(userPostProvider(communities)).when(
                   data: (data) {
                     print("Fetched posts: ${data.length}"); // 🔍 Debugging Step

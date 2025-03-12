@@ -55,7 +55,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       String downloadUrl = await snapshot.ref.getDownloadURL();
 
       await _firestore.collection('Student').doc(widget.uid).update({
-        'profilePic': downloadUrl, // تخزين رابط الصورة في Firestore
+        'profilePic': downloadUrl,
       });
     }
   }

@@ -55,12 +55,12 @@ final userPostProvider =
   return PostController.fetchUserPosts(communitities);
 });
 
-final getPostByIdProvider = StreamProvider.family((ref, String postId){
+final getPostByIdProvider = StreamProvider.family((ref, String postId) {
   final PostController = ref.watch(PostControllerProvider.notifier);
   return PostController.getPostById(postId);
 });
 
-final getPostCommentsProvider = StreamProvider.family((ref, String postId){
+final getPostCommentsProvider = StreamProvider.family((ref, String postId) {
   final PostController = ref.watch(PostControllerProvider.notifier);
   return PostController.fetchPostComments(postId);
 });
@@ -139,6 +139,7 @@ class PostController extends StateNotifier<bool> {
     required String title,
     required Community selectedCommunity,
     required String link,
+    required String description,
   }) async {
     state = true;
     String postId = const Uuid().v1();
@@ -171,6 +172,7 @@ class PostController extends StateNotifier<bool> {
           createdAt: DateTime.now(),
           awards: [],
           link: link,
+          description: description,
         );
 
         final res = await _postRepository.addPost(post);
@@ -195,6 +197,7 @@ class PostController extends StateNotifier<bool> {
     required String title,
     required Community selectedCommunity,
     required File? file,
+    required String description,
   }) async {
     state = true;
     String postId = const Uuid().v1();
@@ -234,6 +237,7 @@ class PostController extends StateNotifier<bool> {
             createdAt: DateTime.now(),
             awards: [],
             link: r,
+            description: description,
           );
 
           final res = await _postRepository.addPost(post);
@@ -260,15 +264,18 @@ class PostController extends StateNotifier<bool> {
     }
     return Stream.value([]);
   }
-  
-  void deletePost (Post post, BuildContext context) async{
+
+  void deletePost(Post post, BuildContext context) async {
     final res = await _postRepository.deletePost(post);
-    res.fold((l) => null, (r) => showSnackBar(context, 'Post deleted succesfully!', success: true));
+    res.fold(
+        (l) => null,
+        (r) =>
+            showSnackBar(context, 'Post deleted succesfully!', success: true));
   }
 
 //   void upvote(Post post) async {
 //   final user = _ref.read(userProvider);
-  
+
 //   if (user == null) {
 //     print("User is not logged in!"); // Debugging message
 //     return; // Exit function if user is not logged in
@@ -277,120 +284,115 @@ class PostController extends StateNotifier<bool> {
 //   _postRepository.upvote(post, user.uid);
 // }
 
-void upvote(Post post) async {
-  final userId = _ref.read(userProvider);
-  
-  if (userId == null) {
-    print("User is not logged in!"); // Debugging message (only in logs)
-    return;
+  void upvote(Post post) async {
+    final userId = _ref.read(userProvider);
+
+    if (userId == null) {
+      print("User is not logged in!"); // Debugging message (only in logs)
+      return;
+    }
+
+    final userDataAsync = _ref.read(userDataProvider(userId));
+
+    userDataAsync.when(
+      data: (userData) async {
+        if (userData == null) return; // No error shown to user
+
+        String userUid = userData['uid'] ?? '';
+        _postRepository.upvote(post, userUid);
+      },
+      error: (error, stackTrace) {
+        print("Error retrieving user data: $error"); // Only logs error
+      },
+      loading: () {
+        print('Loading user data for upvote...'); // Logs loading state
+      },
+    );
   }
 
-  final userDataAsync = _ref.read(userDataProvider(userId));
+  void downvote(Post post) async {
+    final userId = _ref.read(userProvider);
 
-  userDataAsync.when(
-    data: (userData) async {
-      if (userData == null) return; // No error shown to user
+    if (userId == null) {
+      print("User is not logged in!"); // Debugging message (only in logs)
+      return;
+    }
 
-      String userUid = userData['uid'] ?? '';
-      _postRepository.upvote(post, userUid);
-    },
-    error: (error, stackTrace) {
-      print("Error retrieving user data: $error"); // Only logs error
-    },
-    loading: () {
-      print('Loading user data for upvote...'); // Logs loading state
-    },
-  );
-}
+    final userDataAsync = _ref.read(userDataProvider(userId));
 
-void downvote(Post post) async {
-  final userId = _ref.read(userProvider);
-  
-  if (userId == null) {
-    print("User is not logged in!"); // Debugging message (only in logs)
-    return;
+    userDataAsync.when(
+      data: (userData) async {
+        if (userData == null) return; // No error shown to user
+
+        String userUid = userData['uid'] ?? '';
+        _postRepository.downvote(post, userUid);
+      },
+      error: (error, stackTrace) {
+        print("Error retrieving user data: $error"); // Only logs error
+      },
+      loading: () {
+        print('Loading user data for upvote...'); // Logs loading state
+      },
+    );
   }
 
-  final userDataAsync = _ref.read(userDataProvider(userId));
-
-  userDataAsync.when(
-    data: (userData) async {
-      if (userData == null) return; // No error shown to user
-
-      String userUid = userData['uid'] ?? '';
-      _postRepository.downvote(post, userUid);
-    },
-    error: (error, stackTrace) {
-      print("Error retrieving user data: $error"); // Only logs error
-    },
-    loading: () {
-      print('Loading user data for upvote...'); // Logs loading state
-    },
-  );
-}
-
-
-Stream<Post> getPostById(String postId){
-  return _postRepository.getPostById(postId);
-}
-
-void addComment({
-  required BuildContext context,
-  required String text,
-  required Post post,
-}) async {
-  final userId = _ref.read(userProvider);
-  
-  if (userId == null) {
-    print("User is not logged in!"); // Debugging message (only in logs)
-    return;
+  Stream<Post> getPostById(String postId) {
+    return _postRepository.getPostById(postId);
   }
 
-  final userDataAsync = _ref.read(userDataProvider(userId));
+  void addComment({
+    required BuildContext context,
+    required String text,
+    required Post post,
+  }) async {
+    final userId = _ref.read(userProvider);
 
-  userDataAsync.when(
-    data: (userData) async {
-      if (userData == null) {
-        showSnackBar(context, 'Error: User data not found!');
-        return; 
-      }
+    if (userId == null) {
+      print("User is not logged in!"); // Debugging message (only in logs)
+      return;
+    }
 
-      String username = userData['name'] ?? 'Unknown';  // ✅ Get username
-      String profilePic = userData['profilePic'] ?? ''; // ✅ Get profile picture
-      String commentId = const Uuid().v1();
+    final userDataAsync = _ref.read(userDataProvider(userId));
 
-      Comment comment = Comment(
-        id: commentId,
-        text: text,
-        createdAt: DateTime.now(),
-        postId: post.id,
-        username: username,         // ✅ Pass username
-        profilePic: profilePic,     // ✅ Pass profile picture
-      );
+    userDataAsync.when(
+      data: (userData) async {
+        if (userData == null) {
+          showSnackBar(context, 'Error: User data not found!');
+          return;
+        }
 
-      final res = await _postRepository.addComment(comment);
-      
-      res.fold(
-        (l) => showSnackBar(context, l.message), 
-        (r) => showSnackBar(context, 'Comment added successfully!', success: true),
-      );
-    },
-    error: (error, stackTrace) {
-      showSnackBar(context, 'Error retrieving user data: $error');
-    },
-    loading: () {
-      print('Loading user data for comment...');
-    },
-  );
-}
+        String username = userData['name'] ?? 'Unknown'; // ✅ Get username
+        String profilePic =
+            userData['profilePic'] ?? ''; // ✅ Get profile picture
+        String commentId = const Uuid().v1();
 
-Stream<List<Comment>> fetchPostComments(String postId){
+        Comment comment = Comment(
+          id: commentId,
+          text: text,
+          createdAt: DateTime.now(),
+          postId: post.id,
+          username: username, // ✅ Pass username
+          profilePic: profilePic, // ✅ Pass profile picture
+        );
 
-  return _postRepository.getCommentsOfPost(postId);
+        final res = await _postRepository.addComment(comment);
 
-}
+        res.fold(
+          (l) => showSnackBar(context, l.message),
+          (r) => showSnackBar(context, 'Comment added successfully!',
+              success: true),
+        );
+      },
+      error: (error, stackTrace) {
+        showSnackBar(context, 'Error retrieving user data: $error');
+      },
+      loading: () {
+        print('Loading user data for comment...');
+      },
+    );
+  }
 
-
-
-
+  Stream<List<Comment>> fetchPostComments(String postId) {
+    return _postRepository.getCommentsOfPost(postId);
+  }
 }
