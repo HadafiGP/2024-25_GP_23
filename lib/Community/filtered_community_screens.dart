@@ -8,10 +8,13 @@ import 'package:hadafi_application/Community/controller/community_controller.dar
 class FilteredCommunityScreen extends ConsumerWidget {
   final String topic;
 
-  const FilteredCommunityScreen({Key? key, required this.topic}) : super(key: key);
+  const FilteredCommunityScreen({Key? key, required this.topic})
+      : super(key: key);
 
   void joinCommunity(WidgetRef ref, Community community, BuildContext context) {
-    ref.read(communityControllerProvider.notifier).joinCommunity(community, context);
+    ref
+        .read(communityControllerProvider.notifier)
+        .joinCommunity(community, context);
   }
 
   @override
@@ -27,18 +30,24 @@ class FilteredCommunityScreen extends ConsumerWidget {
               fontSize: 20,
               fontWeight: FontWeight.bold,
             )),
+        centerTitle: true,
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
         backgroundColor: const Color(0xFF113F67), // ✅ Hadafi theme color
       ),
       body: communitiesAsync.when(
         data: (communityList) {
           // 🛠 DEBUG: Print fetched communities
-          print("Fetched communities: ${communityList.map((c) => c.name).toList()}");
+          print(
+              "Fetched communities: ${communityList.map((c) => c.name).toList()}");
 
           // ✅ Fix: Use `.any()` to check if `topics` contain the selected topic
           final filteredCommunities = communityList
               .where((community) =>
                   community.topics != null &&
-                  community.topics.any((t) => t.toLowerCase() == topic.toLowerCase()))
+                  community.topics
+                      .any((t) => t.toLowerCase() == topic.toLowerCase()))
               .toList();
 
           if (filteredCommunities.isEmpty) {
@@ -59,7 +68,8 @@ class FilteredCommunityScreen extends ConsumerWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => Communityprofile(name: community.name),
+                        builder: (context) =>
+                            Communityprofile(name: community.name),
                       ),
                     );
                   },
@@ -74,7 +84,8 @@ class FilteredCommunityScreen extends ConsumerWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => Communityprofile(name: community.name),
+                        builder: (context) =>
+                            Communityprofile(name: community.name),
                       ),
                     );
                   },

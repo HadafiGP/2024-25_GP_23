@@ -162,12 +162,20 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
         bannerPath ?? Constants.bannerDefault,
         selectedTopics,
         context);
-        
+
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
           builder: (context) => Communityhomescreen(initialIndex: 2)),
       (route) => false,
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Community created successfully!"),
+        duration: Duration(seconds: 2),
+        backgroundColor: Colors.green,
+      ),
     );
   }
 
