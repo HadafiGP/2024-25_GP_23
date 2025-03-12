@@ -147,7 +147,7 @@ class _CVPageState extends State<CVPage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF113F67),
         title: const Text(
-          'CV Enhancement',
+          'CV Checker',
           style: TextStyle(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
