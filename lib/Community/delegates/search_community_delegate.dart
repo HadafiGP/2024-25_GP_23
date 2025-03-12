@@ -40,9 +40,9 @@ class SearchCommunityDelegate extends SearchDelegate {
   Widget buildSuggestions(BuildContext context) {
     final searchResults = ref.watch(searchCommunityProvider(query));
 
-    // ✅ Force UI update when new results arrive
+  
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      query = query; // 🔥 Triggers UI update
+      query = query; 
     });
 
     return searchResults.when(
@@ -69,7 +69,7 @@ class SearchCommunityDelegate extends SearchDelegate {
                 text: highlightQuery(
                   text: 'r/${community.name}',
                   query: query,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.bold , color: Colors.grey,  fontSize: 14,),
                   highlightColor: Colors.blue, // Highlights matchingGGG IN NAME
                 ),
               ),

@@ -98,8 +98,8 @@ class CommunityController extends StateNotifier<bool> {
         file: File(avatarPath),
       );
       avatarRes.fold(
-        (l) => showSnackBar(context, "Failed to upload avatar: ${l.message}"),
-        (r) => avatarUrl = r,
+          (l) => print("⚠️ Avatar upload failed: ${l.message}"), 
+      (r) => avatarUrl = r,
       );
     }
 
@@ -112,8 +112,8 @@ class CommunityController extends StateNotifier<bool> {
         file: File(bannerPath),
       );
       bannerRes.fold(
-        (l) => showSnackBar(context, "Failed to upload banner: ${l.message}"),
-        (r) => bannerUrl = r,
+        (l) => print("⚠️ Banner upload failed: ${l.message}"), 
+      (r) => bannerUrl = r,
       );
     }
 
