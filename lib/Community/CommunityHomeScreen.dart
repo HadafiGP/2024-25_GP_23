@@ -48,6 +48,12 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
       body: screens[index],
       drawer: const HadafiDrawer(),
       appBar: AppBar(
+
+        title: const Text(
+          'Communities',
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
         backgroundColor: const Color(0xFF113F67),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [

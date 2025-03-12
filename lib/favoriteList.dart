@@ -29,7 +29,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
       backgroundColor: const Color(0xFFF3F9FB),
       drawer: const HadafiDrawer(),
       appBar: AppBar(
-        title: const Text("Favorite List", style: TextStyle(color: Colors.white)),
+        title: const Text("Saved Opportunities", style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF113F67),
         iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
@@ -39,7 +39,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
           : favoriteProviderState.favOpportunities.isEmpty
               ? const Center(
                   child: Text(
-                    "No favorites yet!",
+                    "You haven't saved any opportunities yet.",
                     style: TextStyle(fontSize: 18, color: Colors.grey),
                   ),
                 )
@@ -91,8 +91,8 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                                         SnackBar(
                                           content: Text(
                                             wasFavorited
-                                                ? "Opportunity removed from favorite list"
-                                                : "Opportunity added to favorite list",
+                                                ? "Opportunity removed from Saved Opportunitiest"
+                                                : "Opportunity added to Saved Opportunities",
                                             style: const TextStyle(color: Colors.white),
                                           ),
                                           action: wasFavorited
@@ -106,7 +106,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                                                 )
                                               : null,
                                           backgroundColor: const Color.fromARGB(255, 0, 118, 208),
-                                          duration: const Duration(seconds: 1),
+                                          duration: const Duration(seconds: 2),
                                         ),
                                       );
 
@@ -123,7 +123,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                                     child: Icon(
                                       isFavorited ? Icons.bookmark_added : Icons.bookmark_add_outlined,
                                       color: isFavorited ? Colors.amber[400] : Colors.grey,
-                                      size: 20.0,
+                                      size: correctSize(context, 72),
                                     ),
                                   );
                                 },
@@ -162,5 +162,9 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                   },
                 ),
     );
+  }
+
+      double correctSize(BuildContext context, double px) {
+    return px / MediaQuery.of(context).devicePixelRatio;
   }
 }

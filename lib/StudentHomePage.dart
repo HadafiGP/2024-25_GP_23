@@ -49,8 +49,7 @@ class HadafiDrawer extends StatelessWidget {
             _buildDrawerItem(context, Icons.person, 'Profile', ProfilePage()),
             _buildDrawerItem(
                 context, Icons.home, 'Home', const StudentHomePage()),
-            _buildDrawerItem(
-                context, Icons.assignment, 'CV Enhancement Tool', CVPage()),
+            _buildDrawerItem(context, Icons.assignment, 'CV Checker', CVPage()),
             _buildDrawerItem(
               context,
               Icons.chat,
@@ -60,8 +59,8 @@ class HadafiDrawer extends StatelessWidget {
             _buildDrawerItem(context, Icons.feedback, 'Feedback', null),
             _buildDrawerItem(
                 context, Icons.group, 'Communities', Communityhomescreen()),
-            _buildDrawerItem(
-                context, Icons.favorite, 'Favorites List', FavoritePage()),
+            _buildDrawerItem(context, Icons.bookmark_added, 'Saved Opportunities',
+                FavoritePage()),
             ListTile(
               leading: const Icon(Icons.contact_mail, color: Color(0xFF113F67)),
               title: const Text('Contact us'),
@@ -476,8 +475,8 @@ class OpportunitiesList extends StatelessWidget {
                             SnackBar(
                               content: Text(
                                 wasFavorited
-                                    ? "Opportunity removed from favorite list"
-                                    : "Opportunity added to favorite list",
+                                    ? "Opportunity removed from Saved Opportunities"
+                                    : "Opportunity added to Saved Opportunities",
                                 style: const TextStyle(color: Colors.white),
                               ),
                               action: wasFavorited
@@ -505,9 +504,8 @@ class OpportunitiesList extends StatelessWidget {
                                 : Icons.bookmark_add_outlined,
                             color:
                                 isFavorited ? Colors.amber[400] : Colors.grey,
-                            size: 20.0,
-                            key: ValueKey<bool>(
-                                isFavorited), 
+                            size: correctSize(context, 72),
+                            key: ValueKey<bool>(isFavorited),
                           ),
                         ),
                       );
@@ -546,5 +544,9 @@ class OpportunitiesList extends StatelessWidget {
         );
       },
     );
+  }
+
+  double correctSize(BuildContext context, double px) {
+    return px / MediaQuery.of(context).devicePixelRatio;
   }
 }

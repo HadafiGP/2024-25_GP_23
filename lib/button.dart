@@ -22,7 +22,7 @@ class GradientButton extends StatelessWidget {
     return GestureDetector(
       onTap: onPressed,
       child: Container(
-        height: 33,
+        height: 30,
         width: 59,
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -48,4 +48,6 @@ class GradientButton extends StatelessWidget {
       ),
     );
   }
+
+  
 }

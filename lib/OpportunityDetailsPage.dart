@@ -138,8 +138,8 @@ class OpportunityDetailsPage extends StatelessWidget {
                                   SnackBar(
                                     content: Text(
                                       wasFavorited
-                                          ? "Opportunity removed from favorite list"
-                                          : "Opportunity added to favorite list",
+                                          ? "Opportunity removed from Saved Opportunities"
+                                          : "Opportunity added to Saved Opportunities",
                                       style:
                                           const TextStyle(color: Colors.white),
                                     ),
@@ -170,7 +170,7 @@ class OpportunityDetailsPage extends StatelessWidget {
                                   color: isFavorited
                                       ? Colors.amber[400]
                                       : Colors.white,
-                                  size: 20.0,
+                                  size: correctSize(context, 72),
                                   key: ValueKey<bool>(
                                       isFavorited), 
                                 ),
@@ -446,5 +446,9 @@ class OpportunityDetailsPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+    double correctSize(BuildContext context, double px) {
+    return px / MediaQuery.of(context).devicePixelRatio;
   }
 }
