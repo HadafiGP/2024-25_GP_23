@@ -1,413 +1,275 @@
-import 'package:dartz/dartz.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hadafi_application/Community/CommunityProfile.dart';
-import 'package:hadafi_application/Community/common/loader.dart';
-import 'package:hadafi_application/Community/constants/constants.dart';
-import 'package:hadafi_application/Community/controller/community_controller.dart';
-import 'package:hadafi_application/Community/model/post_model.dart';
 import 'package:any_link_preview/any_link_preview.dart';
-import 'package:hadafi_application/Community/post/controller/post_controller.dart';
-import 'package:hadafi_application/Community/post/screens/add_post_type_screen.dart';
-import 'package:hadafi_application/Community/post/screens/comments_screen.dart';
-import 'package:hadafi_application/Community/provider.dart';
-import 'package:http/http.dart';
-import 'package:routemaster/routemaster.dart';
-import 'package:hadafi_application/Community/user_profile/screens/user_profile_screen.dart';
-import 'package:hadafi_application/Community/common/error_text.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:hadafi_application/Community/model/post_model.dart';
+import 'package:hadafi_application/Community/post/controller/post_controller.dart';
+import 'package:hadafi_application/Community/provider.dart';
+import 'package:hadafi_application/Community/post/screens/comments_screen.dart';
+import 'package:hadafi_application/Community/user_profile/screens/user_profile_screen.dart';
+import 'package:hadafi_application/Community/CommunityProfile.dart';
+import 'package:hadafi_application/Community/controller/community_controller.dart';
 
-class PostCard extends ConsumerWidget {
+class PostCard extends ConsumerStatefulWidget {
   final Post post;
-  const PostCard({
-    super.key,
-    required this.post,
-  });
+  const PostCard({super.key, required this.post});
 
-  // void deletePost(WidgetRef ref, BuildContext context) async{
-  //   ref.read(PostControllerProvider.notifier).deletePost(post, context);
-  // }
+  @override
+  ConsumerState<PostCard> createState() => _PostCardState();
+}
 
-  void deletePost(WidgetRef ref, BuildContext context) async {
+class _PostCardState extends ConsumerState<PostCard> {
+  bool showFullDescription = false;
+
+  void toggleDescription() {
+    setState(() {
+      showFullDescription = !showFullDescription;
+    });
+  }
+
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    }
+  }
+
+    void deletePost(BuildContext context, WidgetRef ref) async {
     bool confirmDelete = await showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Confirm Deletion"),
-          content: const Text("Are you sure you want to delete this post?"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false); // ❌ Cancel
-              },
-              child: const Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(true); // ✅ Confirm
-              },
-              child: const Text("Delete", style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
-      },
+      builder: (context) => AlertDialog(
+        title: const Text("Confirm Deletion"),
+        content: const Text("Are you sure you want to delete this post?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
     );
 
-    // If the user confirmed deletion, proceed
-    if (confirmDelete == true) {
-      ref.read(PostControllerProvider.notifier).deletePost(post, context);
+    if (confirmDelete) {
+      ref.read(PostControllerProvider.notifier).deletePost(widget.post, context);
     }
   }
 
-  void upvotePost(WidgetRef ref) async {
-    ref.read(PostControllerProvider.notifier).upvote(post);
-  }
-
-  void downvotePost(WidgetRef ref) async {
-    ref.read(PostControllerProvider.notifier).downvote(post);
-  }
-
-  void navigateToUser(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => UserProfileScreen(uid: post.uid), // ✅ Pass UID
-      ),
-    );
-  }
-
-  void navigateToCommunity(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            Communityprofile(name: post.communityName), // ✅ Pass Community Name
-      ),
-    );
-  }
-
-  void navigateToComments(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CommentsScreen(postId: post.id), // ✅ Pass Post ID
-      ),
-    );
-  }
-
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isTypeLink = post.type == 'link';
-
-    if (isTypeLink && post.link != null && post.link!.isNotEmpty) {
-      debugLinkPreview(post.link!); // Call debug function here
-    }
-    final isTypeImage = post.type == 'image';
-    final isTypeText = post.type == 'text';
+  @override
+  Widget build(BuildContext context) {
+    final post = widget.post;
     final userID = ref.watch(uidProvider) ?? '';
+
     if (userID.isEmpty) {
       return const Center(child: Text('User not logged in.'));
-    } //final currenThem = ref.watch(themNotifierProvider);
-    return Column(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 219, 225, 231),
-          ),
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 4,
-                        horizontal: 16,
-                      ).copyWith(right: 0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () => navigateToCommunity(context),
-                                    child: CircleAvatar(
-                                      backgroundImage: NetworkImage(
-                                        post.communityProfilePic,
-                                      ),
-                                      radius: 16,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 8),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'c/${post.communityName}',
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () => navigateToUser(context),
-                                          child: Text(
-                                            'u/${post.username}',
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              if (post.uid == userID)
-                                IconButton(
-                                  onPressed: () => deletePost(ref, context),
-                                  icon: Icon(
-                                    Icons.delete,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                            ],
+    }
+
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 5,
+      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(14.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header Section
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundImage: NetworkImage(post.communityProfilePic),
+                  radius: 22,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Communityprofile(name: post.communityName),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10.0),
-                            child: Text(
-                              post.title,
-                              style: const TextStyle(
-                                fontSize: 19,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          // ✅ Show description for Image and Link posts
-                          if ((isTypeImage || isTypeLink) &&
-                              post.description != null &&
-                              post.description!.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 8.0, horizontal: 10),
-                              child: Text(
-                                post.description!,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                            ),
-
-                          if (isTypeImage)
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.35,
-                              width: double.infinity,
-                              child: Image.network(
-                                post.link!,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          if (isTypeLink &&
-                              post.link != null &&
-                              post.link!.isNotEmpty)
-                            FutureBuilder<Metadata?>(
-                              future: AnyLinkPreview.getMetadata(
-                                link: post.link!,
-                                cache: const Duration(hours: 1),
-                              ),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const Center(
-                                      child: CircularProgressIndicator());
-                                }
-
-                                if (!snapshot.hasData || snapshot.hasError) {
-                                  return const Text('Invalid URL');
-                                }
-
-                                final metadata = snapshot.data!;
-
-                                return Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border: Border.all(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      if (metadata.image != null)
-                                        ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                          child: Image.network(
-                                            metadata.image!,
-                                            fit: BoxFit.cover,
-                                            height: 150,
-                                            width: double.infinity,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return const Icon(
-                                                  Icons.broken_image,
-                                                  size: 50,
-                                                  color: Colors.red);
-                                            },
-                                          ),
-                                        ),
-                                      const SizedBox(height: 5),
-                                      Text(metadata.title ?? "No Title",
-                                          style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold)),
-                                      const SizedBox(height: 5),
-                                      GestureDetector(
-                                        onTap: () async {
-                                          final Uri uri = Uri.parse(post.link!);
-                                          if (await canLaunchUrl(uri)) {
-                                            await launchUrl(uri);
-                                          } else {
-                                            print(
-                                                "Could not open URL: ${post.link}");
-                                          }
-                                        },
-                                        child: Text(
-                                          metadata.url ?? post.link!,
-                                          style: const TextStyle(
-                                              color: Colors.blue,
-                                              decoration:
-                                                  TextDecoration.underline),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                          if (isTypeText)
-                            Container(
-                              alignment: Alignment.bottomLeft,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 15.0),
-                              child: Text(
-                                post.description!,
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  IconButton(
-                                    onPressed: () => upvotePost(ref),
-                                    icon: Icon(
-                                      Constants.up,
-                                      size: 25,
-                                      color: post.upvotes.contains(userID)
-                                          ? Colors.blue
-                                          : null,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${post.upvotes.length - post.downvotes.length == 0 ? 'Vote' : post.upvotes.length - post.downvotes.length}',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    onPressed: () => downvotePost(ref),
-                                    icon: Icon(
-                                      Constants.down,
-                                      size: 25,
-                                      color: post.downvotes.contains(userID)
-                                          ? Colors.red
-                                          : null,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  IconButton(
-                                    onPressed: () =>
-                                        navigateToComments(context),
-                                    icon: const Icon(
-                                      Icons.comment,
-                                      size: 25,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${post.commentCount == 0 ? 'Comment' : post.commentCount}',
-                                    style: const TextStyle(
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              ref
-                                  .watch(getCommunityByNameProvider(
-                                      post.communityName))
-                                  .when(
-                                    data: (data) {
-                                      if (data.mods.contains(userID)) {
-                                        return IconButton(
-                                          onPressed: () =>
-                                              deletePost(ref, context),
-                                          icon: const Icon(
-                                            Icons.admin_panel_settings,
-                                            size: 25,
-                                          ),
-                                        );
-                                      }
-                                      return const SizedBox();
-                                    },
-                                    error: (error, stackTrace) {
-                                      print(
-                                          "Error loading communities: $error"); // 🔍 Debugging Step
-                                      return Center(
-                                        child: Text(
-                                          "Error: ${error.toString()}",
-                                          style: TextStyle(
-                                              color: Colors.red, fontSize: 16),
-                                        ),
-                                      );
-                                    },
-                                    loading: () => const Loader(),
-                                  ),
-                            ],
-                          ),
-                        ],
+                        ),
+                        child: Text(
+                          'c/${post.communityName}',
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
                       ),
+                      GestureDetector(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => UserProfileScreen(uid: post.uid),
+                          ),
+                        ),
+                        child: Text(
+                          'u/${post.username}',
+                          style: const TextStyle(fontSize: 14, color: Colors.grey),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                                ref.watch(getCommunityByNameProvider(post.communityName)).when(
+                  data: (community) {
+                    bool isModerator = community.mods.contains(userID);
+                    if (post.uid == userID || isModerator) {
+                      return IconButton(
+                        onPressed: () => deletePost(context, ref),
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                      );
+                    }
+                    return const SizedBox();
+                  },
+                  loading: () => const SizedBox(),
+                  error: (e, _) => const SizedBox(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            // Post Title
+            Text(
+              post.title,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            
+            // Description
+            if (post.description != null && post.description!.isNotEmpty)
+              AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      showFullDescription || post.description!.length <= 100
+                          ? post.description!
+                          : "${post.description!.substring(0, 100)}...",
+                      style: const TextStyle(fontSize: 15, color: Colors.black87),
                     ),
+                    if (post.description!.length > 100)
+                      GestureDetector(
+                        onTap: toggleDescription,
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            showFullDescription ? "Show Less" : "Show More",
+                            style: const TextStyle(fontSize: 14, color: Colors.blue, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
-            ],
-          ),
+            
+            const SizedBox(height: 8),
+            
+            // Image Post
+            if (post.type == 'image')
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  post.link!,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: 250,
+                ),
+              ),
+            
+            // Link Preview
+            if (post.type == 'link' && post.link != null && post.link!.isNotEmpty)
+              GestureDetector(
+                onTap: () => _launchURL(post.link!),
+                child: Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  child: ListTile(
+                    leading: const Icon(Icons.link, color: Colors.blue),
+                    title: Text(post.link!,
+                        style: const TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+                        overflow: TextOverflow.ellipsis),
+                  ),
+                ),
+              ),
+            
+            // Voting & Comments Section
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+              Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.arrow_upward, color: post.upvotes.contains(userID) ? Colors.blue : Colors.grey),
+                      onPressed: () => ref.read(PostControllerProvider.notifier).upvote(post),
+                    ),
+                    Text(
+                      post.upvotes.length - post.downvotes.length == 0
+                          ? 'Vote'
+                          : '${post.upvotes.length - post.downvotes.length}',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.arrow_downward, color: post.downvotes.contains(userID) ? Colors.red : Colors.grey),
+                      onPressed: () => ref.read(PostControllerProvider.notifier).downvote(post),
+                    ),
+                  ],
+                ),
+                Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.comment, color: Colors.grey),
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CommentsScreen(postId: post.id),
+                        ),
+                      ),
+                    ),
+                    if (post.commentCount > 0)
+                      Positioned(
+                        right: 6,
+                        top: 6,
+                        child: GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CommentsScreen(postId: post.id),
+                            ),
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.blueAccent.withOpacity(0.7),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 18,
+                              minHeight: 18,
+                            ),
+                            child: Text(
+                              '${post.commentCount}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ],
         ),
-        const SizedBox(height: 2),
-      ],
+      ),
     );
-  }
-
-  Future<void> debugLinkPreview(String url) async {
-    try {
-      final response = await AnyLinkPreview.getMetadata(link: url);
-      print("Metadata fetched: $response");
-    } catch (e) {
-      print("Error fetching metadata: $e");
-    }
   }
 }
