@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -35,6 +36,11 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateProvider);
     ref.read(favoriteProvider).loadFavorites();
+
+  //    // تسجيل خروج مؤقت بعد أول تشغيل
+  // Future.microtask(() async {
+  //   await FirebaseAuth.instance.signOut();
+  // });
 
     return authState.when(
       data: (user) {

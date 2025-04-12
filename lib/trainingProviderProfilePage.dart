@@ -75,6 +75,7 @@ class _TrainingProviderProfilePageState
     'dunatp@gmail.com',
     'jejetp@gmail.com',
     'lamatp@gmail.com',
+    'riderise.sa@gmail.com',
   ];
 
   Future<void> _loadProfileData() async {

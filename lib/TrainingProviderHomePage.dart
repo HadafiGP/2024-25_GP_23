@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hadafi_application/PostOpportunityPage.dart';
 import 'package:hadafi_application/welcome.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:hadafi_application/trainingProviderProfilePage.dart';
@@ -94,7 +95,13 @@ class TrainingProviderHomePage extends StatelessWidget {
                   children: [
                     InkWell(
                       borderRadius: BorderRadius.circular(30),
-                      onTap: () {},
+                      onTap: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => const PostOpportunityPage()),
+  );
+},
+
                       child: Container(
                         width: 56,
                         height: 56,

@@ -94,9 +94,9 @@ class FilteredCommunityScreen extends ConsumerWidget {
                 subtitle: Text("${community.members.length} members"),
                 trailing: ElevatedButton(
                   onPressed: () {
-                    if (!isJoined) {
+                    
                       joinCommunity(ref, community, context);
-                    }
+                    
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isJoined ? Colors.grey : Colors.blue,

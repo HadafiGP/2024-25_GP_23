@@ -101,12 +101,12 @@ class _PostCardState extends ConsumerState<PostCard> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => UserProfileScreen(uid: post.uid),
-                          ),
-                        ),
+                        // onTap: () => Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => UserProfileScreen(uid: post.uid),
+                        //   ),
+                        // ),
                         child: Text(
                           'u/${post.username}',
                           style: const TextStyle(fontSize: 14, color: Colors.grey),

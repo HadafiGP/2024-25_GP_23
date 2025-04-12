@@ -87,7 +87,8 @@ class _TrainingProviderSignupScreenState
     'dunatp@gmail.com',
     'jejetp@gmail.com',
     'lamatp@gmail.com',
-    'gpastrainingprovider@gmail.com'
+    'gpastrainingprovider@gmail.com',
+    'riderise.sa@gmail.com',
   ];
 
   void _validatePassword(String password) {
