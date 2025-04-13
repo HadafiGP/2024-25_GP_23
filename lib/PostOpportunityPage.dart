@@ -344,6 +344,8 @@ final List<String> managementSkills = [
               ),
             const SizedBox(height: 15),
 
+            Text("GPA:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF113F67))),
+            const SizedBox(height: 5),
             _buildGpaInputs(),
             const SizedBox(height: 15),
 
@@ -686,8 +688,12 @@ final List<String> managementSkills = [
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Minimum GPA Requirement (out of 4)', style: TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 10),
+        
+        Text(
+                'Minimum GPA Requirement (out of 4)',
+                style: TextStyle(fontSize: 14, color: Color(0xFF113F67) ),
+              ),
+        const SizedBox(height: 5),
         _buildTextField(
           'GPA (out of 4)',
           gpa4Controller,
@@ -723,9 +729,13 @@ final List<String> managementSkills = [
           ),
 
 
-        const SizedBox(height: 20),
-        const Text('Minimum GPA Requirement (out of 5)', style: TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 10),
+        const SizedBox(height: 15),
+
+        Text(
+                'Minimum GPA Requirement (out of 5)',
+                style: TextStyle(fontSize: 14, color: Color(0xFF113F67) ),
+              ),
+        const SizedBox(height:5),
         _buildTextField(
           'GPA (out of 5)',
           gpa5Controller,
