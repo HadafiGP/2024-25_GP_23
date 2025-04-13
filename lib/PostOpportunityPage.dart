@@ -23,6 +23,9 @@ class _PostOpportunityPageState extends State<PostOpportunityPage> {
   final TextEditingController gpa4Controller = TextEditingController();
   final TextEditingController gpa5Controller = TextEditingController();
    final TextEditingController jobTypeController = TextEditingController();
+   final TextEditingController contactInfoController = TextEditingController();
+
+
 
   String? selectedMajor;
   String? selectedJobType;
@@ -46,6 +49,7 @@ List<String> selectedManagementSkills = [];
   bool isMajorValid = true;
   bool isGpa4Valid = true;
   bool isGpa5Valid = true;
+  bool isContactInfoValid = true;
 
 
 
@@ -367,6 +371,16 @@ final List<String> managementSkills = [
               const SizedBox(height: 30),
 
 
+              _buildTextField('Contact Info', contactInfoController),
+              if (!isContactInfoValid)
+                const Padding(
+                  padding: EdgeInsets.only(top: 4),
+                  child: Text("This field is required", style: TextStyle(color: Colors.red)),
+                ),
+              const SizedBox(height: 15),
+
+
+
             _buildTextField('Company Apply Link(Optional)', companyLinkController, isRequired: false),
             const SizedBox(height: 30),
 
@@ -389,6 +403,7 @@ final List<String> managementSkills = [
                       isMajorValid = majorController.text.trim().isNotEmpty;
                       isGpa4Valid = gpa4Controller.text.trim().isNotEmpty;
                       isGpa5Valid = gpa5Controller.text.trim().isNotEmpty;
+                      isContactInfoValid = contactInfoController.text.trim().isNotEmpty;
                       isSkillsValid = selectedTechnicalSkills.isNotEmpty ||
                           selectedSoftSkills.isNotEmpty ||
                           selectedManagementSkills.isNotEmpty;
@@ -403,7 +418,8 @@ final List<String> managementSkills = [
                         isDurationValid &&
                         isMajorValid &&
                         isGpa4Valid &&
-                        isGpa5Valid &&
+                        isGpa5Valid && 
+                        isContactInfoValid &&
                         isSkillsValid;
 
                     if (_formKey.currentState!.validate() && isValid) {
@@ -429,6 +445,7 @@ final List<String> managementSkills = [
                           'gpaOutOf4': gpa4Controller.text.trim(),
                           'gpaOutOf5': gpa5Controller.text.trim(),
                           'companyLink': companyLinkController.text.trim(),
+                          'contactInfo': contactInfoController.text.trim(),
                           'skills': [
                             ...selectedTechnicalSkills,
                             ...selectedSoftSkills,
