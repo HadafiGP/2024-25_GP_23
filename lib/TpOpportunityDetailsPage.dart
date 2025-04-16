@@ -4,6 +4,11 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hadafi_application/favoriteProvider.dart';
 import 'package:hadafi_application/favoriteList.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:hadafi_application/favoriteProvider.dart';
+import 'package:hadafi_application/favoriteList.dart';
 
 class TpOpportunityDetailsPage extends StatelessWidget {
   final String jobTitle;
@@ -121,63 +126,80 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                           softWrap: true,
                         ),
                       ),
-                      // Save Icon
-                      Consumer(
-                        builder: (context, ref, child) {
-                          final favoriteOpps = ref.watch(favoriteProvider);
-                          final isFavorited = favoriteOpps.favOpportunities
-                              .any((opp) => opp['Job Title'] == jobTitle);
+     Align(
+                        alignment: Alignment.centerRight,
+                        child: Consumer(
+                          builder: (context, ref, child) {
+                            final favoriteOpps = ref.watch(favoriteProvider);
+                            final isFavorited = favoriteOpps.favOpportunities
+                                .any((opp) => opp['Job Title'] == jobTitle);
 
-                          return IconButton(
-                            icon: Icon(
-                              isFavorited
-                                  ? Icons.bookmark_added
-                                  : Icons.bookmark_add_outlined,
-                              color: isFavorited ? Colors.amber[400] : Colors.white,
-                            ),
-                            onPressed: () {
-                              final favoriteOpp = {
-                                'Job Title': jobTitle,
-                                'Company Name': companyName,
-                                'Description': description,
-                                'Apply url': applyUrl,
-                                'GPA out of 5': gpa5,
-                                'GPA out of 4': gpa4,
-                                'Locations': location.split(',').map((loc) => loc.trim()).toList(),
-                                'Skills': skills.isNotEmpty ? skills : [],
-                              };
+                            return GestureDetector(
+                              onTap: () {
+                                final wasFavorited = isFavorited;
 
-                              ref
-                                  .read(favoriteProvider.notifier)
-                                  .toggleFavorite(favoriteOpp);
+                                final favoriteOpp = {
+                                  'Job Title': jobTitle,
+                                  'Company Name': companyName,
+                                  'Description': description,
+                                  'Apply url': applyUrl,
+                                  'GPA out of 5': gpa5,
+                                  'GPA out of 4': gpa4,
+                                  'Locations': location
+                                      .split(',')
+                                      .map((loc) => loc.trim())
+                                      .toList(),
+                                  'Skills': skills.isNotEmpty ? skills : [],
+                                };
 
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    isFavorited
-                                        ? "Opportunity removed from Saved Opportunities"
-                                        : "Opportunity added to Saved Opportunities",
-                                    style:
-                                        const TextStyle(color: Colors.white),
+                                ref
+                                    .read(favoriteProvider.notifier)
+                                    .toggleFavorite(favoriteOpp);
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      wasFavorited
+                                          ? "Opportunity removed from Saved Opportunities"
+                                          : "Opportunity added to Saved Opportunities",
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                    action: wasFavorited
+                                        ? SnackBarAction(
+                                            label: "Undo",
+                                            textColor: Colors.white,
+                                            onPressed: () {
+                                              ref
+                                                  .read(
+                                                      favoriteProvider.notifier)
+                                                  .toggleFavorite(favoriteOpp);
+                                            },
+                                          )
+                                        : null,
+                                    backgroundColor:
+                                        const Color.fromARGB(255, 0, 118, 208),
+                                    duration: const Duration(seconds: 2),
                                   ),
-                                  action: isFavorited
-                                      ? SnackBarAction(
-                                          label: "Undo",
-                                          textColor: Colors.white,
-                                          onPressed: () {
-                                            ref.read(favoriteProvider.notifier)
-                                                .toggleFavorite(favoriteOpp);
-                                          },
-                                        )
-                                      : null,
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 0, 118, 208),
-                                  duration: const Duration(seconds: 2),
+                                );
+                              },
+                              child: AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 300),
+                                child: Icon(
+                                  isFavorited
+                                      ? Icons.bookmark_added
+                                      : Icons.bookmark_add_outlined,
+                                  color: isFavorited
+                                      ? Colors.amber[400]
+                                      : Colors.white,
+                                  size: correctSize(context, 72),
+                                  key: ValueKey<bool>(
+                                      isFavorited), 
                                 ),
-                              );
-                            },
-                          );
-                        },
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -561,5 +583,9 @@ class TpOpportunityDetailsPage extends StatelessWidget {
         ),
       ),
     );
+    
+  }
+      double correctSize(BuildContext context, double px) {
+    return px / MediaQuery.of(context).devicePixelRatio;
   }
 }
