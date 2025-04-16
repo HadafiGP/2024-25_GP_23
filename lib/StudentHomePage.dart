@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hadafi_application/Community/provider.dart';
+import 'package:hadafi_application/TpOpportunityDetailsPage.dart';
 import 'package:hadafi_application/interview.dart';
 import 'package:hadafi_application/welcome.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -59,8 +60,8 @@ class HadafiDrawer extends StatelessWidget {
             _buildDrawerItem(context, Icons.feedback, 'Feedback', null),
             _buildDrawerItem(
                 context, Icons.group, 'Communities', Communityhomescreen()),
-            _buildDrawerItem(context, Icons.bookmark_added, 'Saved Opportunities',
-                FavoritePage()),
+            _buildDrawerItem(context, Icons.bookmark_added,
+                'Saved Opportunities', FavoritePage()),
             ListTile(
               leading: const Icon(Icons.contact_mail, color: Color(0xFF113F67)),
               title: const Text('Contact us'),
@@ -160,17 +161,32 @@ class StudentHomePage extends StatefulWidget {
 }
 
 class _StudentHomePageState extends State<StudentHomePage> {
-  List<dynamic> recommendations = [];
+  List<dynamic> recommendations = []; //this is for the best match recs
   bool isLoading = true;
+  bool isLoadingProviderOpportunities =
+      true; // This will be used to track if data is still being fetched
+  List<dynamic> providerOpportunities =
+      []; // List to store the fetched opportunities
+  int selectedIndex = 0; // Initialize selectedIndex to 0 (for "Best Match" tab)
 
   final ValueNotifier<int> _tabNotifier = ValueNotifier<int>(0);
+  TabController? _tabController;
 
+  @override
   @override
   void initState() {
     super.initState();
+    // First, fetch recommendations, then fetch provider opportunities and user major
     fetchRecommendations();
+    fetchUserMajor().then((_) {
+      fetchProviderOpportunities().then((_) {
+        // After both fetches complete, filter the opportunities
+        filterProviderOpportunitiesByMajor();
+      });
+    });
   }
 
+//best match recs
   Future<void> fetchRecommendations() async {
     final String url = "http://10.0.2.2:5000/recommend";
 
@@ -221,6 +237,127 @@ class _StudentHomePageState extends State<StudentHomePage> {
     }
   }
 
+  Future<void> fetchProviderOpportunities() async {
+    try {
+      final opportunitiesRef =
+          FirebaseFirestore.instance.collection('opportunity');
+      final providerQuery = await opportunitiesRef.get();
+
+      List<dynamic> fetchedOpportunities = [];
+
+      for (var doc in providerQuery.docs) {
+        // Extract fields for each opportunity from Firestore
+        final jobTitle = doc['jobTitle'];
+        final providerId = doc['providerUid']; // Get provider's ID
+        final description = doc['description'];
+        final jobType = doc['jobType'];
+        final major = doc['major']; // Major field for filtering
+        final locations = List<String>.from(doc['locations']);
+        final skills = List<String>.from(doc['skills']);
+        final startDate = doc['startDate'];
+        final duration = doc['duration'];
+        final endDate = doc['endDate'];
+
+        // Add default values for missing fields (if not already in Firestore)
+        final gpa5 = doc['gpaOutOf5'] ??
+            0.0; // Default value if GPA out of 5 doesn't exist
+        final gpa4 = doc['gpaOutOf4'] ??
+            0.0; // Default value if GPA out of 4 doesn't exist
+        final companyLink = doc['companyLink'] ??
+            ""; // Default value if Apply url doesn't exist
+
+        // Fetch the company name using the providerUid
+        final providerSnapshot = await FirebaseFirestore.instance
+            .collection('TrainingProvider')
+            .doc(providerId)
+            .get();
+
+        final companyName = providerSnapshot.exists
+            ? providerSnapshot['company_name']
+            : 'Unknown Company';
+
+        // Add the opportunity to the list
+        fetchedOpportunities.add({
+          'jobTitle': jobTitle,
+          'companyName': companyName,
+          'description': description,
+          'jobType': jobType,
+          'major': major,
+          'locations': locations,
+          'skills': skills,
+          'startDate': startDate,
+          'duration': duration,
+          'endDate': endDate,
+          'providerId': providerId,
+          'gpaOutOf5': gpa5, // Add GPA out of 5
+          'gpaOutOf4': gpa4, // Add GPA out of 4
+          'companyLink': companyLink, // Add Apply URL
+        });
+      }
+
+      print('Fetched ${providerQuery.docs.length} opportunities');
+      print('Provider Opportunities: $fetchedOpportunities');
+
+      setState(() {
+        providerOpportunities = fetchedOpportunities;
+        isLoadingProviderOpportunities = false;
+      });
+    } catch (e) {
+      print("An error occurred while fetching provider opportunities: $e");
+    }
+  }
+
+// in this part i will get the student major to display the other opportunities according to it
+  String userMajor = '';
+
+  Future<void> fetchUserMajor() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      print("User is not logged in.");
+      return;
+    }
+
+    try {
+      final userSnapshot = await FirebaseFirestore.instance
+          .collection(
+              'Student') // Ensure this is the correct collection for the student
+          .doc(user.uid)
+          .get();
+
+      if (userSnapshot.exists) {
+        final userData = userSnapshot.data();
+        userMajor = userData?['major'] ?? '';
+        print(
+            "User major: $userMajor"); // Debug: Check if the major is correctly fetched
+      }
+    } catch (e) {
+      print("An error occurred while fetching user major: $e");
+    }
+  }
+
+  List<dynamic> filteredProviderOpportunities = [];
+  Future<void> filterProviderOpportunitiesByMajor() async {
+    print("Starting to filter opportunities by major.");
+
+    // Debugging: print the fetched opportunities before filtering
+    print("Fetched Provider Opportunities: $providerOpportunities");
+
+    filteredProviderOpportunities = providerOpportunities.where((opportunity) {
+      final opportunityMajor = opportunity['major'] ?? '';
+      print("User Major: $userMajor, Opportunity Major: $opportunityMajor");
+
+      // Check if the opportunity's major exactly matches the user's major
+      return opportunityMajor.trim().toLowerCase() ==
+          userMajor.trim().toLowerCase();
+    }).toList();
+
+    print("Filtered Opportunities: $filteredProviderOpportunities");
+    setState(() {
+      isLoadingProviderOpportunities = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -228,11 +365,16 @@ class _StudentHomePageState extends State<StudentHomePage> {
       child: Builder(
         builder: (BuildContext context) {
           final TabController tabController = DefaultTabController.of(context)!;
+
+          // Listen to the tab changes
           tabController.addListener(() {
             if (!tabController.indexIsChanging) {
-              _tabNotifier.value = tabController.index;
+              setState(() {
+                selectedIndex = tabController.index;
+              });
             }
           });
+
           return Scaffold(
             backgroundColor: const Color(0xFFF3F9FB),
             drawer: const HadafiDrawer(),
@@ -247,7 +389,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         _buildSectionTitle('Training Opportunities'),
-                        _buildOpportunitiesTab(),
+                        _buildOpportunitiesTab(tabController),
                         _buildSectionTitle('Feedback from Users'),
                         _buildFeedbackList(),
                       ],
@@ -275,7 +417,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
     );
   }
 
-  Widget _buildOpportunitiesTab() {
+  Widget _buildOpportunitiesTab(TabController tabController) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
       child: SizedBox(
@@ -333,14 +475,17 @@ class _StudentHomePageState extends State<StudentHomePage> {
             ),
             Expanded(
               child: TabBarView(
+                controller: tabController,
                 children: [
                   OpportunitiesList(
                     title: 'Best Match Opportunities',
                     opportunities: recommendations,
+                    selectedIndex: selectedIndex,
                   ),
                   OpportunitiesList(
                     title: 'Other Opportunities',
-                    opportunities: [],
+                    opportunities: filteredProviderOpportunities,
+                    selectedIndex: selectedIndex,
                   ),
                 ],
               ),
@@ -384,10 +529,15 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
 class OpportunitiesList extends StatelessWidget {
   final String title;
-  final List<dynamic> opportunities;
+  final List<dynamic> opportunities; //best match
+  final int selectedIndex;
 
-  const OpportunitiesList(
-      {super.key, required this.title, required this.opportunities});
+  const OpportunitiesList({
+    super.key,
+    required this.title,
+    required this.opportunities,
+    required this.selectedIndex,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -409,13 +559,35 @@ class OpportunitiesList extends StatelessWidget {
       itemBuilder: (context, index) {
         final opportunity = opportunities[index];
 
-        final oppTitle = opportunity['Job Title'] ?? "Unknown Title";
-        final companyName = opportunity['Company Name'] ?? "Unknown Company";
-        final description =
-            opportunity['Description'] ?? "No description available.";
-        final applyUrl = opportunity['Apply url'] ?? "";
-        final gpa5 = opportunity['GPA out of 5'] ?? 0.0;
-        final gpa4 = opportunity['GPA out of 4'] ?? 0.0;
+        print("Opportunities inside the list: $opportunities");
+
+        // Conditionally use the correct key depending on the active tab
+        final oppTitle = selectedIndex == 0
+            ? opportunity['Job Title'] ?? "Unknown Title" // "Best Match"
+            : opportunity['jobTitle'] ?? "Unknown Title"; // "Other"
+
+        final companyName = selectedIndex == 0
+            ? opportunity['Company Name'] ?? "Unknown Company" // "Best Match"
+            : opportunity['companyName'] ?? "Unknown Company"; // "Other"
+
+        final description = selectedIndex == 0
+            ? opportunity['Description'] ??
+                "No description available." // "Best Match"
+            : opportunity['description'] ??
+                "No description available."; // "Other"
+
+        final applyUrl = selectedIndex == 0
+            ? opportunity['Apply url'] ?? "unknown" // "Best Match"
+            : opportunity['companyLink'] ?? "unkown"; // "Other"
+
+        final gpa5 = selectedIndex == 0
+            ? opportunity['GPA out of 5'] ?? 0.0 // "Best Match"
+            : opportunity['gpaOutOf5'] ?? 0.0; // "Other"
+
+        final gpa4 = selectedIndex == 0
+            ? opportunity['GPA out of 4'] ?? 0.0 // "Best Match"
+            : opportunity['gpaOutOf4'] ?? 0.0; // "Other"
+            
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 8.0),
@@ -519,24 +691,57 @@ class OpportunitiesList extends StatelessWidget {
                       Color.fromARGB(255, 105, 185, 255),
                     ],
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => OpportunityDetailsPage(
-                            jobTitle: oppTitle,
-                            companyName: companyName,
-                            description: description,
-                            applyUrl: applyUrl,
-                            similarity: 0.0,
-                            skills:
-                                List<String>.from(opportunity['Skills'] ?? []),
-                            location:
-                                (opportunity['Locations'] ?? []).join(', '),
-                            gpa5: gpa5,
-                            gpa4: gpa4,
+                      // Check which tab is currently selected
+                      if (selectedIndex == 0) {
+                        // Best match tab - navigate to OpportunityDetailsPage
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => OpportunityDetailsPage(
+                              jobTitle: oppTitle,
+                              companyName: companyName,
+                              description: description,
+                              applyUrl: applyUrl,
+                              similarity: 0.0,
+                              skills: List<String>.from(
+                                  opportunity['Skills'] ?? []),
+                              location:
+                                  (opportunity['Locations'] ?? []).join(', '),
+                              gpa5: gpa5,
+                              gpa4: gpa4,
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      } else {
+                        // Other tab - navigate to TpOpportunityDetailsPage
+                        Navigator.push(
+                          context,
+MaterialPageRoute(
+  builder: (context) => TpOpportunityDetailsPage(
+    jobTitle: oppTitle,
+    companyName: companyName,
+    description: description,
+    applyUrl: applyUrl,
+    skills: List<String>.from(opportunity['skills'] ?? []),
+    location: (opportunity['locations'] ?? []).join(', '),
+    gpa5: (opportunity['gpaOutOf5'] is double)
+        ? opportunity['gpaOutOf5']
+        : double.tryParse(opportunity['gpaOutOf5'].toString()) ?? 0.0,
+    gpa4: (opportunity['gpaOutOf4'] is double)
+        ? opportunity['gpaOutOf4']
+        : double.tryParse(opportunity['gpaOutOf4'].toString()) ?? 0.0,
+    duration: opportunity['duration'] ?? "",
+    endDate: opportunity['endDate'] ?? "",
+    createdAt: opportunity['createdAt'] ?? "",
+    startDate: opportunity['startDate'] ?? "",  // Added startDate
+    jobType: opportunity['jobType'] ?? "",      // Added jobType
+    major: opportunity['major'] ?? "",          // Added major
+    contactInfo: opportunity['contactInfo'] ?? "", // Added contactInfo
+  ),
+),
+
+                        );
+                      }
                     },
                   ),
                 ]),

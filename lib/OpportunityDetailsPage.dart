@@ -42,7 +42,7 @@ class OpportunityDetailsPage extends StatelessWidget {
           "Company Details",
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: const Color(0xFF096499),
+        backgroundColor: const Color(0xFF113F67),
         centerTitle: true,
         iconTheme: const IconThemeData(
           color: Colors.white,

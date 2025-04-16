@@ -27,39 +27,50 @@ class FavoriteProvider extends ChangeNotifier {
     });
   }
 
-  Future<void> loadFavorites() async {
-    final user = _auth.currentUser;
-    if (user == null) {
-      _favoriteOpps.clear();
-      _isLoading = false;
+Future<void> loadFavorites() async {
+  final user = _auth.currentUser;
+  if (user == null) {
+    _favoriteOpps.clear();
+    _isLoading = false;
+    
+    Future.delayed(Duration.zero, () {
       notifyListeners();
-      return;
-    }
-
-    _currentUserId = user.uid;
-    _isLoading = true; 
-    notifyListeners();
-
-    try {
-      final snapshot = await _firestore
-          .collection('Student')
-          .doc(_currentUserId)
-          .collection('favorites')
-          .get();
-
-      _favoriteOpps = snapshot.docs.map((doc) {
-        final data = doc.data();
-        data['id'] = doc.id;  
-        return data;
-      }).toList();
-
-    } catch (e) {
-      print("Error loading favorites: $e");
-    }
-
-    _isLoading = false; 
-    notifyListeners();
+    });
+    return;
   }
+
+  _currentUserId = user.uid;
+  _isLoading = true;
+ 
+  Future.delayed(Duration.zero, () {
+    notifyListeners();
+  });
+
+  try {
+    final snapshot = await _firestore
+        .collection('Student')
+        .doc(_currentUserId)
+        .collection('favorites')
+        .get();
+
+    _favoriteOpps = snapshot.docs.map((doc) {
+      final data = doc.data();
+      data['id'] = doc.id;  
+      return data;
+    }).toList();
+
+  } catch (e) {
+    print("Error loading favorites: $e");
+  }
+
+  _isLoading = false;
+
+  
+  Future.delayed(Duration.zero, () {
+    notifyListeners();
+  });
+}
+
 
   Future<void> toggleFavorite(Map<String, dynamic> opportunity) async {
     final user = _auth.currentUser;
