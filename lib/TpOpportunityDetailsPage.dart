@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';  // Import the intl package
+import 'package:intl/intl.dart'; // Import the intl package
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hadafi_application/favoriteProvider.dart';
@@ -46,7 +46,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
     required this.contactInfo,
   });
 
-  // Function to format the date
+  // put the date in a 2 apr,2025 format
   String formatDate(String date) {
     final DateFormat formatter = DateFormat('dd MMM, yyyy');
     final DateTime parsedDate = DateTime.parse(date);
@@ -75,7 +75,6 @@ class TpOpportunityDetailsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Job Title and Company Name with Save Icon
             Container(
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
@@ -126,7 +125,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                           softWrap: true,
                         ),
                       ),
-     Align(
+                      Align(
                         alignment: Alignment.centerRight,
                         child: Consumer(
                           builder: (context, ref, child) {
@@ -138,19 +137,23 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                               onTap: () {
                                 final wasFavorited = isFavorited;
 
-                                final favoriteOpp = {
-                                  'Job Title': jobTitle,
-                                  'Company Name': companyName,
-                                  'Description': description,
-                                  'Apply url': applyUrl,
-                                  'GPA out of 5': gpa5,
-                                  'GPA out of 4': gpa4,
-                                  'Locations': location
-                                      .split(',')
-                                      .map((loc) => loc.trim())
-                                      .toList(),
-                                  'Skills': skills.isNotEmpty ? skills : [],
-                                };
+                 final favoriteOpp = {
+  'Job Title': jobTitle,
+  'Company Name': companyName,
+  'Description': description,
+  'Apply url': applyUrl,
+  'GPA out of 5': gpa5,
+  'GPA out of 4': gpa4,
+  'Locations': location.split(',').map((loc) => loc.trim()).toList(),
+  'Skills': skills.isNotEmpty ? skills : [],
+  'Duration': duration,
+  'Start Date': startDate,
+  'End Date': endDate,
+  'Major': major,
+  'Contact Info': contactInfo,
+ 
+};
+
 
                                 ref
                                     .read(favoriteProvider.notifier)
@@ -193,8 +196,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                                       ? Colors.amber[400]
                                       : Colors.white,
                                   size: correctSize(context, 72),
-                                  key: ValueKey<bool>(
-                                      isFavorited), 
+                                  key: ValueKey<bool>(isFavorited),
                                 ),
                               ),
                             );
@@ -207,7 +209,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            // Job Type Card
+            // Job
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -217,11 +219,12 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
-                    const Icon(Icons.work, color: Color(0xFF096499)),  // Icon for Job Type
+                    const Icon(Icons.work,
+                        color: Color(0xFF096499)), // Icon for Job Type
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        jobType,  // Display the job type here
+                        jobType, // Display the job type here
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -233,7 +236,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 5),
             // Expandable Description with info icon
             Card(
               elevation: 4,
@@ -241,14 +244,15 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: ExpansionTile(
-                leading: const Icon(Icons.info_outline, color: Color(0xFF096499)),
+                leading:
+                    const Icon(Icons.info_outline, color: Color(0xFF096499)),
                 title: const Text(
                   "Description",
                   style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF096499),
-                  ),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF096499),
+                    ),
                 ),
                 children: [
                   Padding(
@@ -261,7 +265,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 5),
             // Location
             Card(
               elevation: 4,
@@ -288,15 +292,16 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            // Major Card
+           const SizedBox(height: 5),
+            // Major 
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               child: ExpansionTile(
-                leading: const Icon(Icons.school, color: Color(0xFF096499)), // Icon for Major
+                leading: const Icon(Icons.school,
+                    color: Color(0xFF096499)), // Icon for Major
                 title: const Text(
                   "Major",
                   style: TextStyle(
@@ -311,8 +316,10 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                     child: Text(
                       major, // Display the major here
                       style: const TextStyle(
-                        fontSize: 16, // Adjusted to be consistent with Description font size
-                        fontWeight: FontWeight.normal, // Light weight for the text
+                        fontSize:
+                            16, // Adjusted to be consistent with Description font size
+                        fontWeight:
+                            FontWeight.normal, // Light weight for the text
                         color: Colors.black87, // Keep the color consistent
                         height: 1.5, // Similar line height to the Description
                       ),
@@ -321,6 +328,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 5),
             // Skills
             Card(
               elevation: 4,
@@ -328,7 +336,8 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: ExpansionTile(
-                leading: const Icon(Icons.lightbulb_outline, color: Color(0xFF096499)),
+                leading: const Icon(Icons.lightbulb_outline,
+                    color: Color(0xFF096499)),
                 title: const Text(
                   "Skills Required",
                   style: TextStyle(
@@ -345,7 +354,10 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                       children: skills.map((skill) {
                         return Row(
                           children: [
-                            const Icon(Icons.circle, size: 8, color: Color(0xFF096499)), // Small icon for each skill
+                            const Icon(Icons.circle,
+                                size: 8,
+                                color: Color(
+                                    0xFF096499)), // Small icon for each skill
                             const SizedBox(width: 8),
                             Text(
                               skill,
@@ -359,7 +371,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 5),
             // GPA
             if (hasGpa)
               Card(
@@ -368,7 +380,8 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: ExpansionTile(
-                  leading: const Icon(Icons.gpp_maybe, color: Color(0xFF096499)), // Leading Icon for GPA
+                  leading: const Icon(Icons.gpp_maybe,
+                      color: Color(0xFF096499)), // Leading Icon for GPA
                   title: const Text(
                     "GPA Requirements",
                     style: TextStyle(
@@ -386,22 +399,30 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                           if (gpa5 > 0)
                             Row(
                               children: [
-                                const Icon(Icons.star, color: Colors.orange, size: 16),  // Icon for GPA out of 5
+                                const Icon(Icons.star,
+                                    color: Colors.orange,
+                                    size: 16), // Icon for GPA out of 5
                                 const SizedBox(width: 8),
                                 Text(
                                   "GPA out of 5: ${gpa5.toStringAsFixed(2)}",
-                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                                  style: const TextStyle(
+                                      fontSize: 16,
+                                      ),
                                 ),
                               ],
                             ),
                           if (gpa4 > 0)
                             Row(
                               children: [
-                                const Icon(Icons.star, color: Colors.blue, size: 16),  // Icon for GPA out of 4
+                                const Icon(Icons.star,
+                                    color: Colors.blue,
+                                    size: 16), // Icon for GPA out of 4
                                 const SizedBox(width: 8),
                                 Text(
                                   "GPA out of 4: ${gpa4.toStringAsFixed(2)}",
-                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                                  style: const TextStyle(
+                                      fontSize: 16,
+                                      ),
                                 ),
                               ],
                             ),
@@ -411,15 +432,16 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                   ],
                 ),
               ),
-            const SizedBox(height: 16),
-            // Start Date, End Date, Duration
+            const SizedBox(height: 5),
+            // date info
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               child: ExpansionTile(
-                leading: const Icon(Icons.calendar_today, color: Color(0xFF096499)),
+                leading:
+                    const Icon(Icons.calendar_today, color: Color(0xFF096499)),
                 title: const Text(
                   "Date Information",
                   style: TextStyle(
@@ -436,12 +458,15 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.calendar_today, color: Color(0xFF096499), size: 16),
+                            const Icon(Icons.calendar_today,
+                                color: Color(0xFF096499), size: 16),
                             const SizedBox(width: 8),
                             Text(
                               "Start Date: ${(String date) {
-                                final DateFormat formatter = DateFormat('dd MMM, yyyy');
-                                final DateTime parsedDate = DateTime.parse(date);
+                                final DateFormat formatter =
+                                    DateFormat('dd MMM, yyyy');
+                                final DateTime parsedDate =
+                                    DateTime.parse(date);
                                 return formatter.format(parsedDate);
                               }(startDate)}",
                               style: const TextStyle(fontSize: 16),
@@ -451,12 +476,15 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            const Icon(Icons.calendar_today, color: Color(0xFF096499), size: 16),
+                            const Icon(Icons.calendar_today,
+                                color: Color(0xFF096499), size: 16),
                             const SizedBox(width: 8),
                             Text(
                               "End Date: ${(String date) {
-                                final DateFormat formatter = DateFormat('dd MMM, yyyy');
-                                final DateTime parsedDate = DateTime.parse(date);
+                                final DateFormat formatter =
+                                    DateFormat('dd MMM, yyyy');
+                                final DateTime parsedDate =
+                                    DateTime.parse(date);
                                 return formatter.format(parsedDate);
                               }(endDate)}",
                               style: const TextStyle(fontSize: 16),
@@ -466,7 +494,8 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            const Icon(Icons.timer, color: Color(0xFF096499), size: 16),
+                            const Icon(Icons.timer,
+                                color: Color(0xFF096499), size: 16),
                             const SizedBox(width: 8),
                             Text(
                               "Duration: $duration",
@@ -480,8 +509,8 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
-            // Contact Info Card
+            const SizedBox(height: 5),
+            // Contact Info 
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -507,9 +536,9 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            
 
-            // Company Apply Link Card
+            // Company applu link
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -524,11 +553,13 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                     Expanded(
                       child: InkWell(
                         onTap: () async {
-                          if (applyUrl.isNotEmpty && await canLaunchUrl(Uri.parse(applyUrl))) {
+                          if (applyUrl.isNotEmpty &&
+                              await canLaunchUrl(Uri.parse(applyUrl))) {
                             await launchUrl(Uri.parse(applyUrl));
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Could not open the URL")),
+                              const SnackBar(
+                                  content: Text("Could not open the URL")),
                             );
                           }
                         },
@@ -553,7 +584,8 @@ class TpOpportunityDetailsPage extends StatelessWidget {
             Center(
               child: ElevatedButton(
                 onPressed: () async {
-                  if (applyUrl.isNotEmpty && await canLaunchUrl(Uri.parse(applyUrl))) {
+                  if (applyUrl.isNotEmpty &&
+                      await canLaunchUrl(Uri.parse(applyUrl))) {
                     await launchUrl(Uri.parse(applyUrl));
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -563,7 +595,8 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF096499),
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -574,7 +607,8 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                   children: const [
                     Icon(Icons.send, color: Colors.white),
                     SizedBox(width: 8),
-                    Text("Apply Now", style: TextStyle(color: Colors.white, fontSize: 16)),
+                    Text("Apply Now",
+                        style: TextStyle(color: Colors.white, fontSize: 16)),
                   ],
                 ),
               ),
@@ -583,9 +617,9 @@ class TpOpportunityDetailsPage extends StatelessWidget {
         ),
       ),
     );
-    
   }
-      double correctSize(BuildContext context, double px) {
+
+  double correctSize(BuildContext context, double px) {
     return px / MediaQuery.of(context).devicePixelRatio;
   }
 }
