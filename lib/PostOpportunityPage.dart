@@ -19,7 +19,7 @@ class _PostOpportunityPageState extends State<PostOpportunityPage> {
   final TextEditingController companyLinkController = TextEditingController();
   final TextEditingController durationController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
-  final TextEditingController majorController = TextEditingController();
+  
   final TextEditingController gpa4Controller = TextEditingController();
   final TextEditingController gpa5Controller = TextEditingController();
    final TextEditingController jobTypeController = TextEditingController();
@@ -27,7 +27,7 @@ class _PostOpportunityPageState extends State<PostOpportunityPage> {
 
 
 
-  String? selectedMajor;
+  List<String> selectedMajors = [];
   String? selectedJobType;
   List<String> selectedLocations = [];
   // List<String> selectedSkills = [];
@@ -46,7 +46,7 @@ List<String> selectedManagementSkills = [];
   bool isStartDateValid = true;
   bool isEndDateValid = true;
   bool isDurationValid = true;
-  bool isMajorValid = true;
+  bool isMajorsValid = true;
   bool isGpa4Valid = true;
   bool isGpa5Valid = true;
   bool isContactInfoValid = true;
@@ -335,17 +335,13 @@ final List<String> managementSkills = [
               ),
             const SizedBox(height: 15),
 
-            _buildDropdown('Select Major', majorController, majors, (value) {
-              setState(() {
-                majorController.text = value;
-                selectedMajor = value;
-              });
-            }),
-            if (!isMajorValid)
+            _buildMultiSelectField('Select Majors', majors, selectedMajors),
+            if (!isMajorsValid)
               const Padding(
                 padding: EdgeInsets.only(top: 4),
-                child: Text("This field is required", style: TextStyle(color: Colors.red)),
+                child: Text("Please select at least one major", style: TextStyle(color: Colors.red)),
               ),
+
             const SizedBox(height: 15),
 
             Text("GPA:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF113F67))),
@@ -400,7 +396,7 @@ final List<String> managementSkills = [
                       isStartDateValid = startDate != null;
                       isEndDateValid = endDate != null;
                       isDurationValid = durationController.text.trim().isNotEmpty;
-                      isMajorValid = majorController.text.trim().isNotEmpty;
+                      isMajorsValid = selectedMajors.isNotEmpty;
                       isGpa4Valid = gpa4Controller.text.trim().isNotEmpty;
                       isGpa5Valid = gpa5Controller.text.trim().isNotEmpty;
                       isContactInfoValid = contactInfoController.text.trim().isNotEmpty;
@@ -415,8 +411,8 @@ final List<String> managementSkills = [
                         isLocationValid &&
                         isStartDateValid &&
                         isEndDateValid &&
-                        isDurationValid &&
-                        isMajorValid &&
+                        isDurationValid && 
+                        isMajorsValid&&
                         isGpa4Valid &&
                         isGpa5Valid && 
                         isContactInfoValid &&
@@ -441,7 +437,7 @@ final List<String> managementSkills = [
                           'startDate': startDate?.toIso8601String(),
                           'endDate': endDate?.toIso8601String(),
                           'duration': durationController.text.trim(),
-                          'major': majorController.text.trim(),
+                          'majors': selectedMajors,
                           'gpaOutOf4': gpa4Controller.text.trim(),
                           'gpaOutOf5': gpa5Controller.text.trim(),
                           'companyLink': companyLinkController.text.trim(),
