@@ -27,11 +27,12 @@ class _EditTpPostedOpportunityState extends State<EditTpPostedOpportunity> {
   final TextEditingController jobTypeController = TextEditingController();
   final TextEditingController contactInfoController = TextEditingController();
 
-  String? selectedMajor;
+
   String? selectedJobType;
   List<String> selectedLocations = [];
   DateTime? startDate;
   DateTime? endDate;
+List<String> selectedMajors = [];
 
   bool isEditing = false;
   bool isJobTitleValid = true;
@@ -311,13 +312,19 @@ class _EditTpPostedOpportunityState extends State<EditTpPostedOpportunity> {
         startDate = DateTime.parse(opportunityData['startDate']);
         endDate = DateTime.parse(opportunityData['endDate']);
         durationController.text = opportunityData['duration'];
-        majorController.text = opportunityData['major'];
+        final majorsList = opportunityData['major'];
+if (majorsList is List) {
+  selectedMajors = List<String>.from(majorsList);
+} else if (majorsList is String) {
+  selectedMajors = [majorsList]; 
+}
+
         gpa4Controller.text = opportunityData['gpaOutOf4'];
         gpa5Controller.text = opportunityData['gpaOutOf5'];
         companyLinkController.text = opportunityData['companyLink'];
         contactInfoController.text = opportunityData['contactInfo'];
 
-        // Assuming skills are stored as a list in Firestore
+
         selectedSoftSkills = List<String>.from(opportunityData['skills']
             .where((skill) => softSkills.contains(skill)));
         selectedTechnicalSkills = List<String>.from(opportunityData['skills']
@@ -325,7 +332,7 @@ class _EditTpPostedOpportunityState extends State<EditTpPostedOpportunity> {
         selectedManagementSkills = List<String>.from(opportunityData['skills']
             .where((skill) => managementSkills.contains(skill)));
 
-        setState(() {}); // Refresh UI after data is loaded
+        setState(() {}); 
       }
     } catch (e) {
       print("Error loading opportunity data: $e");
@@ -344,12 +351,12 @@ class _EditTpPostedOpportunityState extends State<EditTpPostedOpportunity> {
         centerTitle: true,
         title: const Text('Edit Opportunity', style: TextStyle(color: Colors.white)),
         actions: [
-          if (!isEditing) // Only show the pin icon when not editing
+          if (!isEditing) 
             IconButton(
-              icon: const Icon(Icons.edit), // Pin (edit) icon
+              icon: const Icon(Icons.edit), 
               onPressed: () {
                 setState(() {
-                  isEditing = true; // Enable editing mode when pin icon is clicked
+                  isEditing = true; 
                 });
               },
             ),
@@ -358,7 +365,7 @@ class _EditTpPostedOpportunityState extends State<EditTpPostedOpportunity> {
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: SingleChildScrollView(
-          controller: _scrollController, // Use the scroll controller
+          controller: _scrollController, 
           child: Form(
             key: _formKey,
             child: Column(
@@ -392,14 +399,10 @@ class _EditTpPostedOpportunityState extends State<EditTpPostedOpportunity> {
                   });
                 }),
                 const SizedBox(height: 15),
-                _buildDropdown('Select Major', majorController, majors, (value) {
-                  setState(() {
-                    majorController.text = value;
-                  });
-                }),
+                _buildMultiSelectField('Select Majors', majors, selectedMajors),
                 const SizedBox(height: 15),
                   Align(
-  alignment: Alignment.centerLeft,  // Aligns to the left
+  alignment: Alignment.centerLeft,  
   child: Text(
     "GPA:",
     style: TextStyle(
@@ -413,10 +416,10 @@ class _EditTpPostedOpportunityState extends State<EditTpPostedOpportunity> {
                 _buildGpaInputs(),
 
       Column(
-  crossAxisAlignment: CrossAxisAlignment.start,  // Align children to the left
+  crossAxisAlignment: CrossAxisAlignment.start,  
   children: [
     Align(
-      alignment: Alignment.centerLeft,  // Align to the left
+      alignment: Alignment.centerLeft,  
       child: Text(
         "Skills:",
         style: TextStyle(
@@ -427,7 +430,7 @@ class _EditTpPostedOpportunityState extends State<EditTpPostedOpportunity> {
       ),
     ),
     Align(
-      alignment: Alignment.centerLeft,  // Align to the left
+      alignment: Alignment.centerLeft,  
       child: Text(
         "Please choose at least one skill from any category",
         style: TextStyle(
@@ -509,15 +512,15 @@ Widget _buildTextField(String label, TextEditingController controller,
             (isRequired
                 ? (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'This field is required'; // Error message for empty fields
+                      return 'This field is required'; 
                     }
                     return null;
                   }
                 : null),
-        enabled: isEditing, // Disable fields when not editing
+        enabled: isEditing, 
       ),
       const SizedBox(height: 5),
-      // Error message is displayed under the TextFormField automatically
+
     ],
   );
 }
@@ -540,14 +543,14 @@ Widget _buildDropdown(String label, TextEditingController controller,
         validator: (value) => value == null || value.trim().isEmpty
             ? 'This field is required'
             : null,
-        enabled: isEditing, // Disable dropdown when not editing
+        enabled: isEditing, 
       ),
     ),
   );
 }
 
 void _showSelectionDialog(String title, List<String> items, TextEditingController controller, Function(String) onSelected) {
-  List<String> filteredItems = List.from(items);  // Start with all items
+  List<String> filteredItems = List.from(items);  
 
   showDialog(
     context: context,
@@ -562,12 +565,12 @@ void _showSelectionDialog(String title, List<String> items, TextEditingControlle
               style: TextStyle(color: mainColor, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-            // Search TextField to filter options
+     
             TextField(
               decoration: const InputDecoration(labelText: 'Search'),
               onChanged: (value) {
                 setState(() {
-                  // Update filtered items based on the search input
+        
                   filteredItems = items.where((item) => item.toLowerCase().contains(value.toLowerCase())).toList();
                 });
               },
@@ -586,7 +589,7 @@ void _showSelectionDialog(String title, List<String> items, TextEditingControlle
               onChanged: (value) {
                 controller.text = value!;
                 onSelected(value);
-                Navigator.of(context).pop();  // Close the dialog after selection
+                Navigator.of(context).pop(); 
               },
             )).toList(),
           ),
@@ -624,7 +627,7 @@ Widget _buildMultiSelectField(
               }
               return null;
             },
-            enabled: isEditing, // Disable when not editing
+            enabled: isEditing, 
           ),
         ),
       ),
@@ -655,7 +658,7 @@ Widget _buildMultiSelectField(
 }
 void _showMultiSelectDialog(
     String title, List<String> items, List<String> selectedItems) {
-  List<String> filteredItems = List.from(items);  // Start with all items
+  List<String> filteredItems = List.from(items);  
 
   showDialog(
     context: context,
@@ -670,12 +673,12 @@ void _showMultiSelectDialog(
               style: TextStyle(color: mainColor, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-            // Search TextField to filter options
+        
             TextField(
               decoration: const InputDecoration(labelText: 'Search'),
               onChanged: (value) {
                 setState(() {
-                  // Update filtered items based on the search input
+              
                   filteredItems = items
                       .where((item) => item.toLowerCase().contains(value.toLowerCase()))
                       .toList();
@@ -704,7 +707,7 @@ void _showMultiSelectDialog(
         ),
         actions: [
           ElevatedButton(
-            onPressed: () => Navigator.pop(context),  // Close the dialog after selection
+            onPressed: () => Navigator.pop(context),  
             style: ElevatedButton.styleFrom(
               backgroundColor: mainColor,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -754,7 +757,7 @@ void _showMultiSelectDialog(
               return 'Use up to two decimal places (e.g., 3.25)';
             }
 
-            gpa4Controller.text = gpa.toStringAsFixed(2); // Normalize format
+            gpa4Controller.text = gpa.toStringAsFixed(2); 
             return null;
           },
         ),
@@ -796,12 +799,12 @@ void _showMultiSelectDialog(
     );
   }
 
-// Modify the _buildDatePicker method to disable the date picker
+
 Widget _buildDatePicker(
       String label, DateTime? selectedDate, Function(DateTime) onPicked) {
     return GestureDetector(
       onTap: () async {
-        if (isEditing) { // Only show the date picker if editing is enabled
+        if (isEditing) { 
           DateTime? picked = await showDatePicker(
             context: context,
             initialDate: selectedDate ?? DateTime.now(),
@@ -846,20 +849,20 @@ Widget _buildDatePicker(
           validator: (value) => (value == null || value.trim().isEmpty)
               ? 'This field is required'
               : null,
-          enabled: isEditing, // Disable date picker when not editing
+          enabled: isEditing,
         ),
       ),
     );
   }
 
- // Modify the _buildSkillSelector method for disabling skills
+
 Widget _buildSkillSelector(
       String label, List<String> allSkills, List<String> selectedSkills) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         GestureDetector(
-          onTap: isEditing // Disable the skill selection when not editing
+          onTap: isEditing 
               ? () => _showMultiSelectDialog(label, allSkills, selectedSkills)
               : null,
           child: AbsorbPointer(
@@ -872,7 +875,7 @@ Widget _buildSkillSelector(
               ),
               controller:
                   TextEditingController(text: selectedSkills.join(', ')),
-              enabled: isEditing, // Disable when not editing
+              enabled: isEditing, 
             ),
           ),
         ),
@@ -887,7 +890,7 @@ Widget _buildSkillSelector(
                     deleteIconColor: const Color(0xFF113F67),
                     onDeleted: isEditing
                         ? () => setState(() => selectedSkills.remove(skill))
-                        : null, // Disable delete action when not editing
+                        : null, 
                   ))
               .toList(),
         ),
@@ -898,7 +901,7 @@ Widget _buildSkillSelector(
 
 void _saveData() async {
   if (_formKey.currentState!.validate()) {
-    // Check if at least one skill is selected
+
     if (selectedSoftSkills.isEmpty && selectedTechnicalSkills.isEmpty && selectedManagementSkills.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please select at least one skill")),
@@ -906,7 +909,7 @@ void _saveData() async {
       return;
     }
 
-    // Check GPA validity
+
     final gpa4 = double.tryParse(gpa4Controller.text);
     final gpa5 = double.tryParse(gpa5Controller.text);
 
@@ -925,7 +928,7 @@ void _saveData() async {
     }
 
     try {
-      // Collecting the updated opportunity data
+     
       final opportunityData = {
         'jobTitle': jobTitleController.text.trim(),
         'jobType': jobTypeController.text.trim(),
@@ -934,7 +937,8 @@ void _saveData() async {
         'startDate': startDate?.toIso8601String(),
         'endDate': endDate?.toIso8601String(),
         'duration': durationController.text.trim(),
-        'major': majorController.text.trim(),
+        'major': selectedMajors,
+
         'gpaOutOf4': gpa4Controller.text.trim(),
         'gpaOutOf5': gpa5Controller.text.trim(),
         'companyLink': companyLinkController.text.trim(),
@@ -948,24 +952,23 @@ void _saveData() async {
         'createdAt': FieldValue.serverTimestamp(),
       };
 
-      // Saving the opportunity data to Firestore
+
       await FirebaseFirestore.instance
           .collection('opportunity')
           .doc(widget.opportunityId)
           .update(opportunityData);
 
-      // Show success message
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Opportunity updated successfully")),
       );
 
-      // Navigate to the home page after successful save
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => TrainingProviderHomePage()),
       );
     } catch (e) {
-      // Handle errors during the save process
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to update opportunity: $e")),
       );

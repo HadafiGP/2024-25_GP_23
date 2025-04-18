@@ -150,7 +150,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
   'Start Date': startDate,
   'End Date': endDate,
   'Major': major,
-  'Contact Info': contactInfo,
+  'contactInfo': contactInfo,
  
 };
 
@@ -220,11 +220,11 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                 child: Row(
                   children: [
                     const Icon(Icons.work,
-                        color: Color(0xFF096499)), // Icon for Job Type
+                        color: Color(0xFF096499)), 
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        jobType, // Display the job type here
+                        jobType, 
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -237,7 +237,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 5),
-            // Expandable Description with info icon
+            
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -314,14 +314,14 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: Text(
-                      major, // Display the major here
+                      major, 
                       style: const TextStyle(
                         fontSize:
-                            16, // Adjusted to be consistent with Description font size
+                            16, 
                         fontWeight:
-                            FontWeight.normal, // Light weight for the text
-                        color: Colors.black87, // Keep the color consistent
-                        height: 1.5, // Similar line height to the Description
+                            FontWeight.normal, 
+                        color: Colors.black87, 
+                        height: 1.5, 
                       ),
                     ),
                   ),
@@ -357,7 +357,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                             const Icon(Icons.circle,
                                 size: 8,
                                 color: Color(
-                                    0xFF096499)), // Small icon for each skill
+                                    0xFF096499)), 
                             const SizedBox(width: 8),
                             Text(
                               skill,
@@ -381,7 +381,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                 ),
                 child: ExpansionTile(
                   leading: const Icon(Icons.gpp_maybe,
-                      color: Color(0xFF096499)), // Leading Icon for GPA
+                      color: Color(0xFF096499)), 
                   title: const Text(
                     "GPA Requirements",
                     style: TextStyle(
@@ -401,7 +401,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                               children: [
                                 const Icon(Icons.star,
                                     color: Colors.orange,
-                                    size: 16), // Icon for GPA out of 5
+                                    size: 16), 
                                 const SizedBox(width: 8),
                                 Text(
                                   "GPA out of 5: ${gpa5.toStringAsFixed(2)}",
@@ -416,7 +416,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                               children: [
                                 const Icon(Icons.star,
                                     color: Colors.blue,
-                                    size: 16), // Icon for GPA out of 4
+                                    size: 16), 
                                 const SizedBox(width: 8),
                                 Text(
                                   "GPA out of 4: ${gpa4.toStringAsFixed(2)}",
