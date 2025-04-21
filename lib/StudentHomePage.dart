@@ -500,7 +500,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
               const Text(
                 "Care to share your experience?",
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF113F67),
                 ),
@@ -540,6 +540,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
+                
                 itemCount: docs.length + 1,
                 itemBuilder: (context, index) {
                   if (index < docs.length) {
@@ -567,13 +568,13 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
                         return Container(
                           width: 240,
-                          margin: const EdgeInsets.all(8),
+                          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                           padding: const EdgeInsets.all(12),
+                          
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
-                            border:
-                                Border.all(color: Color(0xFF113F67), width: 2),
+
                             boxShadow: const [
                               BoxShadow(
                                 color: Colors.black12,

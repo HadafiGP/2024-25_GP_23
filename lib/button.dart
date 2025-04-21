@@ -39,7 +39,7 @@ class GradientButton extends StatelessWidget {
               text,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: fontSize ?? 14,
+                fontSize: fontSize ?? 13.25,
                 fontWeight: FontWeight.bold,
               ),
             ),
