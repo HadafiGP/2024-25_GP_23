@@ -16,6 +16,8 @@ import 'package:hadafi_application/CV.dart';
 import 'package:hadafi_application/Community/CommunityHomeScreen.dart';
 import 'package:hadafi_application/favoriteProvider.dart';
 import 'package:hadafi_application/favoriteList.dart';
+import 'package:hadafi_application/Feedback/feedback.dart';
+import 'package:hadafi_application/Feedback/allFeedback.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -57,7 +59,8 @@ class HadafiDrawer extends StatelessWidget {
               'Interview Simulator',
               const InterviewPage(),
             ),
-            _buildDrawerItem(context, Icons.feedback, 'Feedback', null),
+            _buildDrawerItem(
+                context, Icons.feedback, 'Feedback', FeedbackScreen()),
             _buildDrawerItem(
                 context, Icons.group, 'Communities', Communityhomescreen()),
             _buildDrawerItem(context, Icons.bookmark_added,
@@ -174,7 +177,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
   @override
   void initState() {
     super.initState();
-    
+
     fetchRecommendations();
     fetchUserMajor().then((_) {
       fetchProviderOpportunities().then((_) {
@@ -255,9 +258,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
         final duration = doc['duration'];
         final endDate = doc['endDate'];
 
-
-           final contactInfo =
-                  doc['contactInfo'] ?? 'Not provided';
+        final contactInfo = doc['contactInfo'] ?? 'Not provided';
 
         final gpa5 = doc['gpaOutOf5'] ?? 0.0;
         final gpa4 = doc['gpaOutOf4'] ?? 0.0;
@@ -332,8 +333,6 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
   List<dynamic> filteredProviderOpportunities = [];
   Future<void> filterProviderOpportunitiesByMajor() async {
-
-
     filteredProviderOpportunities = providerOpportunities.where((opportunity) {
       final opportunityMajors = opportunity['major'];
 
@@ -345,8 +344,6 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
       return false;
     }).toList();
-
-
 
     setState(() {
       isLoadingProviderOpportunities = false;
@@ -491,33 +488,185 @@ class _StudentHomePageState extends State<StudentHomePage> {
     );
   }
 
-  Widget _buildFeedbackList() {
-    return SizedBox(
-      height: 150,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: 5,
-        itemBuilder: (context, index) {
-          return Container(
-            width: 200,
-            margin: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF113F67), width: 2),
-              boxShadow: const [
-                BoxShadow(
-                    color: Colors.black12, blurRadius: 5, spreadRadius: 2),
-              ],
-            ),
-            child: ListTile(
-              title: Text('User ${index + 1}'),
-              subtitle:
-                  const Text('This app helped me find a great internship!'),
-            ),
-          );
-        },
-      ),
+ Widget _buildFeedbackList() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          
+          child: Row(
+            children: [
+              const Text(
+                "Care to share your experience?",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF113F67),
+                ),
+              ),
+              const Spacer(),
+              GradientButton(
+                text: "Share",
+                gradientColors: [
+                  const Color(0xFF113F67),
+                  Color.fromARGB(255, 105, 185, 255),
+                ],
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => FeedbackScreen()),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 5,),
+        SizedBox(
+          height: 160,
+          child: FutureBuilder<QuerySnapshot>(
+            future: FirebaseFirestore.instance
+                .collection('Feedback')
+                .orderBy('timestamp', descending: true)
+                .limit(3)
+                .get(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final docs = snapshot.data!.docs;
+
+              return ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: docs.length + 1,
+                itemBuilder: (context, index) {
+                  if (index < docs.length) {
+                    final data = docs[index].data() as Map<String, dynamic>;
+
+                    return FutureBuilder<DocumentSnapshot>(
+                      future: FirebaseFirestore.instance
+                          .collection('Student')
+                          .doc(data['uid'])
+                          .get(),
+                      builder: (context, userSnapshot) {
+                        final name = userSnapshot.hasData
+                            ? (userSnapshot.data!.data()
+                                    as Map<String, dynamic>)['name'] ??
+                                'User'
+                            : 'User';
+
+                        final rating = data['rating'] ?? 0;
+                        final experience = data['experience'] ?? '';
+
+                        final topicsRaw = data['topic'];
+                        final List<String> topics = topicsRaw is List
+                            ? List<String>.from(topicsRaw)
+                            : [topicsRaw?.toString() ?? 'General'];
+
+                        return Container(
+                          width: 240,
+                          margin: const EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border:
+                                Border.all(color: Color(0xFF113F67), width: 2),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 5,
+                                spreadRadius: 2,
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Name
+                              Text(
+                                name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: Color(0xFF113F67),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+
+                              // Star rating
+                              Row(
+                                children: List.generate(5, (i) {
+                                  return Icon(
+                                    Icons.star,
+                                    size: 16,
+                                    color: i < rating
+                                        ? Colors.amber[700]
+                                        : Colors.grey[300],
+                                  );
+                                }),
+                              ),
+                              const SizedBox(height: 8),
+
+                              // Feedback text
+                              Expanded(
+                                child: Text(
+                                  experience,
+                                  maxLines: 4,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    height: 1.3,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  } else {
+                    // More button
+                    return Container(
+                      margin: const EdgeInsets.all(16),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AllFeedbackScreen(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: 60,
+                          height: 60,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xFF113F67),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 5,
+                              ),
+                            ],
+                          ),
+                          child: const Center(
+                            child:
+                                Icon(Icons.arrow_forward, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
@@ -708,7 +857,6 @@ class OpportunitiesList extends StatelessWidget {
                           ),
                         );
                       } else {
-               
                         Navigator.push(
                           context,
                           MaterialPageRoute(
