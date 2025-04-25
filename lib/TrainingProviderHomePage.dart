@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hadafi_application/Candidates.dart';
 import 'package:hadafi_application/EditTpPostedOpportunity.dart';
 import 'package:hadafi_application/PostOpportunityPage.dart';
 import 'package:hadafi_application/ViewOpportunityPage.dart';
+import 'package:hadafi_application/Candidates.dart';
 import 'package:hadafi_application/welcome.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:hadafi_application/trainingProviderProfilePage.dart';
@@ -61,293 +63,393 @@ class TrainingProviderHomePage extends StatelessWidget {
                       ),
                     );
                   }
-return Column(
-  children: [
-    // Header bar
-Container(
-  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-  decoration: BoxDecoration(
-    color: const Color(0xFFF3F9FB),
-    border: Border(
-      bottom: BorderSide(
-        color: Color(0xFF113F67).withOpacity(0.2),
-        width: 1.5,
-      ),
-    ),
-  ),
-  child: const Row(
-    children: [
-      Expanded(
-        flex: 3,
-        child: Text(
-          'Opportunity Title',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF113F67),
-          ),
-        ),
-      ),
-      Expanded(
-        flex: 3,
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            'Posted At',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF113F67),
-            ),
-          ),
-        ),
-      ),
-    ],
-  ),
-),
+                  return Column(
+                    children: [
+                      // Header bar
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12.0, vertical: 12.0),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF3F9FB),
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Color(0xFF113F67).withOpacity(0.2),
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                        child: const Row(
+                          children: [
+                            Expanded(
+                              flex: 3,
+                              child: Text(
+                                'Opportunity Title',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF113F67),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Posted At',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF113F67),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
 
-    const SizedBox(height: 6),
-    // The list of posts
-    Expanded(
-      child: ListView.builder(
-        itemCount: snapshot.data!.docs.length,
-        itemBuilder: (context, index) {
-          final doc = snapshot.data!.docs[index];
-          final data = doc.data() as Map<String, dynamic>;
-          final timestamp = data['createdAt'] as Timestamp?;
-          final formattedDate = timestamp != null
-              ? "${timestamp.toDate().year}-${timestamp.toDate().month.toString().padLeft(2, '0')}-${timestamp.toDate().day.toString().padLeft(2, '0')}"
-              : 'N/A';
+                      const SizedBox(height: 6),
+                      // The list of posts
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: snapshot.data!.docs.length,
+                          itemBuilder: (context, index) {
+                            final doc = snapshot.data!.docs[index];
+                            final data = doc.data() as Map<String, dynamic>;
+                            final timestamp = data['createdAt'] as Timestamp?;
+                            final formattedDate = timestamp != null
+                                ? "${timestamp.toDate().year}-${timestamp.toDate().month.toString().padLeft(2, '0')}-${timestamp.toDate().day.toString().padLeft(2, '0')}"
+                                : 'N/A';
 
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 5,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-              padding: const EdgeInsets.all(16.0),
-child: Stack(
-  children: [
-    Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          flex: 3,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                data['jobTitle'] ?? 'Job Title',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF113F67),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                data['jobType'] ?? 'Job Type',
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: Colors.black54,
-                ),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          flex: 3,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 30), // aligns with jobType
-              Text(
-                formattedDate,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: Colors.black54,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
-Positioned(
-  top: 0,
-  right: 0,
-  child: Container(
-    padding: const EdgeInsets.all(0), // smaller box
-    decoration: BoxDecoration(
-    color: Colors.white, // matches your card background
-    shape: BoxShape.circle,
-    boxShadow: [
-      BoxShadow(
-        color: Colors.grey.withOpacity(0.3), // subtle shadow
-        spreadRadius: 1,
-        blurRadius: 6,
-        offset: Offset(0, 2), // vertical shadow
-      ),
-    ],
-  ),
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 4.0, vertical: 8.0),
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Colors.black12,
+                                        blurRadius: 5,
+                                        spreadRadius: 2,
+                                      ),
+                                    ],
+                                  ),
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Stack(
+                                    children: [
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                            flex: 3,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  data['jobTitle'] ??
+                                                      'Job Title',
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Color(0xFF113F67),
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 6),
+                                                Text(
+                                                  data['jobType'] ?? 'Job Type',
+                                                  style: const TextStyle(
+                                                    fontSize: 13,
+                                                    color: Colors.black54,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 3,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const SizedBox(
+                                                    height:
+                                                        30), // aligns with jobType
+                                                Text(
+                                                  formattedDate,
+                                                  style: const TextStyle(
+                                                    fontSize: 13,
+                                                    color: Colors.black54,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Positioned(
+                                        top: 0,
+                                        right: 0,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(
+                                              0), // smaller box
+                                          decoration: BoxDecoration(
+                                            color: Colors
+                                                .white, // matches your card background
+                                            shape: BoxShape.circle,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.grey.withOpacity(
+                                                    0.3), // subtle shadow
+                                                spreadRadius: 1,
+                                                blurRadius: 6,
+                                                offset: Offset(
+                                                    0, 2), // vertical shadow
+                                              ),
+                                            ],
+                                          ),
 
-    child: PopupMenuButton<String>(
-  padding: EdgeInsets.zero,
-  iconSize: 24,
-  icon: const Icon(
-    Icons.more_horiz,
-    color: Color(0xFF113F67), // Matches title color
-  ),
-  color: Color(0xFFF3F9FB), // Light menu background
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(8),
-  ),
-  elevation: 4, // Soft shadow
-onSelected: (value) async {
-  if (value == 'Preview') {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ViewOpportunityPage(opportunityId: doc.id),
-      ),
-    );
-  } else if (value == 'edit') {
-        Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EditTpPostedOpportunity(opportunityId: doc.id),
-      ),
-    );
-  } else if (value == 'delete') {
-final confirmed = await showDialog<bool>(
-  context: context,
-  builder: (BuildContext dialogContext) {
-    return AlertDialog(
-      backgroundColor: const Color(0xFFF3F9FB),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 40),
-          const SizedBox(height: 12),
-          const Text(
-            'Are you sure you want to delete this opportunity?',
-            style: TextStyle(
-              color: Color(0xFF113F67),
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'This action cannot be undone!',
-            style: TextStyle(
-              color: Colors.black54,
-              fontSize: 14,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Color(0xFF113F67),
-                  side: const BorderSide(color: Color(0xFF113F67)),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                onPressed: () => Navigator.of(dialogContext).pop(false),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Color(0xFF113F67),
-                  backgroundColor: Colors.redAccent,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                onPressed: () => Navigator.of(dialogContext).pop(true),
-                child: const Text('Delete'),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  },
-);
+                                          child: PopupMenuButton<String>(
+                                            padding: EdgeInsets.zero,
+                                            iconSize: 24,
+                                            icon: const Icon(
+                                              Icons.more_horiz,
+                                              color: Color(
+                                                  0xFF113F67), // Matches title color
+                                            ),
+                                            color: Color(
+                                                0xFFF3F9FB), // Light menu background
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            elevation: 4, // Soft shadow
+                                            onSelected: (value) async {
+                                              if (value == 'Preview') {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ViewOpportunityPage(
+                                                            opportunityId:
+                                                                doc.id),
+                                                  ),
+                                                );
+                                              } else if (value ==
+                                                  'candidates') {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        CandidatesPage(
+                                                            opportunityId:
+                                                                doc.id),
+                                                  ),
+                                                );
+                                              } else if (value == 'edit') {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        EditTpPostedOpportunity(
+                                                            opportunityId:
+                                                                doc.id),
+                                                  ),
+                                                );
+                                              } else if (value == 'delete') {
+                                                final confirmed =
+                                                    await showDialog<bool>(
+                                                  context: context,
+                                                  builder: (BuildContext
+                                                      dialogContext) {
+                                                    return AlertDialog(
+                                                      backgroundColor:
+                                                          const Color(
+                                                              0xFFF3F9FB),
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(20),
+                                                      ),
+                                                      contentPadding:
+                                                          const EdgeInsets
+                                                              .symmetric(
+                                                              horizontal: 24,
+                                                              vertical: 20),
+                                                      content: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          const Icon(
+                                                              Icons
+                                                                  .warning_amber_rounded,
+                                                              color: Colors
+                                                                  .redAccent,
+                                                              size: 40),
+                                                          const SizedBox(
+                                                              height: 12),
+                                                          const Text(
+                                                            'Are you sure you want to delete this opportunity?',
+                                                            style: TextStyle(
+                                                              color: Color(
+                                                                  0xFF113F67),
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 18,
+                                                            ),
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                          ),
+                                                          const SizedBox(
+                                                              height: 8),
+                                                          const Text(
+                                                            'This action cannot be undone!',
+                                                            style: TextStyle(
+                                                              color: Colors
+                                                                  .black54,
+                                                              fontSize: 14,
+                                                            ),
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                          ),
+                                                          const SizedBox(
+                                                              height: 24),
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceEvenly,
+                                                            children: [
+                                                              OutlinedButton(
+                                                                style: OutlinedButton
+                                                                    .styleFrom(
+                                                                  foregroundColor:
+                                                                      Color(
+                                                                          0xFF113F67),
+                                                                  side: const BorderSide(
+                                                                      color: Color(
+                                                                          0xFF113F67)),
+                                                                  padding: const EdgeInsets
+                                                                      .symmetric(
+                                                                      horizontal:
+                                                                          20,
+                                                                      vertical:
+                                                                          10),
+                                                                  shape: RoundedRectangleBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              8)),
+                                                                ),
+                                                                onPressed: () =>
+                                                                    Navigator.of(
+                                                                            dialogContext)
+                                                                        .pop(
+                                                                            false),
+                                                                child: const Text(
+                                                                    'Cancel'),
+                                                              ),
+                                                              ElevatedButton(
+                                                                style: ElevatedButton
+                                                                    .styleFrom(
+                                                                  foregroundColor:
+                                                                      Color(
+                                                                          0xFF113F67),
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .redAccent,
+                                                                  padding: const EdgeInsets
+                                                                      .symmetric(
+                                                                      horizontal:
+                                                                          24,
+                                                                      vertical:
+                                                                          10),
+                                                                  shape: RoundedRectangleBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              8)),
+                                                                ),
+                                                                onPressed: () =>
+                                                                    Navigator.of(
+                                                                            dialogContext)
+                                                                        .pop(
+                                                                            true),
+                                                                child: const Text(
+                                                                    'Delete'),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  },
+                                                );
 
-if (confirmed == true) {
-  await doc.reference.delete();
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text('Opportunity deleted successfully.'),
-      backgroundColor: Colors.green, 
-    ),
-  );
-}
+                                                if (confirmed == true) {
+                                                  await doc.reference.delete();
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text(
+                                                          'Opportunity deleted successfully.'),
+                                                      backgroundColor:
+                                                          Colors.green,
+                                                    ),
+                                                  );
+                                                }
+                                              }
+                                            },
 
-  }
-},
-
-  itemBuilder: (BuildContext context) => [
-    PopupMenuItem(
-      value: 'Preview',
-      child: Text(
-        'Preview',
-        style: TextStyle(color: Color(0xFF113F67)),
-      ),
-    ),
-    PopupMenuItem(
-      value: 'edit',
-      child: Text(
-        'Edit',
-        style: TextStyle(color: Color(0xFF113F67)),
-      ),
-    ),
-    PopupMenuItem(
-      value: 'delete',
-      child: Text(
-        'Delete',
-        style: TextStyle(color: Colors.redAccent),
-      ),
-    ),
-  ],
-),
-
-  ),
-),
-
-
-
-  ],
-)
-
-
-
-
-            ),
-          );
-        },
-      ),
-    ),
-  ],
-);
-
+                                            itemBuilder:
+                                                (BuildContext context) => [
+                                              PopupMenuItem(
+                                                value: 'Preview',
+                                                child: Text(
+                                                  'Preview',
+                                                  style: TextStyle(
+                                                      color: Color(0xFF113F67)),
+                                                ),
+                                              ),
+                                              PopupMenuItem(
+                                                value: 'candidates',
+                                                child: Text(
+                                                  'Candidates',
+                                                  style: TextStyle(
+                                                      color: Color(0xFF113F67)),
+                                                ),
+                                              ),
+                                              PopupMenuItem(
+                                                value: 'edit',
+                                                child: Text(
+                                                  'Edit',
+                                                  style: TextStyle(
+                                                      color: Color(0xFF113F67)),
+                                                ),
+                                              ),
+                                              PopupMenuItem(
+                                                value: 'delete',
+                                                child: Text(
+                                                  'Delete',
+                                                  style: TextStyle(
+                                                      color: Colors.redAccent),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  );
                 },
               ),
             ),
@@ -363,7 +465,9 @@ if (confirmed == true) {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const PostOpportunityPage()),
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const PostOpportunityPage()),
                         );
                       },
                       child: Container(
@@ -426,7 +530,8 @@ if (confirmed == true) {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => TrainingProviderProfilePage()),
+                  MaterialPageRoute(
+                      builder: (context) => TrainingProviderProfilePage()),
                 );
               },
             ),
@@ -491,8 +596,10 @@ if (confirmed == true) {
 
       final String userId = user.uid;
       final String email = 'Hadafi.GP@gmail.com';
-      final String subject = Uri.encodeComponent('App Support - User ID: $userId');
-      final String body = Uri.encodeComponent('Dear Admin, I encountered the following issues:');
+      final String subject =
+          Uri.encodeComponent('App Support - User ID: $userId');
+      final String body = Uri.encodeComponent(
+          'Dear Admin, I encountered the following issues:');
       final String emailUrl = 'mailto:$email?subject=$subject&body=$body';
 
       if (await canLaunchUrl(Uri.parse(emailUrl))) {

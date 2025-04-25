@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hadafi_application/apply_now_button.dart';
 import 'package:intl/intl.dart'; // Import the intl package
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,6 +29,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
   final String jobType;
   final String major;
   final String contactInfo;
+  final String opportunityId;
 
   const TpOpportunityDetailsPage({
     super.key,
@@ -44,6 +48,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
     required this.jobType,
     required this.major,
     required this.contactInfo,
+    required this.opportunityId,
   });
 
   // put the date in a 2 apr,2025 format
@@ -57,6 +62,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final locationsList = location.split(',').map((loc) => loc.trim()).toList();
     final bool hasGpa = gpa5 > 0 || gpa4 > 0;
+    bool isApplied = false;
 
     return Scaffold(
       appBar: AppBar(
@@ -137,23 +143,24 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                               onTap: () {
                                 final wasFavorited = isFavorited;
 
-                 final favoriteOpp = {
-  'Job Title': jobTitle,
-  'Company Name': companyName,
-  'Description': description,
-  'Apply url': applyUrl,
-  'GPA out of 5': gpa5,
-  'GPA out of 4': gpa4,
-  'Locations': location.split(',').map((loc) => loc.trim()).toList(),
-  'Skills': skills.isNotEmpty ? skills : [],
-  'Duration': duration,
-  'Start Date': startDate,
-  'End Date': endDate,
-  'Major': major,
-  'contactInfo': contactInfo,
- 
-};
-
+                                final favoriteOpp = {
+                                  'Job Title': jobTitle,
+                                  'Company Name': companyName,
+                                  'Description': description,
+                                  'Apply url': applyUrl,
+                                  'GPA out of 5': gpa5,
+                                  'GPA out of 4': gpa4,
+                                  'Locations': location
+                                      .split(',')
+                                      .map((loc) => loc.trim())
+                                      .toList(),
+                                  'Skills': skills.isNotEmpty ? skills : [],
+                                  'Duration': duration,
+                                  'Start Date': startDate,
+                                  'End Date': endDate,
+                                  'Major': major,
+                                  'contactInfo': contactInfo,
+                                };
 
                                 ref
                                     .read(favoriteProvider.notifier)
@@ -219,12 +226,11 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
-                    const Icon(Icons.work,
-                        color: Color(0xFF096499)), 
+                    const Icon(Icons.work, color: Color(0xFF096499)),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        jobType, 
+                        jobType,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -237,7 +243,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 5),
-            
+
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -249,10 +255,10 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                 title: const Text(
                   "Description",
                   style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF096499),
-                    ),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF096499),
+                  ),
                 ),
                 children: [
                   Padding(
@@ -292,8 +298,8 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                 ),
               ),
             ),
-           const SizedBox(height: 5),
-            // Major 
+            const SizedBox(height: 5),
+            // Major
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -314,14 +320,12 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: Text(
-                      major, 
+                      major,
                       style: const TextStyle(
-                        fontSize:
-                            16, 
-                        fontWeight:
-                            FontWeight.normal, 
-                        color: Colors.black87, 
-                        height: 1.5, 
+                        fontSize: 16,
+                        fontWeight: FontWeight.normal,
+                        color: Colors.black87,
+                        height: 1.5,
                       ),
                     ),
                   ),
@@ -355,9 +359,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                         return Row(
                           children: [
                             const Icon(Icons.circle,
-                                size: 8,
-                                color: Color(
-                                    0xFF096499)), 
+                                size: 8, color: Color(0xFF096499)),
                             const SizedBox(width: 8),
                             Text(
                               skill,
@@ -380,8 +382,8 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: ExpansionTile(
-                  leading: const Icon(Icons.gpp_maybe,
-                      color: Color(0xFF096499)), 
+                  leading:
+                      const Icon(Icons.gpp_maybe, color: Color(0xFF096499)),
                   title: const Text(
                     "GPA Requirements",
                     style: TextStyle(
@@ -400,14 +402,13 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                             Row(
                               children: [
                                 const Icon(Icons.star,
-                                    color: Colors.orange,
-                                    size: 16), 
+                                    color: Colors.orange, size: 16),
                                 const SizedBox(width: 8),
                                 Text(
                                   "GPA out of 5: ${gpa5.toStringAsFixed(2)}",
                                   style: const TextStyle(
-                                      fontSize: 16,
-                                      ),
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ],
                             ),
@@ -415,14 +416,13 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                             Row(
                               children: [
                                 const Icon(Icons.star,
-                                    color: Colors.blue,
-                                    size: 16), 
+                                    color: Colors.blue, size: 16),
                                 const SizedBox(width: 8),
                                 Text(
                                   "GPA out of 4: ${gpa4.toStringAsFixed(2)}",
                                   style: const TextStyle(
-                                      fontSize: 16,
-                                      ),
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ],
                             ),
@@ -510,7 +510,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 5),
-            // Contact Info 
+            // Contact Info
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -536,7 +536,6 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                 ),
               ),
             ),
-            
 
             // Company applu link
             Card(
@@ -581,37 +580,9 @@ class TpOpportunityDetailsPage extends StatelessWidget {
 
             const SizedBox(height: 24),
             // Apply Now Button
+
             Center(
-              child: ElevatedButton(
-                onPressed: () async {
-                  if (applyUrl.isNotEmpty &&
-                      await canLaunchUrl(Uri.parse(applyUrl))) {
-                    await launchUrl(Uri.parse(applyUrl));
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Could not open the URL")),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF096499),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  elevation: 6,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Icon(Icons.send, color: Colors.white),
-                    SizedBox(width: 8),
-                    Text("Apply Now",
-                        style: TextStyle(color: Colors.white, fontSize: 16)),
-                  ],
-                ),
-              ),
+              child: ApplyNowButton(opportunityId: opportunityId),
             ),
           ],
         ),

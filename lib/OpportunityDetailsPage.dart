@@ -26,6 +26,7 @@ class OpportunityDetailsPage extends StatelessWidget {
     required this.location,
     required this.gpa5,
     required this.gpa4,
+    required opportunityId,
   });
 
   @override
@@ -171,8 +172,7 @@ class OpportunityDetailsPage extends StatelessWidget {
                                       ? Colors.amber[400]
                                       : Colors.white,
                                   size: correctSize(context, 72),
-                                  key: ValueKey<bool>(
-                                      isFavorited), 
+                                  key: ValueKey<bool>(isFavorited),
                                 ),
                               ),
                             );
@@ -448,7 +448,7 @@ class OpportunityDetailsPage extends StatelessWidget {
     );
   }
 
-    double correctSize(BuildContext context, double px) {
+  double correctSize(BuildContext context, double px) {
     return px / MediaQuery.of(context).devicePixelRatio;
   }
 }

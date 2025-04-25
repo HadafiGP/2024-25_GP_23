@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,6 +18,7 @@ import "package:hadafi_application/OpportunityDetailsPage.dart";
 import "package:hadafi_application/button.dart";
 import 'package:hadafi_application/studentProfilePage.dart';
 import 'package:hadafi_application/studentHomePage.dart';
+import 'package:hadafi_application/Community/Providers/storage_repository_providers.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -65,6 +67,9 @@ class _ProfilePageState extends State<ProfilePage> {
   String? _selectedNationality;
   String? _emailError;
   bool _isEditing = false;
+  String? _cvUrl;
+  File? _cvFile;
+  String? cvPath;
 
   final List<String> healthTechnicalSkills = [
     "Data Analysis",
@@ -397,6 +402,35 @@ class _ProfilePageState extends State<ProfilePage> {
     _loadStudentData();
   }
 
+  Future<void> pickCV() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+      withData: false, // avoid loading non-PDFs in memory
+    );
+
+    if (result != null && result.files.single.path != null) {
+      final path = result.files.single.path!;
+      final extension = path.split('.').last.toLowerCase();
+
+      if (extension != 'pdf') {
+        // ⚠️ Handle if somehow a non-PDF is selected (some pickers may allow it)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Only PDF files are allowed.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      setState(() {
+        _cvFile = File(path);
+        cvPath = path;
+      });
+    }
+  }
+
   void _enterEditMode() {
     setState(() {
       _isEditing = true;
@@ -515,6 +549,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 .toList();
 
             _selectedGpaScale = doc['gpaScale']?.toDouble();
+            _cvUrl = doc['cv'];
           });
         }
       }
@@ -538,6 +573,13 @@ class _ProfilePageState extends State<ProfilePage> {
         _emailError = 'This email is already in use';
       });
       return;
+    }
+    if (_cvFile != null) {
+      Reference storageRef = FirebaseStorage.instance
+          .ref()
+          .child('student_cvs/${_auth.currentUser!.uid}');
+      await storageRef.putFile(_cvFile!);
+      _cvUrl = await storageRef.getDownloadURL();
     }
 
     if (_profileImageFile != null) {
@@ -577,14 +619,17 @@ class _ProfilePageState extends State<ProfilePage> {
           'location': _selectedLocations,
           'nationality': _selectedNationality,
           'skills': allSkills,
+          'cv': _cvUrl,
         });
 
         setState(() {
           _isEditing = false; // Exit edit mode after saving
         });
-
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Profile updated successfully')),
+          SnackBar(
+            content: Text('✅ Profile updated successfully'),
+            backgroundColor: Colors.green,
+          ),
         );
       }
     } catch (e) {
@@ -747,6 +792,115 @@ class _ProfilePageState extends State<ProfilePage> {
                   _selectedSoftSkills = updatedSkills;
                 });
               }),
+
+              const SizedBox(height: 25),
+              _isEditing
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: pickCV,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              elevation: 5,
+                              shadowColor: Colors.black26,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(40),
+                                side: BorderSide(
+                                  color: Color(0xFF113F67),
+                                  width: 1.8,
+                                ),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.upload_file,
+                                    color: Color(0xFF113F67)),
+                                SizedBox(width: 10),
+                                Text(
+                                  "Upload CV as PDF",
+                                  style: TextStyle(
+                                    color: Color(0xFF113F67),
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        if (cvPath != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Center(
+                              child: Text(
+                                "✅ CV selected: ${cvPath!.split('/').last}",
+                                style: TextStyle(
+                                  color: Color(0xFF113F67),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    )
+                  : (_cvUrl != null && _cvUrl!.isNotEmpty)
+                      ? Center(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              if (await canLaunchUrl(Uri.parse(_cvUrl!))) {
+                                await launchUrl(Uri.parse(_cvUrl!));
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              elevation: 5,
+                              shadowColor: Colors.black26,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(40),
+                                side: BorderSide(
+                                  color: Color(0xFF113F67),
+                                  width: 1.8,
+                                ),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.picture_as_pdf,
+                                    color: Color(0xFF113F67)),
+                                SizedBox(width: 10),
+                                Text(
+                                  "View CV",
+                                  style: TextStyle(
+                                    color: Color(0xFF113F67),
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : Center(
+                          child: Text(
+                            "CV not uploaded",
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 16,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
+
+              const SizedBox(height: 30),
+
               if (_isEditing)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -763,6 +917,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         elevation: 5,
                         shadowColor: Colors.black.withOpacity(0.3),
                       ),
+
                       child: Text(
                         'Save',
                         style: TextStyle(

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hadafi_application/Community/provider.dart';
 import 'package:hadafi_application/TpOpportunityDetailsPage.dart';
 import 'package:hadafi_application/interview.dart';
+import 'package:hadafi_application/opportunity_search_page.dart';
 import 'package:hadafi_application/welcome.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
@@ -274,6 +275,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
             : 'Unknown Company';
 
         fetchedOpportunities.add({
+          'id': doc.id,
           'jobTitle': jobTitle,
           'companyName': companyName,
           'description': description,
@@ -373,6 +375,47 @@ class _StudentHomePageState extends State<StudentHomePage> {
             appBar: AppBar(
               backgroundColor: const Color(0xFF113F67),
               iconTheme: const IconThemeData(color: Colors.white),
+              title: const Text(''),
+              actions: [
+                InkWell(
+                  onTap: () {
+                    final List<dynamic> dataToSearch = selectedIndex == 0
+                        ? List.from(recommendations)
+                        : List.from(filteredProviderOpportunities);
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => OpportunitySearchPage(
+                          opportunities: dataToSearch,
+                          selectedIndex: selectedIndex,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Icon(Icons.search, color: Colors.white),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: Text(
+                          selectedIndex == 0
+                              ? 'Search in Sourced Online'
+                              : 'Search in Posted in Hadafi',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
             body: isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -461,8 +504,8 @@ class _StudentHomePageState extends State<StudentHomePage> {
               unselectedLabelColor: Colors.grey,
               indicatorColor: Color(0xFF113F67),
               tabs: [
-                Tab(text: 'Best Match'),
-                Tab(text: 'Other'),
+                Tab(text: 'Sourced Online'),
+                Tab(text: 'Posted in Hadafi'),
               ],
             ),
             Expanded(
@@ -488,13 +531,12 @@ class _StudentHomePageState extends State<StudentHomePage> {
     );
   }
 
- Widget _buildFeedbackList() {
+  Widget _buildFeedbackList() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
-          
           child: Row(
             children: [
               const Text(
@@ -522,7 +564,9 @@ class _StudentHomePageState extends State<StudentHomePage> {
             ],
           ),
         ),
-        SizedBox(height: 5,),
+        SizedBox(
+          height: 5,
+        ),
         SizedBox(
           height: 160,
           child: FutureBuilder<QuerySnapshot>(
@@ -540,7 +584,6 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
-                
                 itemCount: docs.length + 1,
                 itemBuilder: (context, index) {
                   if (index < docs.length) {
@@ -568,13 +611,12 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
                         return Container(
                           width: 240,
-                          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 8.0),
                           padding: const EdgeInsets.all(12),
-                          
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
-
                             boxShadow: const [
                               BoxShadow(
                                 color: Colors.black12,
@@ -854,6 +896,7 @@ class OpportunitiesList extends StatelessWidget {
                                   (opportunity['Locations'] ?? []).join(', '),
                               gpa5: gpa5,
                               gpa4: gpa4,
+                              opportunityId: null,
                             ),
                           ),
                         );
@@ -862,6 +905,7 @@ class OpportunitiesList extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) => TpOpportunityDetailsPage(
+                              opportunityId: opportunity['id'],
                               jobTitle: oppTitle,
                               companyName: companyName,
                               description: description,

@@ -29,13 +29,14 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
       backgroundColor: const Color(0xFFF3F9FB),
       drawer: const HadafiDrawer(),
       appBar: AppBar(
-        title: const Text("Saved Opportunities", style: TextStyle(color: Colors.white)),
+        title: const Text("Saved Opportunities",
+            style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF113F67),
         iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
       ),
       body: favoriteProviderState.isLoading
-          ? const Center(child: CircularProgressIndicator()) 
+          ? const Center(child: CircularProgressIndicator())
           : favoriteProviderState.favOpportunities.isEmpty
               ? const Center(
                   child: Text(
@@ -47,22 +48,30 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                   padding: const EdgeInsets.all(10),
                   itemCount: favoriteProviderState.favOpportunities.length,
                   itemBuilder: (context, index) {
-                    final opportunity = favoriteProviderState.favOpportunities[index];
+                    final opportunity =
+                        favoriteProviderState.favOpportunities[index];
 
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 8.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 2.0, vertical: 8.0),
                       child: Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: const [
-                            BoxShadow(color: Colors.black12, blurRadius: 5, spreadRadius: 2),
+                            BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 5,
+                                spreadRadius: 2),
                           ],
                         ),
                         child: ListTile(
                           title: Text(
                             opportunity['Job Title'],
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF113F67)),
+                            style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF113F67)),
                             softWrap: true,
                           ),
                           subtitle: Text(
@@ -74,55 +83,72 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                             children: [
                               Consumer(
                                 builder: (context, ref, child) {
-                                  final isFavorited = ref.watch(favoriteProvider).favOpportunities
-                                      .any((opp) => opp['Job Title'] == opportunity['Job Title']);
+                                  final isFavorited = ref
+                                      .watch(favoriteProvider)
+                                      .favOpportunities
+                                      .any((opp) =>
+                                          opp['Job Title'] ==
+                                          opportunity['Job Title']);
 
                                   return GestureDetector(
                                     onTap: () {
                                       final wasFavorited = isFavorited;
                                       final removedOpportunity = opportunity;
-                                      final favoriteNotifier = ref.read(favoriteProvider.notifier);
+                                      final favoriteNotifier =
+                                          ref.read(favoriteProvider.notifier);
 
+                                      favoriteNotifier
+                                          .toggleFavorite(opportunity);
 
-                                      favoriteNotifier.toggleFavorite(opportunity);
-
-
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
                                         SnackBar(
                                           content: Text(
                                             wasFavorited
                                                 ? "Opportunity removed from Saved Opportunitiest"
                                                 : "Opportunity added to Saved Opportunities",
-                                            style: const TextStyle(color: Colors.white),
+                                            style: const TextStyle(
+                                                color: Colors.white),
                                           ),
                                           action: wasFavorited
                                               ? SnackBarAction(
                                                   label: "Undo",
                                                   textColor: Colors.white,
                                                   onPressed: () {
-
-                                                    favoriteNotifier.toggleFavorite(removedOpportunity);
+                                                    favoriteNotifier
+                                                        .toggleFavorite(
+                                                            removedOpportunity);
                                                   },
                                                 )
                                               : null,
-                                          backgroundColor: const Color.fromARGB(255, 0, 118, 208),
+                                          backgroundColor: const Color.fromARGB(
+                                              255, 0, 118, 208),
                                           duration: const Duration(seconds: 2),
                                         ),
                                       );
 
                                       if (wasFavorited) {
-                                        Future.delayed(const Duration(milliseconds: 100), () {
-                                          final stillRemoved = !ref.read(favoriteProvider).favOpportunities
+                                        Future.delayed(
+                                            const Duration(milliseconds: 100),
+                                            () {
+                                          final stillRemoved = !ref
+                                              .read(favoriteProvider)
+                                              .favOpportunities
                                               .contains(removedOpportunity);
                                           if (stillRemoved) {
-                                            favoriteNotifier.toggleFavorite(removedOpportunity);
+                                            favoriteNotifier.toggleFavorite(
+                                                removedOpportunity);
                                           }
                                         });
                                       }
                                     },
                                     child: Icon(
-                                      isFavorited ? Icons.bookmark_added : Icons.bookmark_add_outlined,
-                                      color: isFavorited ? Colors.amber[400] : Colors.grey,
+                                      isFavorited
+                                          ? Icons.bookmark_added
+                                          : Icons.bookmark_add_outlined,
+                                      color: isFavorited
+                                          ? Colors.amber[400]
+                                          : Colors.grey,
                                       size: correctSize(context, 72),
                                     ),
                                   );
@@ -139,16 +165,28 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => OpportunityDetailsPage(
+                                      builder: (context) =>
+                                          OpportunityDetailsPage(
                                         jobTitle: opportunity['Job Title'],
-                                        companyName: opportunity['Company Name'] ?? "Unknown",
-                                        description: opportunity['Description'] ?? "No description available.",
-                                        applyUrl: opportunity['Apply url'] ?? "",
+                                        companyName:
+                                            opportunity['Company Name'] ??
+                                                "Unknown",
+                                        description:
+                                            opportunity['Description'] ??
+                                                "No description available.",
+                                        applyUrl:
+                                            opportunity['Apply url'] ?? "",
                                         similarity: 0.0,
-                                        skills: List<String>.from(opportunity['Skills'] ?? []),
-                                        location: (opportunity['Locations'] ?? []).join(', '),
-                                        gpa5: opportunity['GPA out of 5'] ?? 0.0,
-                                        gpa4: opportunity['GPA out of 4'] ?? 0.0,
+                                        skills: List<String>.from(
+                                            opportunity['Skills'] ?? []),
+                                        location:
+                                            (opportunity['Locations'] ?? [])
+                                                .join(', '),
+                                        gpa5:
+                                            opportunity['GPA out of 5'] ?? 0.0,
+                                        gpa4:
+                                            opportunity['GPA out of 4'] ?? 0.0,
+                                        opportunityId: null,
                                       ),
                                     ),
                                   );
@@ -164,7 +202,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
     );
   }
 
-      double correctSize(BuildContext context, double px) {
+  double correctSize(BuildContext context, double px) {
     return px / MediaQuery.of(context).devicePixelRatio;
   }
 }

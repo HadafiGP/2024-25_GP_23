@@ -53,4 +53,18 @@ class StorageRepository {
       return Constants.avatarDefault;
     }
   }
+
+  Future<String> uploadFileToStorage(
+      String folder, String userId, File file) async {
+    try {
+      final storageRef = _firebaseStorage.ref().child(folder).child(userId);
+      final uploadTask = storageRef.putFile(file);
+      final snapshot = await uploadTask;
+      final fileUrl = await snapshot.ref.getDownloadURL();
+      return fileUrl;
+    } catch (e) {
+      print('Error uploading file: $e');
+      return ''; // Return empty string or a fallback URL if upload fails
+    }
+  }
 }

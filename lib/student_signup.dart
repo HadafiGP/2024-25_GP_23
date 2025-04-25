@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -56,6 +59,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   String? _emailError; // To hold the "email already in use" error
   String? _selectedNationality;
   String? _selectedMajor;
+  String? cvPath; // store file path
 
   double? _selectedGpaScale; // Store selected GPA scale
 
@@ -534,6 +538,18 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   final GlobalKey<FormFieldState<String>> _passwordKey = GlobalKey();
   final GlobalKey<FormFieldState<String>> _gpaKey = GlobalKey();
 
+  Future<void> pickCV() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+    if (result != null) {
+      setState(() {
+        cvPath = result.files.single.path!;
+      });
+    }
+  }
+
   void _scrollToFirstError() {
     for (var key in [_nameKey, _emailKey, _passwordKey, _gpaKey]) {
       if (key.currentState != null && key.currentState is FormFieldState) {
@@ -869,67 +885,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 15),
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: const Text(
-                          'Choose a Banner (Optional)',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF113F67),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              await pickImage(ImageSource.gallery);
-                              setState(() {});
-                            },
-                            icon: Icon(Icons.image, color: Colors.white),
-                            label: Text(
-                              "Gallery",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color:
-                                      const Color.fromARGB(255, 236, 236, 236)),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    const Color.fromARGB(255, 0, 118, 208)),
-                          ),
-                          SizedBox(width: 10),
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              await pickImage(ImageSource.camera);
-                              setState(() {});
-                            },
-                            icon: Icon(Icons.camera_alt, color: Colors.white),
-                            label: Text(
-                              "Camera",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color:
-                                      const Color.fromARGB(255, 236, 236, 236)),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    const Color.fromARGB(255, 0, 176, 15)),
-                          ),
-                        ],
-                      ),
-                      if (bannerPath != null) ...[
-                        const SizedBox(height: 10),
-                        Align(
-                            alignment: Alignment.topLeft,
-                            child: Text("✅ Banner selected!",
-                                style: TextStyle(
-                                    color: const Color.fromARGB(
-                                        255, 0, 176, 15)))),
-                      ],
                       const SizedBox(height: 20),
                       Align(
                         alignment: Alignment.topLeft,
@@ -962,7 +917,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                                 backgroundColor:
                                     const Color.fromARGB(255, 0, 118, 208)),
                           ),
-                          SizedBox(width: 10),
+                          SizedBox(width: 15),
                           ElevatedButton.icon(
                             onPressed: () async {
                               await pickImage2(ImageSource.camera);
@@ -1034,7 +989,59 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                       _buildSoftSkillsSelector(), // Soft Skills Dropdown
                       const SizedBox(height: 15),
                       _buildTechnicalSkillsSelector(), // Technical Skills Dropdown
-                      const SizedBox(height: 25),
+                      const SizedBox(height: 10),
+
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ElevatedButton(
+                            onPressed: pickCV,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              elevation: 5,
+                              shadowColor: Colors.black26,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(40),
+                                side: BorderSide(
+                                  color: Color(0xFF113F67),
+                                  width: 1.8,
+                                ),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.upload_file,
+                                    color: Color(0xFF113F67)),
+                                SizedBox(width: 10),
+                                Text(
+                                  "Upload CV as PDF (Optional)",
+                                  style: TextStyle(
+                                    color: Color(0xFF113F67),
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (cvPath != null) ...[
+                            SizedBox(height: 8),
+                            Text(
+                              "✅ CV selected: ${cvPath!.split('/').last}",
+                              style: TextStyle(
+                                color: Color(0xFF113F67),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+
+                      const SizedBox(height: 30),
+
                       _isLoading
                           ? CircularProgressIndicator()
                           : // Sign Up button with separate skills validation
@@ -1750,7 +1757,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
           ..._selectedManagementSkills,
           ..._selectedSoftSkills
         ];
-        // رفع الصور إلى Firebase Storage
         String avatarUrl = Constants.avatarDefault;
         String bannerUrl = Constants.bannerDefault;
 
@@ -1765,6 +1771,15 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
         if (bannerPath != null) {
           bannerUrl = await storageRepository.uploadImageToStorage(
               'banners', user.uid, bannerPath!);
+        }
+
+        String? cv;
+        if (cvPath != null) {
+          cv = await storageRepository.uploadFileToStorage(
+            'cv',
+            user.uid,
+            File(cvPath!),
+          );
         }
 
         // Store user data in Firestore
@@ -1782,6 +1797,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
           'role': 'student', // Store the user role as 'student'
           'profilePic': avatarUrl, // Add profilePic URL
           'banner': bannerUrl, // Add banner URL
+          'cv': cv,
         });
 
         ProviderScope.containerOf(context).read(uidProvider.notifier).state =
