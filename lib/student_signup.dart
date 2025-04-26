@@ -55,7 +55,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
 
 // Repeat for soft skills and management skills
   String? avatarPath;
-  String? bannerPath;
   String? _emailError; // To hold the "email already in use" error
   String? _selectedNationality;
   String? _selectedMajor;
@@ -626,19 +625,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
       }
     });
     _filteredMajors.addAll(_majors); // Initialize with all majors
-  }
-
-  Future pickImage(ImageSource source) async {
-    try {
-      final pickedFile = await ImagePicker().pickImage(source: source);
-      if (pickedFile == null) return;
-
-      setState(() {
-        bannerPath = pickedFile.path;
-      });
-    } on PlatformException catch (e) {
-      print('Failed to pick image: $e');
-    }
   }
 
   Future pickImage2(ImageSource source) async {
@@ -1766,11 +1752,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
         if (avatarPath != null) {
           avatarUrl = await storageRepository.uploadImageToStorage(
               'avatars', user.uid, avatarPath!);
-        }
-
-        if (bannerPath != null) {
-          bannerUrl = await storageRepository.uploadImageToStorage(
-              'banners', user.uid, bannerPath!);
         }
 
         String? cv;
