@@ -691,6 +691,7 @@ class _ProfilePageState extends State<ProfilePage> {
           key: _formKey,
           child: ListView(
             children: [
+              SizedBox(height: 15),
               Text(
                 'Personal Information:',
                 style: TextStyle(
@@ -699,6 +700,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              SizedBox(height: 20),
               Center(
                 child: GestureDetector(
                   onTap: _isEditing ? _selectProfileImage : null,
@@ -745,60 +747,123 @@ class _ProfilePageState extends State<ProfilePage> {
               _buildNationalitySelector(),
               SizedBox(height: 10),
               _buildGPASection(),
-              SizedBox(height: 20),
-              Text(
-                'Skills:',
-                style: TextStyle(
-                  color: Color(0xFF113F67),
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              // Display error message if no skills are selected
-              if (_selectedTechnicalSkills.isEmpty &&
-                  _selectedManagementSkills.isEmpty &&
-                  _selectedSoftSkills.isEmpty &&
-                  _isEditing)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    'Please select at least one skill from any category',
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
+
+              const SizedBox(height: 15),
+// Change Password Button
+              Align(
+                alignment: Alignment.centerLeft,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      final String email = _emailController.text.trim();
+                      await FirebaseAuth.instance
+                          .sendPasswordResetEmail(email: email);
+
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Row(
+                              children: [
+                                Text(
+                                  'Success ',
+                                  style: TextStyle(color: Color(0xFF113F67)),
+                                ),
+                                Icon(Icons.check_circle,
+                                    color: Colors.green), // Check icon
+                                SizedBox(width: 10),
+                              ],
+                            ),
+                            content: Text(
+                              'A password change link has been successfully sent to your email. Please check your inbox to proceed.',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                child: Text(
+                                  'OK',
+                                  style: TextStyle(color: Color(0xFF113F67)),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    } catch (e) {
+                      // Show error message in a popup dialog
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Row(
+                              children: [
+                                Text(
+                                  'Error ',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                                Icon(Icons.cancel,
+                                    color: Colors.red), // "X" icon
+                                SizedBox(width: 10),
+                              ],
+                            ),
+                            content: Text(
+                              'Failed to send reset email. Please try again later.',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                child: Text(
+                                  'OK',
+                                  style: TextStyle(color: Color(0xFF113F67)),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    elevation: 5,
+                    shadowColor: Colors.black26,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(40),
+                      side: BorderSide(color: Color(0xFF113F67), width: 1.8),
                     ),
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.lock_reset, color: Color(0xFF113F67)),
+                      SizedBox(width: 10),
+                      Text(
+                        "Change Password",
+                        style: TextStyle(
+                          color: Color(0xFF113F67),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              SizedBox(height: 15),
-              _buildSkillsSelector('Technical Skills', _selectedTechnicalSkills,
-                  (updatedSkills) {
-                setState(() {
-                  _selectedTechnicalSkills = updatedSkills;
-                });
-              }),
-              SizedBox(height: 10),
-              _buildSkillsSelector(
-                  'Management Skills', _selectedManagementSkills,
-                  (updatedSkills) {
-                setState(() {
-                  _selectedManagementSkills = updatedSkills;
-                });
-              }),
-              SizedBox(height: 10),
-              _buildSkillsSelector('Soft Skills', _selectedSoftSkills,
-                  (updatedSkills) {
-                setState(() {
-                  _selectedSoftSkills = updatedSkills;
-                });
-              }),
-
-              const SizedBox(height: 25),
+              ),
+              const SizedBox(height: 20),
               _isEditing
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Center(
+                        Align(
+                          alignment: Alignment.centerLeft,
                           child: ElevatedButton(
                             onPressed: pickCV,
                             style: ElevatedButton.styleFrom(
@@ -849,7 +914,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       ],
                     )
                   : (_cvUrl != null && _cvUrl!.isNotEmpty)
-                      ? Center(
+                      ? Align(
+                          alignment: Alignment.centerLeft,
                           child: ElevatedButton(
                             onPressed: () async {
                               if (await canLaunchUrl(Uri.parse(_cvUrl!))) {
@@ -898,6 +964,60 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                         ),
+              SizedBox(height: 15),
+              Divider(
+                color: Colors.grey, // Gray color
+                thickness: 1.5, // Thickness of the line
+                indent: 20, // Indentation from the left
+                endIndent: 20, // Indentation from the right
+              ),
+              SizedBox(height: 15),
+              Text(
+                'Skills:',
+                style: TextStyle(
+                  color: Color(0xFF113F67),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              // Display error message if no skills are selected
+              if (_selectedTechnicalSkills.isEmpty &&
+                  _selectedManagementSkills.isEmpty &&
+                  _selectedSoftSkills.isEmpty &&
+                  _isEditing)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    'Please select at least one skill from any category',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              SizedBox(height: 15),
+              _buildSkillsSelector('Technical Skills', _selectedTechnicalSkills,
+                  (updatedSkills) {
+                setState(() {
+                  _selectedTechnicalSkills = updatedSkills;
+                });
+              }),
+              SizedBox(height: 10),
+              _buildSkillsSelector(
+                  'Management Skills', _selectedManagementSkills,
+                  (updatedSkills) {
+                setState(() {
+                  _selectedManagementSkills = updatedSkills;
+                });
+              }),
+              SizedBox(height: 10),
+              _buildSkillsSelector('Soft Skills', _selectedSoftSkills,
+                  (updatedSkills) {
+                setState(() {
+                  _selectedSoftSkills = updatedSkills;
+                });
+              }),
 
               const SizedBox(height: 30),
 

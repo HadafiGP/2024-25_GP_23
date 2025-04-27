@@ -194,6 +194,116 @@ class _TrainingProviderProfilePageState
               _buildEditableField('Email', _emailController),
               SizedBox(height: 10),
               _buildLocationSelector(),
+              SizedBox(height: 15),
+
+              // Change Password Button
+              Align(
+                alignment: Alignment.centerLeft,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      final String email = _emailController.text.trim();
+                      await FirebaseAuth.instance
+                          .sendPasswordResetEmail(email: email);
+
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Row(
+                              children: [
+                                Text(
+                                  'Success ',
+                                  style: TextStyle(color: Color(0xFF113F67)),
+                                ),
+                                Icon(Icons.check_circle,
+                                    color: Colors.green), // Check icon
+                                SizedBox(width: 10),
+                              ],
+                            ),
+                            content: Text(
+                              'A password change link has been successfully sent to your email. Please check your inbox to proceed.',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                child: Text(
+                                  'OK',
+                                  style: TextStyle(color: Color(0xFF113F67)),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    } catch (e) {
+                      // Show error message in a popup dialog
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Row(
+                              children: [
+                                Text(
+                                  'Error ',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                                Icon(Icons.cancel,
+                                    color: Colors.red), // "X" icon
+                                SizedBox(width: 10),
+                              ],
+                            ),
+                            content: Text(
+                              'Failed to send reset email. Please try again later.',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                child: Text(
+                                  'OK',
+                                  style: TextStyle(color: Color(0xFF113F67)),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    elevation: 5,
+                    shadowColor: Colors.black26,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(40),
+                      side: BorderSide(color: Color(0xFF113F67), width: 1.8),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.lock_reset, color: Color(0xFF113F67)),
+                      SizedBox(width: 10),
+                      Text(
+                        "Change Password",
+                        style: TextStyle(
+                          color: Color(0xFF113F67),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               SizedBox(height: 20),
               if (_isEditing)
                 Row(
