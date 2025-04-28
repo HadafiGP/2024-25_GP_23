@@ -871,11 +871,19 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 15),
+
+                      Divider(
+                        color: Colors.grey, // Gray color
+                        thickness: 1.5, // Thickness of the line
+                        indent: 20, // Indentation from the left
+                        endIndent: 20, // Indentation from the right
+                      ),
+                      SizedBox(height: 15),
                       Align(
                         alignment: Alignment.topLeft,
                         child: const Text(
-                          'Choose an Avatar (Optional)',
+                          'Choose an Avatar (Optional):',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -933,7 +941,78 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                                         255, 0, 176, 15)))),
                       ],
 
-                      const SizedBox(height: 25),
+                      SizedBox(height: 20),
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: const Text(
+                          'Upload Your CV (Optional):',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF113F67),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: ElevatedButton(
+                              onPressed: pickCV,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                elevation: 5,
+                                shadowColor: Colors.black26,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(40),
+                                  side: const BorderSide(
+                                    color: Color(0xFF113F67),
+                                    width: 1.8,
+                                  ),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 12),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  Icon(Icons.upload_file,
+                                      color: Color(0xFF113F67)),
+                                  SizedBox(width: 3),
+                                  Text(
+                                    "CV as PDF",
+                                    style: TextStyle(
+                                      color: Color(0xFF113F67),
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          if (cvPath != null) ...[
+                            SizedBox(height: 8),
+                            Text(
+                              "✅ CV selected: ${cvPath!.split('/').last}",
+                              style: TextStyle(
+                                color: Color(0xFF113F67),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      SizedBox(height: 15),
+                      Divider(
+                        color: Colors.grey, // Gray color
+                        thickness: 1.5, // Thickness of the line
+                        indent: 20, // Indentation from the left
+                        endIndent: 20, // Indentation from the right
+                      ),
+                      SizedBox(height: 15),
 
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -955,6 +1034,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                               ],
                             ),
                           ),
+
                           const SizedBox(
                               height: 8), // Add some spacing if needed
                           Text(
@@ -975,56 +1055,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                       _buildSoftSkillsSelector(), // Soft Skills Dropdown
                       const SizedBox(height: 15),
                       _buildTechnicalSkillsSelector(), // Technical Skills Dropdown
-                      const SizedBox(height: 10),
-
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ElevatedButton(
-                            onPressed: pickCV,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              elevation: 5,
-                              shadowColor: Colors.black26,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(40),
-                                side: BorderSide(
-                                  color: Color(0xFF113F67),
-                                  width: 1.8,
-                                ),
-                              ),
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 12),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.upload_file,
-                                    color: Color(0xFF113F67)),
-                                SizedBox(width: 10),
-                                Text(
-                                  "Upload CV as PDF (Optional)",
-                                  style: TextStyle(
-                                    color: Color(0xFF113F67),
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          if (cvPath != null) ...[
-                            SizedBox(height: 8),
-                            Text(
-                              "✅ CV selected: ${cvPath!.split('/').last}",
-                              style: TextStyle(
-                                color: Color(0xFF113F67),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
 
                       const SizedBox(height: 30),
 
