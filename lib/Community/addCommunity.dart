@@ -27,6 +27,7 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
   String? bannerPath;
   List<String> selectedTopics = [];
 
+  //Community Banner: Camera/Gallery
   Future pickImage(ImageSource source) async {
     try {
       final pickedFile = await ImagePicker().pickImage(source: source);
@@ -40,6 +41,7 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
     }
   }
 
+  //Community Avatar: Camera/Gallery
   Future pickImage2(ImageSource source) async {
     try {
       final pickedFile = await ImagePicker().pickImage(source: source);
@@ -61,7 +63,9 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
     _pageController.dispose();
   }
 
+  //Coomunity creation pages
   void nextPage() async {
+    //Check if the community name and description filled,and name isn't used before moving to next page
     if (_currentPage == 0) {
       if (communityNameController.text.trim().isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -101,7 +105,7 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
         return;
       }
     }
-
+    //Move to next page if all required information and validation is done
     if (_currentPage < 2) {
       _pageController.nextPage(
         duration: Duration(milliseconds: 300),
@@ -110,6 +114,7 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
     }
   }
 
+//Navigates through the creation steps, if in the first page navigate back to the "Create Community" page
   void previousPage() {
     if (_currentPage > 0) {
       _pageController.previousPage(
@@ -121,6 +126,7 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
     }
   }
 
+//Save community to Firstore if all required information is filled
   void createCommunity() {
     if (communityNameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -154,7 +160,7 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
       );
       return;
     }
-
+    //Save community in Firebase
     ref.read(communityControllerProvider.notifier).createCommunity(
         communityNameController.text.trim(),
         communityDescription.text.trim(),
@@ -163,6 +169,7 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
         selectedTopics,
         context);
 
+    //Navigate to the "Create Community" page
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
@@ -674,7 +681,7 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
                                         if (selectedTopics.length < 3) {
                                           selectedTopics.add(topic);
                                         } else {
-                                          // Show a SnackBar when trying to add more than 3 topics.
+                                          // Trying to add more than 3 topics.
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
                                             const SnackBar(

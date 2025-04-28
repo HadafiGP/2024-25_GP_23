@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:hadafi_application/StudentHomePage.dart';
+import 'dart:async';
 
 class FeedbackScreen extends StatefulWidget {
   @override
@@ -13,108 +15,52 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   int? _rating;
   bool _ratingError = false;
   bool _isSubmitting = false;
-  String _networkError = '';
   String _experience = '';
+  bool _charLimitReached = false;
+  String _networkError = '';
+  StreamSubscription<QuerySnapshot>? _feedbackListener;
 
   final uid = FirebaseAuth.instance.currentUser?.uid;
-
-
-
   final _formKey = GlobalKey<FormState>();
 
+  Future<bool> _checkInternetConnection() async {
+    try {
+      var connectivityResult = await Connectivity()
+          .checkConnectivity()
+          .timeout(const Duration(seconds: 3));
+      return connectivityResult != ConnectivityResult.none;
+    } catch (_) {
+      return false;
+    }
+  }
 
-  Future<void> _submitFeedback() async {
-    setState(() {
-      _ratingError = _rating == null;
-      _isSubmitting = true;
-      _networkError = '';
-    });
+  @override
+  void dispose() {
+    _feedbackListener?.cancel();
+    super.dispose();
+  }
 
-    if (_formKey.currentState!.validate() &&
-        _rating != null) {
-      try {
-        await FirebaseFirestore.instance.collection('Feedback').add({
-          'uid': uid,
-          'rating': _rating,
-          'experience': _experience,
-          'timestamp': FieldValue.serverTimestamp(),
-        }).timeout(const Duration(seconds: 10), onTimeout: () {
-          throw TimeoutException("Network timeout");
-        });
 
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: const Color.fromARGB(255, 0, 118, 208),
-              content: Row(
-                children: const [
-                  Icon(Icons.check_circle_outline, color: Colors.white),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'Feedback submitted!',
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.w500),
-                    ),
-                  ),
-                ],
-              ),
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
 
-        setState(() {
-          _rating = null;
-          _experience = '';
-          _ratingError = false;
-        });
 
-        _formKey.currentState!.reset();
-      } on TimeoutException {
-        setState(() {
-          _networkError = 'No internet connection. Please check your network and try again.';
-        });
-        Future.delayed(const Duration(seconds: 5), () {
-          if (mounted) {
-            setState(() {
-              _networkError = '';
-            });
-          }
-        });
-      } catch (e) {
-        setState(() {
-          _networkError = 'Failed to submit. Please try again later.';
-        });
-        Future.delayed(const Duration(seconds: 4), () {
-          if (mounted) {
-            setState(() {
-              _networkError = '';
-            });
-          }
-        });
-      } finally {
-        setState(() {
-          _isSubmitting = false;
-        });
-      }
-    } else {
-      setState(() {
-        _isSubmitting = false;
-      });
+Future<void> _submitFeedback() async {
+  setState(() {
+    _ratingError = _rating == null;
+  });
 
+  if (!_formKey.currentState!.validate() || _rating == null) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: const Color(0xFFDC3545),
+        const SnackBar(
+          backgroundColor: Color(0xFFDC3545),
           content: Row(
-            children: const [
+            children: [
               Icon(Icons.error_outline, color: Colors.white),
               SizedBox(width: 10),
               Expanded(
                 child: Text(
                   'Please complete all fields',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.w500),
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
                 ),
               ),
             ],
@@ -122,8 +68,146 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
           duration: Duration(seconds: 2),
         ),
       );
+    });
+    return;
+  }
+
+  bool hasInternet = await _checkInternetConnection();
+  if (!hasInternet) {
+    if (mounted) {
+      setState(() {
+        _networkError = 'Network timeout. Please check your internet connection.';
+      });
+      Future.delayed(const Duration(seconds: 4), () {
+        if (mounted) {
+          setState(() {
+            _networkError = '';
+          });
+        }
+      });
+    }
+    return;
+  }
+
+  if (mounted) {
+    setState(() {
+      _isSubmitting = true;
+      _networkError = '';
+    });
+  }
+
+  final DateTime submitTime = DateTime.now();
+  final String attemptedExperience = _experience;
+  final int? attemptedRating = _rating;
+
+  try {
+    await FirebaseFirestore.instance
+        .collection('Feedback')
+        .add({
+          'uid': uid,
+          'rating': _rating,
+          'experience': _experience,
+          'timestamp': FieldValue.serverTimestamp(),
+        })
+        .timeout(const Duration(seconds: 5));
+
+    if (mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Color.fromARGB(255, 0, 118, 208),
+            content: Text('Feedback submitted successfully!'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      });
+    }
+
+    if (mounted) {
+      setState(() {
+        _rating = null;
+        _experience = '';
+        _charLimitReached = false;
+      });
+    }
+    _formKey.currentState!.reset();
+  } catch (e) {
+    if (mounted) {
+      setState(() {
+        _networkError = 'Network timeout. Please check your internet connection.';
+      });
+      Future.delayed(const Duration(seconds: 4), () {
+        if (mounted) {
+          setState(() {
+            _networkError = '';
+          });
+        }
+      });
+
+
+      _feedbackListener?.cancel(); 
+      _feedbackListener = FirebaseFirestore.instance
+          .collection('Feedback')
+          .where('uid', isEqualTo: uid)
+          .snapshots()
+          .listen((snapshot) {
+        bool feedbackMatched = false;
+
+        for (var doc in snapshot.docs) {
+
+          if(doc.metadata.hasPendingWrites){
+            continue;
+          }
+          var data = doc.data() as Map<String, dynamic>;
+          var docTimestamp = (data['timestamp'] as Timestamp?)?.toDate();
+
+          if (data['experience'] == attemptedExperience &&
+              data['rating'] == attemptedRating &&
+              docTimestamp != null &&
+              docTimestamp.isAfter(submitTime)) {
+            
+            feedbackMatched = true;
+            break; 
+          }
+        }
+
+        if (feedbackMatched) {
+          _feedbackListener?.cancel(); 
+
+          if (mounted) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  backgroundColor: Color.fromARGB(255, 0, 118, 208),
+                  content: Text('Feedback submitted successfully!'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            });
+
+            setState(() {
+              _rating = null;
+              _experience = '';
+              _charLimitReached = false;
+            });
+            _formKey.currentState!.reset();
+          }
+        }
+      });
+
+
+      Future.delayed(const Duration(seconds: 120), () {
+        _feedbackListener?.cancel();
+      });
+    }
+  } finally {
+    if (mounted) {
+      setState(() {
+        _isSubmitting = false;
+      });
     }
   }
+}
 
   Widget _buildStar(int index) {
     return IconButton(
@@ -161,22 +245,24 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 width: double.infinity,
                 color: Colors.red,
                 padding: const EdgeInsets.all(12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.wifi_off, color: Colors.white),
-                    const SizedBox(width: 10),
-                    Flexible(
-                      child: Text(
-                        _networkError,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.wifi_off, color: Colors.white),
+                      const SizedBox(width: 10),
+                      Flexible(
+                        child: Text(
+                          _networkError,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             Expanded(
@@ -190,24 +276,29 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                       const Text(
                         'Share Your Experience with Others',
                         style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF113F67),
+                        ),
                       ),
                       const SizedBox(height: 8),
                       const Text(
-                        "Leaving feedback helps other users know what to expect and helps us make Hadafi even better. Keep in mind: your feedback will be public and visible to others.",
+                        "Leaving feedback helps other users know what to expect and helps us make Hadafi even better. Your feedback will be public and visible to others.",
                         style: TextStyle(
                           fontSize: 14,
                           color: Color.fromARGB(255, 152, 161, 168),
                         ),
                       ),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: 10),
                       Divider(thickness: 1, color: Colors.grey[400]),
-                      const SizedBox(height: 5),
-
+                      const SizedBox(height: 10),
                       const Text(
                         'How was your experience?',
                         style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF113F67),
+                        ),
                       ),
                       Row(
                         children:
@@ -228,23 +319,50 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                       const Text(
                         'Write About Your Experience',
                         style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF113F67),
+                        ),
                       ),
                       const SizedBox(height: 15),
                       TextFormField(
                         maxLines: 5,
                         maxLength: 500,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Type Here',
-                          labelStyle: TextStyle(
+                          labelStyle: const TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Color.fromARGB(255, 152, 161, 168),
                           ),
                           border: OutlineInputBorder(),
+                          counterStyle: TextStyle(
+                            color: _charLimitReached ? Colors.red : Colors.grey,
+                          ),
                           alignLabelWithHint: true,
                         ),
                         onChanged: (value) {
                           _experience = value;
+                          if (value.length >= 500 && !_charLimitReached) {
+                            setState(() {
+                              _charLimitReached = true;
+                            });
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  backgroundColor: Colors.red,
+                                  content: Text(
+                                    'You\'ve reached the maximum character limit!',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            });
+                          } else if (value.length < 500 && _charLimitReached) {
+                            setState(() {
+                              _charLimitReached = false;
+                            });
+                          }
                         },
                         validator: (value) => value == null || value.isEmpty
                             ? 'Please write something'

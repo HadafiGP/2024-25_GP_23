@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hadafi_application/StudentHomePage.dart';
+import 'package:hadafi_application/TpOpportunityDetailsPage.dart';
 import 'package:hadafi_application/favoriteProvider.dart';
 import 'package:hadafi_application/OpportunityDetailsPage.dart';
 import 'package:hadafi_application/button.dart';
@@ -162,34 +163,101 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                                   Color.fromARGB(255, 105, 185, 255),
                                 ],
                                 onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          OpportunityDetailsPage(
-                                        jobTitle: opportunity['Job Title'],
-                                        companyName:
-                                            opportunity['Company Name'] ??
-                                                "Unknown",
-                                        description:
-                                            opportunity['Description'] ??
-                                                "No description available.",
-                                        applyUrl:
-                                            opportunity['Apply url'] ?? "",
-                                        similarity: 0.0,
-                                        skills: List<String>.from(
-                                            opportunity['Skills'] ?? []),
-                                        location:
-                                            (opportunity['Locations'] ?? [])
-                                                .join(', '),
-                                        gpa5:
-                                            opportunity['GPA out of 5'] ?? 0.0,
-                                        gpa4:
-                                            opportunity['GPA out of 4'] ?? 0.0,
-                                        opportunityId: null,
+                                  final bool isPostedInHadafi =
+                                      opportunity.containsKey(
+                                          'duration'); // Posted in Hadafi have 'duration'
+
+                                  if (isPostedInHadafi) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            TpOpportunityDetailsPage(
+                                          opportunityId:
+                                              opportunity['id'] ?? '',
+                                          jobTitle: opportunity['Job Title'],
+                                          companyName:
+                                              opportunity['Company Name'] ??
+                                                  'Unknown',
+                                          description:
+                                              opportunity['Description'] ??
+                                                  'No description available.',
+                                          applyUrl:
+                                              opportunity['Apply url'] ?? '',
+                                          skills: List<String>.from(
+                                              opportunity['Skills'] ?? []),
+                                          location:
+                                              (opportunity['Locations'] ?? [])
+                                                  .join(', '),
+                                          gpa5: opportunity['GPA out of 5']
+                                                  is double
+                                              ? opportunity['GPA out of 5']
+                                              : double.tryParse(opportunity[
+                                                          'GPA out of 5']
+                                                      .toString()) ??
+                                                  0.0,
+                                          gpa4: opportunity['GPA out of 4']
+                                                  is double
+                                              ? opportunity['GPA out of 4']
+                                              : double.tryParse(opportunity[
+                                                          'GPA out of 4']
+                                                      .toString()) ??
+                                                  0.0,
+                                          duration:
+                                              opportunity['duration'] ?? '',
+                                          endDate: opportunity['endDate'] ?? '',
+                                          createdAt:
+                                              opportunity['createdAt'] ?? '',
+                                          startDate:
+                                              opportunity['startDate'] ?? '',
+                                          jobType: opportunity['jobType'] ?? '',
+                                          major: (opportunity['major'] ?? [])
+                                              .join(', '),
+                                          contactInfo:
+                                              opportunity['contactInfo'] ?? '',
+                                        ),
                                       ),
-                                    ),
-                                  );
+                                    );
+                                  } else {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            OpportunityDetailsPage(
+                                          jobTitle: opportunity['Job Title'],
+                                          companyName:
+                                              opportunity['Company Name'] ??
+                                                  'Unknown',
+                                          description:
+                                              opportunity['Description'] ??
+                                                  'No description available.',
+                                          applyUrl:
+                                              opportunity['Apply url'] ?? '',
+                                          similarity: 0.0,
+                                          skills: List<String>.from(
+                                              opportunity['Skills'] ?? []),
+                                          location:
+                                              (opportunity['Locations'] ?? [])
+                                                  .join(', '),
+                                          gpa5: opportunity['GPA out of 5']
+                                                  is double
+                                              ? opportunity['GPA out of 5']
+                                              : double.tryParse(opportunity[
+                                                          'GPA out of 5']
+                                                      .toString()) ??
+                                                  0.0,
+                                          gpa4: opportunity['GPA out of 4']
+                                                  is double
+                                              ? opportunity['GPA out of 4']
+                                              : double.tryParse(opportunity[
+                                                          'GPA out of 4']
+                                                      .toString()) ??
+                                                  0.0,
+                                          opportunityId: null,
+                                        ),
+                                      ),
+                                    );
+                                  }
                                 },
                               ),
                             ],

@@ -35,7 +35,7 @@ class _AllFeedbackScreenState extends State<AllFeedbackScreen> {
             }
 
             if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-              return const Center(child: Text("No feedback found."));
+              return const Center(child: Text("No feedback is found."));
             }
 
             final feedbacks = snapshot.data!.docs;

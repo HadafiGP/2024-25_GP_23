@@ -48,7 +48,12 @@ if not os.path.exists(dataset_path):
 opp_df = pd.read_csv(dataset_path)
 
 # Columns of interest for COOP/internship opportunities
-job_columns = ['Company Descreption', 'Skills', 'Majors', 'Location', 'Job Title', 'Company Apply link', 'Company Name']
+job_columns = ['Company Descreption', 'Skills', 'Majors', 'Location', 'Job Title', 'Company Apply link', 'Company Name', 'GPA out of 5', 'GPA out of 4', ]
+
+
+# Ensure each field is treated as a string
+opp_df['GPA out of 5'] = pd.to_numeric(opp_df['GPA out of 5'], errors='coerce').fillna(0)
+opp_df['GPA out of 4'] = pd.to_numeric(opp_df['GPA out of 4'], errors='coerce').fillna(0)
 
 # Fill in missing values
 for column in job_columns:
@@ -141,6 +146,8 @@ def recommend():
                 'Company Name': row.get('Company Name', 'N/A'),
                 'Locations': list(opp_locations),
                 'Skills': row['Skills'],
+                'GPA out of 5': row['GPA out of 5'],
+                'GPA out of 4': row['GPA out of 4'],
                 'Skills Similarity': skills_similarity
             })
 
@@ -159,3 +166,4 @@ def recommend():
 
 if __name__ == "__main__":
     app.run(debug=True)
+

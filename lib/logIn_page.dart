@@ -24,15 +24,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool backFromForget = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(isLoadingProvider.notifier).state = false;
+      ref.read(isPasswordVisibleProvider.notifier).state = false;
+      ref.read(errorMessageProvider.notifier).state = null;
+      ref.read(successMessageProvider.notifier).state = null;
+    });
+
     _emailController.clear();
     _passwordController.clear();
-    ref.read(isPasswordVisibleProvider.notifier).state = false;
-    ref.read(errorMessageProvider.notifier).state = null;
-    ref.read(successMessageProvider.notifier).state = null;
   }
 
   @override
@@ -51,6 +57,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final bool isPasswordVisible = ref.watch(isPasswordVisibleProvider);
     final String? errorMessage = ref.watch(errorMessageProvider);
     final String? successMessage = ref.watch(successMessageProvider);
+    
+
+    if (isLoading && backFromForget) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(isLoadingProvider.notifier).state = false;
+        backFromForget=false;
+      });
+    }
 
     Future<void> _login() async {
       if (!_formKey.currentState!.validate()) return;
@@ -65,11 +79,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
+        if (!mounted) return;
 
         User? user = userCredential.user;
 
         if (user != null && !user.emailVerified) {
           await user.sendEmailVerification();
+          if (!mounted) return;
           ref.read(successMessageProvider.notifier).state =
               "Verification email sent. Please verify to log in.";
         } else if (user != null && user.emailVerified) {
@@ -77,6 +93,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               .collection('Student')
               .doc(user.uid)
               .get();
+          if (!mounted) return;
           ref.read(uidProvider.notifier).state = user.uid;
 
           _emailController.clear();
@@ -93,6 +110,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 .collection('TrainingProvider')
                 .doc(user.uid)
                 .get();
+            if (!mounted) return;
             if (providerDoc.exists &&
                 providerDoc.get('role') == 'training_provider') {
               ref.read(uidProvider.notifier).state = user.uid;
@@ -105,9 +123,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           }
         }
       } on FirebaseAuthException catch (e) {
+        if (!mounted) return;
         ref.read(errorMessageProvider.notifier).state =
             _handleAuthError(e.code);
       } catch (e) {
+        if (!mounted) return;
         ref.read(errorMessageProvider.notifier).state =
             'Log in failed due to an unexpected error. Please try again.';
       } finally {
@@ -168,7 +188,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 MaterialPageRoute(
                                   builder: (context) => ForgetPasswordPage(),
                                 ),
-                              );
+                              ).then((_){
+                                setState(() {
+                                  backFromForget=true;
+                                });
+                                
+                              });
                             },
                             child: const Text(
                               'Forget Password?',
