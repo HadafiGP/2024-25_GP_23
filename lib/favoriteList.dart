@@ -110,7 +110,9 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                                                 : "Opportunity added to Saved Opportunities",
                                             style: const TextStyle(
                                                 color: Colors.white),
+                                                
                                           ),
+                                          
                                           action: wasFavorited
                                               ? SnackBarAction(
                                                   label: "Undo",
@@ -122,9 +124,8 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                                                   },
                                                 )
                                               : null,
-                                          backgroundColor: const Color.fromARGB(
-                                              255, 0, 118, 208),
-                                          duration: const Duration(seconds: 2),
+                                           duration: Duration(seconds: 2),
+        backgroundColor: Colors.green,
                                         ),
                                       );
 

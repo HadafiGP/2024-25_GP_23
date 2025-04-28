@@ -132,7 +132,8 @@ class CandidateDetailsPage extends StatelessWidget {
                           await launchUrl(url);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Could not open CV")),
+                            const SnackBar(content: Text("Could not open CV")    ,      duration: Duration(seconds: 2),
+            backgroundColor: Colors.red,),
                           );
                         }
                       },

@@ -556,7 +556,8 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       print("Failed to load student data: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load profile data')),
+        SnackBar(content: Text('Failed to load profile data')                      , duration: Duration(seconds: 2),
+        backgroundColor: Colors.red,),
       );
     }
   }
@@ -598,7 +599,8 @@ class _ProfilePageState extends State<ProfilePage> {
             _selectedManagementSkills.isEmpty &&
             _selectedSoftSkills.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Please select at least one skill')),
+            SnackBar(content: Text('Please select at least one skill')                      , duration: Duration(seconds: 2),
+        backgroundColor: Colors.red,),
           );
           return;
         }
@@ -635,7 +637,8 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       print("Failed to save profile data: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update profile')),
+        SnackBar(content: Text('Failed to update profile')                      , duration: Duration(seconds: 2),
+        backgroundColor: Colors.red,),
       );
     }
   }

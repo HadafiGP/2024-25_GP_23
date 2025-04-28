@@ -156,9 +156,8 @@ class OpportunityDetailsPage extends StatelessWidget {
                                             },
                                           )
                                         : null,
-                                    backgroundColor:
-                                        const Color.fromARGB(255, 0, 118, 208),
-                                    duration: const Duration(seconds: 2),
+                                               duration: Duration(seconds: 2),
+        backgroundColor: Colors.green,
                                   ),
                                 );
                               },
@@ -416,6 +415,8 @@ class OpportunityDetailsPage extends StatelessWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text("Could not open the URL"),
+                                                 duration: Duration(seconds: 2),
+        backgroundColor: Colors.red,
                       ),
                     );
                   }

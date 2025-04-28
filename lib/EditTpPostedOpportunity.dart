@@ -904,7 +904,9 @@ void _saveData() async {
 
     if (selectedSoftSkills.isEmpty && selectedTechnicalSkills.isEmpty && selectedManagementSkills.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please select at least one skill")),
+        const SnackBar(content: Text("Please select at least one skill")
+                                                  , duration: Duration(seconds: 2),
+        backgroundColor: Colors.red,),
       );
       return;
     }
@@ -915,14 +917,16 @@ void _saveData() async {
 
     if (gpa4 != null && (gpa4 <= 0 || gpa4 > 4.0)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("GPA out of 4 should be between 0 and 4.0")),
+        const SnackBar(content: Text("GPA out of 4 should be between 0 and 4.0")                      , duration: Duration(seconds: 2),
+        backgroundColor: Colors.red,),
       );
       return;
     }
 
     if (gpa5 != null && (gpa5 <= 0 || gpa5 > 5.0)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("GPA out of 5 should be between 0 and 5.0")),
+        const SnackBar(content: Text("GPA out of 5 should be between 0 and 5.0")                      , duration: Duration(seconds: 2),
+        backgroundColor: Colors.red,),
       );
       return;
     }
@@ -960,7 +964,8 @@ void _saveData() async {
 
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Opportunity updated successfully")),
+        const SnackBar(content: Text("Opportunity updated successfully")                      , duration: Duration(seconds: 2),
+        backgroundColor: Colors.green,),
       );
 
 
@@ -970,7 +975,8 @@ void _saveData() async {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to update opportunity: $e")),
+        SnackBar(content: Text("Failed to update opportunity: $e")                      , duration: Duration(seconds: 2),
+        backgroundColor: Colors.red,),
       );
     }
   }

@@ -888,9 +888,8 @@ class OpportunitiesList extends StatelessWidget {
                                       },
                                     )
                                   : null,
-                              backgroundColor:
-                                  const Color.fromARGB(255, 0, 118, 208),
-                              duration: const Duration(seconds: 2),
+                                          duration: Duration(seconds: 2),
+        backgroundColor: Colors.green,
                             ),
                           );
                         },

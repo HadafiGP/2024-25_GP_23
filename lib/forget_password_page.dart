@@ -104,7 +104,8 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
               e.message ?? 'An unexpected error occurred. Please try again.';
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage)),
+        SnackBar(content: Text(errorMessage)                      , duration: Duration(seconds: 2),
+        backgroundColor: Colors.red,),
       );
     }
   }

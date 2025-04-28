@@ -96,7 +96,8 @@ class _TrainingProviderProfilePageState
     } catch (e) {
       print("Failed to load profile data: $e");
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Failed to load profile data')));
+          .showSnackBar(SnackBar(content: Text('Failed to load profile data')                      , duration: Duration(seconds: 2),
+        backgroundColor: Colors.red,));
     }
   }
 
@@ -119,12 +120,14 @@ class _TrainingProviderProfilePageState
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Profile updated successfully')));
+            SnackBar(content: Text('Profile updated successfully')                      , duration: Duration(seconds: 2),
+        backgroundColor: Colors.green,));
       }
     } catch (e) {
       print("Failed to save profile data: $e");
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Failed to update profile')));
+          .showSnackBar(SnackBar(content: Text('Failed to update profile')                      , duration: Duration(seconds: 2),
+        backgroundColor: Colors.red,));
     }
   }
 
@@ -630,7 +633,8 @@ class _TrainingProviderProfilePageState
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Logout failed. Please try again.')),
+        SnackBar(content: Text('Logout failed. Please try again.')                      , duration: Duration(seconds: 2),
+        backgroundColor: Colors.red,),
       );
     }
   }

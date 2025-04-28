@@ -26,6 +26,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       // إذا كنت تستخدم Firebase، سيكون هنا الكود لتغيير كلمة المرور
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Password has been changed successfully'),
+                                                   duration: Duration(seconds: 2),
+        backgroundColor: Colors.green,
+
       ));
     }
   }

@@ -457,7 +457,8 @@ final List<String> managementSkills = [
 
                         Navigator.pop(context); // Close loading
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Opportunity posted successfully")),
+                          const SnackBar(content: Text("Opportunity posted successfully")                      , duration: Duration(seconds: 2),
+        backgroundColor: Colors.green,),
                         );
 
                         // ✅ Navigate to provider homepage
@@ -469,7 +470,9 @@ final List<String> managementSkills = [
                         Navigator.pop(context); // Close loading
                         print("❌ Error posting opportunity: $e");
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Failed to post opportunity: $e")),
+                          SnackBar(content: Text("Failed to post opportunity: $e")                      , duration: Duration(seconds: 2),
+        backgroundColor: Colors.red,),
+                          
                         );
                       }
                     } else {
