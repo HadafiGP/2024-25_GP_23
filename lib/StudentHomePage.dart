@@ -19,7 +19,6 @@ import 'package:hadafi_application/favoriteProvider.dart';
 import 'package:hadafi_application/favoriteList.dart';
 import 'package:hadafi_application/Feedback/feedback.dart';
 import 'package:hadafi_application/Feedback/allFeedback.dart';
-import 'package:flutter/src/widgets/scrollbar.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -378,43 +377,23 @@ class _StudentHomePageState extends State<StudentHomePage> {
               iconTheme: const IconThemeData(color: Colors.white),
               title: const Text(''),
               actions: [
-                InkWell(
-                  onTap: () {
-                    final List<dynamic> dataToSearch = selectedIndex == 0
-                        ? List.from(recommendations)
-                        : List.from(filteredProviderOpportunities);
+                IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () {
+                    final List<dynamic> dataToSearch = [
+                      ...recommendations,
+                      ...filteredProviderOpportunities,
+                    ];
 
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => OpportunitySearchPage(
                           opportunities: dataToSearch,
-                          selectedIndex: selectedIndex,
                         ),
                       ),
                     );
                   },
-                  child: Row(
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Icon(Icons.search, color: Colors.white),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 12),
-                        child: Text(
-                          selectedIndex == 0
-                              ? 'Search in Sourced Online'
-                              : 'Search in Posted in Hadafi',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
               ],
             ),
@@ -537,7 +516,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
               const Text(
@@ -565,43 +544,30 @@ class _StudentHomePageState extends State<StudentHomePage> {
             ],
           ),
         ),
-        const SizedBox(height: 5),
+        SizedBox(
+          height: 5,
+        ),
         SizedBox(
           height: 160,
           child: FutureBuilder<QuerySnapshot>(
             future: FirebaseFirestore.instance
                 .collection('Feedback')
                 .orderBy('timestamp', descending: true)
+                .limit(3)
                 .get(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return const Center(child: CircularProgressIndicator());
               }
 
-              final allDocs = snapshot.data!.docs;
-              final showMoreButton = allDocs.length > 3;
-              final docs = allDocs.take(3).toList();
-
-              if (docs.isEmpty) {
-                return const Center(
-                  child: Text(
-                    "No feedback has been shared yet.",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey,
-                    ),
-                  ),
-                );
-              }
+              final docs = snapshot.data!.docs;
 
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
-                itemCount: showMoreButton ? docs.length + 1 : docs.length,
+                itemCount: docs.length + 1,
                 itemBuilder: (context, index) {
-                  if (!showMoreButton || index < docs.length) {
+                  if (index < docs.length) {
                     final data = docs[index].data() as Map<String, dynamic>;
-                    final scrollController = ScrollController();
 
                     return FutureBuilder<DocumentSnapshot>(
                       future: FirebaseFirestore.instance
@@ -617,6 +583,11 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
                         final rating = data['rating'] ?? 0;
                         final experience = data['experience'] ?? '';
+
+                        final topicsRaw = data['topic'];
+                        final List<String> topics = topicsRaw is List
+                            ? List<String>.from(topicsRaw)
+                            : [topicsRaw?.toString() ?? 'General'];
 
                         return Container(
                           width: 240,
@@ -637,15 +608,18 @@ class _StudentHomePageState extends State<StudentHomePage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // Name
                               Text(
                                 name,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 14,
+                                  fontSize: 16,
                                   color: Color(0xFF113F67),
                                 ),
                               ),
                               const SizedBox(height: 4),
+
+                              // Star rating
                               Row(
                                 children: List.generate(5, (i) {
                                   return Icon(
@@ -658,21 +632,16 @@ class _StudentHomePageState extends State<StudentHomePage> {
                                 }),
                               ),
                               const SizedBox(height: 8),
+
+                              // Feedback text
                               Expanded(
-                                child: Scrollbar(
-                                  controller: scrollController,
-                                  thumbVisibility: true,
-                                  radius: const Radius.circular(8),
-                                  child: SingleChildScrollView(
-                                    controller: scrollController,
-                                    padding: EdgeInsets.zero,
-                                    child: Text(
-                                      experience,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        height: 1.3,
-                                      ),
-                                    ),
+                                child: Text(
+                                  experience,
+                                  maxLines: 4,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    height: 1.3,
                                   ),
                                 ),
                               ),
@@ -695,8 +664,8 @@ class _StudentHomePageState extends State<StudentHomePage> {
                           );
                         },
                         child: Container(
-                          width: 50,
-                          height: 50,
+                          width: 60,
+                          height: 60,
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
                             color: Color(0xFF113F67),
@@ -776,22 +745,12 @@ class OpportunitiesList extends StatelessWidget {
             : opportunity['companyLink'] ?? "unkown";
 
         final gpa5 = selectedIndex == 0
-            ? (opportunity['GPA out of 5'] is double
-                ? opportunity['GPA out of 5']
-                : double.tryParse(opportunity['GPA out of 5'].toString()) ??
-                    0.0)
-            : (opportunity['gpaOutOf5'] is double
-                ? opportunity['gpaOutOf5']
-                : double.tryParse(opportunity['gpaOutOf5'].toString()) ?? 0.0);
+            ? opportunity['GPA out of 5'] ?? 0.0
+            : opportunity['gpaOutOf5'] ?? 0.0;
 
         final gpa4 = selectedIndex == 0
-            ? (opportunity['GPA out of 4'] is double
-                ? opportunity['GPA out of 4']
-                : double.tryParse(opportunity['GPA out of 4'].toString()) ??
-                    0.0)
-            : (opportunity['gpaOutOf4'] is double
-                ? opportunity['gpaOutOf4']
-                : double.tryParse(opportunity['gpaOutOf4'].toString()) ?? 0.0);
+            ? opportunity['GPA out of 4'] ?? 0.0
+            : opportunity['gpaOutOf4'] ?? 0.0;
 
         final contactInfo = selectedIndex == 0
             ? opportunity['Contact Info'] ?? ""
@@ -836,34 +795,16 @@ class OpportunitiesList extends StatelessWidget {
                         onTap: () {
                           final wasFavorited = isFavorited;
 
-                          final favoriteOpp = selectedIndex == 0
-                              ? {
-                                  'Job Title': oppTitle,
-                                  'Company Name': companyName,
-                                  'Description': description,
-                                  'Apply url': applyUrl,
-                                  'GPA out of 5': gpa5,
-                                  'GPA out of 4': gpa4,
-                                  'Locations': opportunity['Locations'] ?? [],
-                                  'Skills': opportunity['Skills'] ?? [],
-                                }
-                              : {
-                                  'Job Title': oppTitle,
-                                  'Company Name': companyName,
-                                  'Description': description,
-                                  'Apply url': applyUrl,
-                                  'GPA out of 5': gpa5,
-                                  'GPA out of 4': gpa4,
-                                  'Locations': opportunity['locations'] ?? [],
-                                  'Skills': opportunity['skills'] ?? [],
-                                  'duration': opportunity['duration'] ?? '',
-                                  'endDate': opportunity['endDate'] ?? '',
-                                  'startDate': opportunity['startDate'] ?? '',
-                                  'jobType': opportunity['jobType'] ?? '',
-                                  'major': opportunity['major'] ?? [],
-                                  'contactInfo':
-                                      opportunity['contactInfo'] ?? '',
-                                };
+                          final favoriteOpp = {
+                            'Job Title': oppTitle,
+                            'Company Name': companyName,
+                            'Description': description,
+                            'Apply url': applyUrl,
+                            'GPA out of 5': gpa5,
+                            'GPA out of 4': gpa4,
+                            'Locations': opportunity['Locations'] ?? [],
+                            'Skills': opportunity['Skills'] ?? [],
+                          };
 
                           ref
                               .read(favoriteProvider.notifier)
@@ -888,8 +829,9 @@ class OpportunitiesList extends StatelessWidget {
                                       },
                                     )
                                   : null,
-                                          duration: Duration(seconds: 2),
-        backgroundColor: Colors.green,
+                              backgroundColor:
+                                  const Color.fromARGB(255, 0, 118, 208),
+                              duration: const Duration(seconds: 2),
                             ),
                           );
                         },
