@@ -484,8 +484,8 @@ class _StudentHomePageState extends State<StudentHomePage> {
               unselectedLabelColor: Colors.grey,
               indicatorColor: Color(0xFF113F67),
               tabs: [
-                Tab(text: 'Sourced Online'),
-                Tab(text: 'Posted in Hadafi'),
+                Tab(text: 'Recommended'),
+                Tab(text: 'Find Oppurtonities'),
               ],
             ),
             Expanded(

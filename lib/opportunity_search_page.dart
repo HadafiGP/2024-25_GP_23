@@ -70,17 +70,17 @@ class _OpportunitySearchPageState extends State<OpportunitySearchPage> {
                 borderRadius: BorderRadius.circular(12),
                 gradient: const LinearGradient(
                   colors: [
-                    Color(0xFF113F67), // أزرق غامق
-                    Color.fromARGB(255, 105, 185, 255), // أزرق فاتح
+                    Color(0xFF113F67),
+                    Color.fromARGB(255, 105, 185, 255),
                   ],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
               ),
               child: Container(
-                margin: const EdgeInsets.all(1.8), // سماكة خط التدرج
+                margin: const EdgeInsets.all(1.8),
                 decoration: BoxDecoration(
-                  color: Colors.white, // الخلفية الداخلية بيضاء
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: TextField(
@@ -99,6 +99,44 @@ class _OpportunitySearchPageState extends State<OpportunitySearchPage> {
                   ),
                 ),
               ),
+            ),
+          ),
+          // Info Box
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            margin: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0), // To add margin and avoid it touching edges
+            decoration: BoxDecoration(
+              color: const Color(0xFFE3F2FD),
+              borderRadius: BorderRadius.circular(8), // Rounded corners
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 4,
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.info_outline,
+                  color: Color(0xFF113F67),
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Text(
+                    'You can search by title, company name, location, and opportunity type (COOP/Intern).',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF113F67),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
 
