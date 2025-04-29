@@ -180,9 +180,11 @@ class _StudentHomePageState extends State<StudentHomePage> {
     super.initState();
 
     fetchRecommendations();
- 
-      fetchProviderOpportunities();
-
+    fetchUserMajor().then((_) {
+      fetchProviderOpportunities().then((_) {
+        filterProviderOpportunitiesByMajor();
+      });
+    });
   }
 
 //best match recs
@@ -236,75 +238,109 @@ class _StudentHomePageState extends State<StudentHomePage> {
     }
   }
 
-Future<void> fetchProviderOpportunities() async {
-  try {
-    final opportunitiesRef =
-        FirebaseFirestore.instance.collection('opportunity');
-    final providerQuery = await opportunitiesRef.get();
+  Future<void> fetchProviderOpportunities() async {
+    try {
+      final opportunitiesRef =
+          FirebaseFirestore.instance.collection('opportunity');
+      final providerQuery = await opportunitiesRef.get();
 
-    List<dynamic> fetchedOpportunities = [];
+      List<dynamic> fetchedOpportunities = [];
 
-    for (var doc in providerQuery.docs) {
-      final jobTitle = doc['jobTitle'];
-      final providerId = doc['providerUid'];
-      final description = doc['description'];
-      final jobType = doc['jobType'];
-      final majors = List<String>.from(doc['majors'] ?? []);
-      final locations = List<String>.from(doc['locations'] ?? []);
-      final skills = List<String>.from(doc['skills'] ?? []);
-      final startDate = doc['startDate'];
-      final duration = doc['duration'];
-      final endDate = doc['endDate'];
-      final createdAt = doc['createdAt'] ?? '';
-      final contactInfo = doc['contactInfo'] ?? 'Not provided';
-      final gpa5 = doc['gpaOutOf5'] ?? 0.0;
-      final gpa4 = doc['gpaOutOf4'] ?? 0.0;
-      final companyLink = doc['companyLink'] ?? "";
+      for (var doc in providerQuery.docs) {
+        final jobTitle = doc['jobTitle'];
+        final providerId = doc['providerUid'];
+        final description = doc['description'];
+        final jobType = doc['jobType'];
+        final majors = List<String>.from(doc['majors'] ?? []);
 
-      // Get company name from TrainingProvider collection
-      final providerSnapshot = await FirebaseFirestore.instance
-          .collection('TrainingProvider')
-          .doc(providerId)
-          .get();
+        final locations = List<String>.from(doc['locations']);
+        final skills = List<String>.from(doc['skills']);
+        final startDate = doc['startDate'];
+        final duration = doc['duration'];
+        final endDate = doc['endDate'];
 
-      final companyName = providerSnapshot.exists
-          ? providerSnapshot['company_name']
-          : 'Unknown Company';
+        final contactInfo = doc['contactInfo'] ?? 'Not provided';
 
-      fetchedOpportunities.add({
-        'id': doc.id,
-        'jobTitle': jobTitle,
-        'companyName': companyName,
-        'description': description,
-        'jobType': jobType,
-        'major': majors,
-        'locations': locations,
-        'skills': skills,
-        'startDate': startDate,
-        'duration': duration,
-        'endDate': endDate,
-        'createdAt': createdAt,
-        'providerId': providerId,
-        'gpaOutOf5': gpa5,
-        'gpaOutOf4': gpa4,
-        'companyLink': companyLink,
-        'contactInfo': contactInfo,
+        final gpa5 = doc['gpaOutOf5'] ?? 0.0;
+        final gpa4 = doc['gpaOutOf4'] ?? 0.0;
+        final companyLink = doc['companyLink'] ?? "";
+
+        final providerSnapshot = await FirebaseFirestore.instance
+            .collection('TrainingProvider')
+            .doc(providerId)
+            .get();
+
+        final companyName = providerSnapshot.exists
+            ? providerSnapshot['company_name']
+            : 'Unknown Company';
+
+        fetchedOpportunities.add({
+          'id': doc.id,
+          'jobTitle': jobTitle,
+          'companyName': companyName,
+          'description': description,
+          'jobType': jobType,
+          'major': majors,
+          'locations': locations,
+          'skills': skills,
+          'startDate': startDate,
+          'duration': duration,
+          'endDate': endDate,
+          'providerId': providerId,
+          'gpaOutOf5': gpa5,
+          'gpaOutOf4': gpa4,
+          'companyLink': companyLink,
+          'contactInfo': contactInfo,
+        });
+      }
+
+      print('Fetched ${providerQuery.docs.length} opportunities');
+      print('Provider Opportunities: $fetchedOpportunities');
+
+      setState(() {
+        providerOpportunities = fetchedOpportunities;
+        isLoadingProviderOpportunities = false;
       });
+    } catch (e) {
+      print("An error occurred while fetching provider opportunities: $e");
+    }
+  }
+
+// in this part i will get the student major to display the other opportunities according to it
+  String userMajor = '';
+
+  Future<void> fetchUserMajor() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      print("User is not logged in.");
+      return;
     }
 
-    setState(() {
-      providerOpportunities = fetchedOpportunities;
-      filteredProviderOpportunities = fetchedOpportunities; 
-      isLoadingProviderOpportunities = false;
-    });
-  } catch (e) {
-    print("An error occurred while fetching provider opportunities: $e");
+    try {
+      final userSnapshot = await FirebaseFirestore.instance
+          .collection('Student')
+          .doc(user.uid)
+          .get();
+
+      if (userSnapshot.exists) {
+        final userData = userSnapshot.data();
+        userMajor = userData?['major'] ?? '';
+        print("User major: $userMajor");
+      }
+    } catch (e) {
+      print("An error occurred while fetching user major: $e");
+    }
   }
-}
-
-
 
   List<dynamic> filteredProviderOpportunities = [];
+Future<void> filterProviderOpportunitiesByMajor() async {
+  filteredProviderOpportunities = providerOpportunities;
+
+  setState(() {
+    isLoadingProviderOpportunities = false;
+  });
+}
 
 
   @override
