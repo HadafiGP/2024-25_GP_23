@@ -334,14 +334,13 @@ class _StudentHomePageState extends State<StudentHomePage> {
   }
 
   List<dynamic> filteredProviderOpportunities = [];
-Future<void> filterProviderOpportunitiesByMajor() async {
-  filteredProviderOpportunities = providerOpportunities;
+  Future<void> filterProviderOpportunitiesByMajor() async {
+    filteredProviderOpportunities = providerOpportunities;
 
-  setState(() {
-    isLoadingProviderOpportunities = false;
-  });
-}
-
+    setState(() {
+      isLoadingProviderOpportunities = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -356,6 +355,8 @@ Future<void> filterProviderOpportunitiesByMajor() async {
             if (!tabController.indexIsChanging) {
               setState(() {
                 selectedIndex = tabController.index;
+                _tabNotifier.value =
+                    tabController.index; //innfo navigation only in recommended
               });
             }
           });
@@ -734,13 +735,14 @@ class OpportunitiesList extends StatelessWidget {
         final applyUrl = selectedIndex == 0
             ? opportunity['Apply url'] ?? "unknown"
             : opportunity['companyLink'] ?? "unkown";
-
         final gpa5 = selectedIndex == 0
-            ? opportunity['GPA out of 5'] ?? 0.0
+            ? double.tryParse(opportunity['GPA out of 5']?.toString() ?? '') ??
+                0.0
             : opportunity['gpaOutOf5'] ?? 0.0;
 
         final gpa4 = selectedIndex == 0
-            ? opportunity['GPA out of 4'] ?? 0.0
+            ? double.tryParse(opportunity['GPA out of 4']?.toString() ?? '') ??
+                0.0
             : opportunity['gpaOutOf4'] ?? 0.0;
 
         final contactInfo = selectedIndex == 0

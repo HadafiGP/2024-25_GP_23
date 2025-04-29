@@ -273,83 +273,71 @@ class OpportunityDetailsPage extends StatelessWidget {
             ),
             if (hasGpa) const SizedBox(height: 16),
             // GPA
-            if (hasGpa)
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.school,
-                            color: Color(0xFF096499),
-                            size: 24,
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            "GPA Requirements",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF096499),
-                            ),
-                          ),
-                        ],
+if (hasGpa)
+  Card(
+    elevation: 4,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: ExpansionTile(
+      title: Row(
+        children: const [
+          Icon(Icons.school, color: Color(0xFF096499), size: 24),
+          SizedBox(width: 8),
+          Text(
+            "GPA Requirements",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF096499),
+            ),
+          ),
+        ],
+      ),
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (gpa5 > 0)
+                Row(
+                  children: [
+                    const Icon(Icons.star, color: Colors.orange, size: 16),
+                    const SizedBox(width: 8),
+                    Text(
+                      "GPA out of 5: ${gpa5.toStringAsFixed(2)}",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
                       ),
-                      const SizedBox(height: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (gpa5 > 0)
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.star,
-                                  color: Colors.orange,
-                                  size: 16,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  "GPA out of 5: ${gpa5.toStringAsFixed(2)}",
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          if (gpa4 > 0)
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.star,
-                                  color: Colors.blue,
-                                  size: 16,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  "GPA out of 4: ${gpa4.toStringAsFixed(2)}",
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                              ],
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ),
+              if (gpa5 > 0 && gpa4 > 0) const SizedBox(height: 8),
+              if (gpa4 > 0)
+                Row(
+                  children: [
+                    const Icon(Icons.star, color: Colors.blue, size: 16),
+                    const SizedBox(width: 8),
+                    Text(
+                      "GPA out of 4: ${gpa4.toStringAsFixed(2)}",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  ),
+
             // Skills
             if (!hasGpa) const SizedBox(height: 16),
             Card(
