@@ -537,46 +537,49 @@ class TpOpportunityDetailsPage extends StatelessWidget {
             ),
 
             // Company applu link
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    const Icon(Icons.link, color: Color(0xFF096499)),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: InkWell(
-                        onTap: () async {
-                          if (applyUrl.isNotEmpty &&
-                              await canLaunchUrl(Uri.parse(applyUrl))) {
-                            await launchUrl(Uri.parse(applyUrl));
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text("Could not open the URL")                      , duration: Duration(seconds: 2),
-        backgroundColor: Colors.red,),
-                            );
-                          }
-                        },
-                        child: Text(
-                          applyUrl,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Color(0xFF096499),
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
+if (applyUrl.isNotEmpty)
+  Card(
+    elevation: 4,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          const Icon(Icons.link, color: Color(0xFF096499)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: InkWell(
+              onTap: () async {
+                if (await canLaunchUrl(Uri.parse(applyUrl))) {
+                  await launchUrl(Uri.parse(applyUrl));
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Could not open the URL"),
+                      duration: Duration(seconds: 2),
+                      backgroundColor: Colors.red,
                     ),
-                  ],
+                  );
+                }
+              },
+              child: Text(
+                applyUrl,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF096499),
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
                 ),
               ),
             ),
+          ),
+        ],
+      ),
+    ),
+  ),
+
 
             const SizedBox(height: 24),
             // Apply Now Button
