@@ -152,7 +152,8 @@ List<String> selectedMajors = [];
     'Riyadh',
     'Tabuk',
     'Taif',
-    'Other'
+    'Dhahran',
+    'Yanbu'
   ];
   final List<String> softSkills = [
     "Accountability",

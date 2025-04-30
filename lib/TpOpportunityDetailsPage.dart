@@ -61,7 +61,6 @@ class TpOpportunityDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final locationsList = location.split(',').map((loc) => loc.trim()).toList();
     final bool hasGpa = gpa5 > 0 || gpa4 > 0;
-    bool isApplied = false;
 
     return Scaffold(
       appBar: AppBar(
@@ -186,8 +185,9 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                                             },
                                           )
                                         : null,
-                                    duration: Duration(seconds: 2),
-                                    backgroundColor: Colors.green,
+                                    backgroundColor:
+                                        const Color.fromARGB(255, 0, 118, 208),
+                                    duration: const Duration(seconds: 2),
                                   ),
                                 );
                               },
@@ -556,10 +556,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text("Could not open the URL"),
-                                duration: Duration(seconds: 2),
-                                backgroundColor: Colors.red,
-                              ),
+                                  content: Text("Could not open the URL")),
                             );
                           }
                         },
@@ -578,9 +575,6 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                 ),
               ),
             ),
-
-            const SizedBox(height: 24),
-//close
           ],
         ),
       ),
