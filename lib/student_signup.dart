@@ -58,7 +58,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   String? _emailError; // To hold the "email already in use" error
   String? _selectedNationality;
   String? _selectedMajor;
-  String? cvPath; // store file path
 
   double? _selectedGpaScale; // Store selected GPA scale
 
@@ -537,18 +536,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   final GlobalKey<FormFieldState<String>> _passwordKey = GlobalKey();
   final GlobalKey<FormFieldState<String>> _gpaKey = GlobalKey();
 
-  Future<void> pickCV() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf'],
-    );
-    if (result != null) {
-      setState(() {
-        cvPath = result.files.single.path!;
-      });
-    }
-  }
-
   void _scrollToFirstError() {
     for (var key in [_nameKey, _emailKey, _passwordKey, _gpaKey]) {
       if (key.currentState != null && key.currentState is FormFieldState) {
@@ -941,70 +928,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                                         255, 0, 176, 15)))),
                       ],
 
-                      SizedBox(height: 20),
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: const Text(
-                          'Upload Your CV (Optional):',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF113F67),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: ElevatedButton(
-                              onPressed: pickCV,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                elevation: 5,
-                                shadowColor: Colors.black26,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(40),
-                                  side: const BorderSide(
-                                    color: Color(0xFF113F67),
-                                    width: 1.8,
-                                  ),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 12),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: const [
-                                  Icon(Icons.upload_file,
-                                      color: Color(0xFF113F67)),
-                                  SizedBox(width: 3),
-                                  Text(
-                                    "CV as PDF",
-                                    style: TextStyle(
-                                      color: Color(0xFF113F67),
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          if (cvPath != null) ...[
-                            SizedBox(height: 8),
-                            Text(
-                              "✅ CV selected: ${cvPath!.split('/').last}",
-                              style: TextStyle(
-                                color: Color(0xFF113F67),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
                       SizedBox(height: 15),
                       Divider(
                         color: Colors.grey, // Gray color
@@ -1784,15 +1707,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
               'avatars', user.uid, avatarPath!);
         }
 
-        String? cv;
-        if (cvPath != null) {
-          cv = await storageRepository.uploadFileToStorage(
-            'cv',
-            user.uid,
-            File(cvPath!),
-          );
-        }
-
         // Store user data in Firestore
         await _firestore.collection('Student').doc(user.uid).set({
           'name': _nameController.text.trim(),
@@ -1808,7 +1722,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
           'role': 'student', // Store the user role as 'student'
           'profilePic': avatarUrl, // Add profilePic URL
           'banner': bannerUrl, // Add banner URL
-          'cv': cv,
         });
 
         ProviderScope.containerOf(context).read(uidProvider.notifier).state =

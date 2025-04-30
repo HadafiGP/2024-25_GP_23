@@ -67,9 +67,6 @@ class _ProfilePageState extends State<ProfilePage> {
   String? _selectedNationality;
   String? _emailError;
   bool _isEditing = false;
-  String? _cvUrl;
-  File? _cvFile;
-  String? cvPath;
 
   final List<String> healthTechnicalSkills = [
     "Data Analysis",
@@ -424,10 +421,7 @@ class _ProfilePageState extends State<ProfilePage> {
         return;
       }
 
-      setState(() {
-        _cvFile = File(path);
-        cvPath = path;
-      });
+      setState(() {});
     }
   }
 
@@ -549,15 +543,17 @@ class _ProfilePageState extends State<ProfilePage> {
                 .toList();
 
             _selectedGpaScale = doc['gpaScale']?.toDouble();
-            _cvUrl = doc['cv'];
           });
         }
       }
     } catch (e) {
       print("Failed to load student data: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load profile data')                      , duration: Duration(seconds: 2),
-        backgroundColor: Colors.red,),
+        SnackBar(
+          content: Text('Failed to load profile data'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -574,13 +570,6 @@ class _ProfilePageState extends State<ProfilePage> {
         _emailError = 'This email is already in use';
       });
       return;
-    }
-    if (_cvFile != null) {
-      Reference storageRef = FirebaseStorage.instance
-          .ref()
-          .child('student_cvs/${_auth.currentUser!.uid}');
-      await storageRef.putFile(_cvFile!);
-      _cvUrl = await storageRef.getDownloadURL();
     }
 
     if (_profileImageFile != null) {
@@ -599,8 +588,11 @@ class _ProfilePageState extends State<ProfilePage> {
             _selectedManagementSkills.isEmpty &&
             _selectedSoftSkills.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Please select at least one skill')                      , duration: Duration(seconds: 2),
-        backgroundColor: Colors.red,),
+            SnackBar(
+              content: Text('Please select at least one skill'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.red,
+            ),
           );
           return;
         }
@@ -621,7 +613,6 @@ class _ProfilePageState extends State<ProfilePage> {
           'location': _selectedLocations,
           'nationality': _selectedNationality,
           'skills': allSkills,
-          'cv': _cvUrl,
         });
 
         setState(() {
@@ -637,8 +628,11 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       print("Failed to save profile data: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update profile')                      , duration: Duration(seconds: 2),
-        backgroundColor: Colors.red,),
+        SnackBar(
+          content: Text('Failed to update profile'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -860,113 +854,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
-              _isEditing
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: ElevatedButton(
-                            onPressed: pickCV,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              elevation: 5,
-                              shadowColor: Colors.black26,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(40),
-                                side: BorderSide(
-                                  color: Color(0xFF113F67),
-                                  width: 1.8,
-                                ),
-                              ),
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 12),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.upload_file,
-                                    color: Color(0xFF113F67)),
-                                SizedBox(width: 10),
-                                Text(
-                                  "Upload CV as PDF",
-                                  style: TextStyle(
-                                    color: Color(0xFF113F67),
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        if (cvPath != null)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Center(
-                              child: Text(
-                                "✅ CV selected: ${cvPath!.split('/').last}",
-                                style: TextStyle(
-                                  color: Color(0xFF113F67),
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    )
-                  : (_cvUrl != null && _cvUrl!.isNotEmpty)
-                      ? Align(
-                          alignment: Alignment.centerLeft,
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              if (await canLaunchUrl(Uri.parse(_cvUrl!))) {
-                                await launchUrl(Uri.parse(_cvUrl!));
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              elevation: 5,
-                              shadowColor: Colors.black26,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(40),
-                                side: BorderSide(
-                                  color: Color(0xFF113F67),
-                                  width: 1.8,
-                                ),
-                              ),
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 12),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.picture_as_pdf,
-                                    color: Color(0xFF113F67)),
-                                SizedBox(width: 10),
-                                Text(
-                                  "View CV",
-                                  style: TextStyle(
-                                    color: Color(0xFF113F67),
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                      : Center(
-                          child: Text(
-                            "CV not uploaded",
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ),
+
               SizedBox(height: 15),
               Divider(
                 color: Colors.grey, // Gray color

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:hadafi_application/Candidates.dart';
 import 'package:hadafi_application/EditTpPostedOpportunity.dart';
 import 'package:hadafi_application/PostOpportunityPage.dart';
 import 'package:hadafi_application/ViewOpportunityPage.dart';
-import 'package:hadafi_application/Candidates.dart';
 import 'package:hadafi_application/welcome.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:hadafi_application/trainingProviderProfilePage.dart';
@@ -239,17 +237,6 @@ class TrainingProviderHomePage extends StatelessWidget {
                                                                 doc.id),
                                                   ),
                                                 );
-                                              } else if (value ==
-                                                  'candidates') {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        CandidatesPage(
-                                                            opportunityId:
-                                                                doc.id),
-                                                  ),
-                                                );
                                               } else if (value == 'edit') {
                                                 Navigator.push(
                                                   context,
@@ -410,14 +397,6 @@ class TrainingProviderHomePage extends StatelessWidget {
                                                 value: 'Preview',
                                                 child: Text(
                                                   'Preview',
-                                                  style: TextStyle(
-                                                      color: Color(0xFF113F67)),
-                                                ),
-                                              ),
-                                              PopupMenuItem(
-                                                value: 'candidates',
-                                                child: Text(
-                                                  'Candidates',
                                                   style: TextStyle(
                                                       color: Color(0xFF113F67)),
                                                 ),

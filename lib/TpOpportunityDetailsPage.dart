@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:hadafi_application/apply_now_button.dart';
 import 'package:intl/intl.dart'; // Import the intl package
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -187,8 +186,8 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                                             },
                                           )
                                         : null,
-                                                     duration: Duration(seconds: 2),
-        backgroundColor: Colors.green,
+                                    duration: Duration(seconds: 2),
+                                    backgroundColor: Colors.green,
                                   ),
                                 );
                               },
@@ -557,8 +556,10 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                  content: Text("Could not open the URL")                      , duration: Duration(seconds: 2),
-        backgroundColor: Colors.red,),
+                                content: Text("Could not open the URL"),
+                                duration: Duration(seconds: 2),
+                                backgroundColor: Colors.red,
+                              ),
                             );
                           }
                         },
@@ -579,11 +580,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
             ),
 
             const SizedBox(height: 24),
-            // Apply Now Button
-
-            Center(
-              child: ApplyNowButton(opportunityId: opportunityId),
-            ),
+//close
           ],
         ),
       ),
