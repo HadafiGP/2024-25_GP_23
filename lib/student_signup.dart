@@ -1721,7 +1721,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
           'uid': user.uid,
           'role': 'student', // Store the user role as 'student'
           'profilePic': avatarUrl, // Add profilePic URL
-          'banner': bannerUrl, // Add banner URL
         });
 
         ProviderScope.containerOf(context).read(uidProvider.notifier).state =
