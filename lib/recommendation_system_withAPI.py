@@ -87,6 +87,37 @@ def vectorize_user(user_data):
     user_skill_vector = tfidf_vectorizer.transform([skills_combined])
     return user_skill_vector
 
+
+ # Get all opportunites  
+@app.route("/opportunities", methods=["GET"])
+def get_all_opportunities():
+    try:
+        all_opps = []
+        for _, row in opp_df.iterrows():
+            # If opportunity has no apply link, display the LinkedIn page URL instead
+            apply_url = row['Company Apply link'] if pd.notna(row['Company Apply link']) and row['Company Apply link'].strip() else None
+            if not apply_url: 
+                apply_url = row.get('Job LinkedIn URL', '') 
+
+            all_opps.append({
+                'Job Title': row['Job Title'],
+                'Description': row['Company Descreption' or ''],
+                'Apply url': apply_url,
+                'Company Name': row.get('Company Name', 'N/A'),
+                'Locations': list(row['Location']),
+                'Skills': row['Skills'],
+                'GPA out of 5': float(row['GPA out of 5'] or 0),
+                'GPA out of 4': float(row['GPA out of 4'] or 0),
+            })
+        return jsonify({"opportunities": all_opps})
+    except Exception as e:
+        return jsonify({
+            "error": "Failed to load opportunities.",
+            "details": str(e)
+        }), 500 
+
+
+
 # Recommendation
 @app.route("/recommend", methods=["POST"])
 def recommend():
@@ -163,6 +194,7 @@ def recommend():
             "error": "An unexpected error occurred while processing the recommendations.",
             "details": str(e)  
         }), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)

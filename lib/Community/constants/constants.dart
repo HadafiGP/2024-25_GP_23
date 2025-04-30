@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class Constants {
   static const bannerDefault =
-      'https://e0.pxfuel.com/wallpapers/115/722/desktop-wallpaper-reddit-cartoon-resolution-background-and-cartoon-banner.jpg';
+      'https://static.vecteezy.com/system/resources/previews/000/701/690/original/abstract-polygonal-banner-background-vector.jpg';
   static const avatarDefault =
-      'https://www.redditstatic.com/avatars/avatar_default_02_0079D3.png';
+      'https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg';
 
   static const IconData up =
       IconData(0xe800, fontFamily: 'MyFlutterApp', fontPackage: null);

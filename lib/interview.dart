@@ -710,38 +710,7 @@ class _InterviewPageState extends State<InterviewPage> {
         isTyping = true;
       });
 
-      final resourceRequest = ChatCompleteText(
-        model: Gpt4ChatModel(),
-        messages: [
-          ..._messagesHistory,
-          Map.of({
-            "role": "assistant",
-            "content":
-                "Analyze the user's interview responses and feedback to identify weaknesses. For each weakness, provide 6-9 improvement resources the output format: The weakness, related book, course, or youtube video. Ensure to mention the name of the source, a short description of it, and its relevance to the interview position and the weakness, and the link of the resource (Ensure it is a valid link and highlight only the link!). Organize resources by weakness and ensure recommendations are specific and clear. Avoid generic responses like 'we will review your application.' If there are insufficient responses to recommend resources (The user only provided their position or stopped without answering any questions), explicitly state: 'There is not enough interview history to recommend resources.' Ensure the output is either weaknesses and relevant recommendations or this message about insufficient responses."
-          })
-        ],
-        temperature: 1.0,
-        topP: 0.95,
-        presencePenalty: 0.8,
-        frequencyPenalty: 0.5,
-        maxToken: 1000,
-      );
 
-      final resourceResponse =
-          await _openAI.onChatCompletion(request: resourceRequest);
-
-      ChatMessage resourceMessage = ChatMessage(
-        user: _chatGPTUser,
-        createdAt: DateTime.now(),
-        text: resourceResponse!.choices.first.message!.content.trim(),
-      );
-
-      setState(() {
-        _messages.insert(0, resourceMessage);
-        _displayedMessages.insert(0, resourceMessage);
-        saveHistoryMessages();
-        isTyping = false;
-      });
     }
 
     restartInterviewQuestion();

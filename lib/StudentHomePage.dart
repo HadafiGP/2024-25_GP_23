@@ -165,6 +165,8 @@ class StudentHomePage extends StatefulWidget {
 }
 
 class _StudentHomePageState extends State<StudentHomePage> {
+  List<dynamic> csvOpportunities = [];
+  bool isLoadingCsvOpportunities = true;
   List<dynamic> recommendations = [];
   bool isLoading = true;
   bool isLoadingProviderOpportunities = true;
@@ -175,16 +177,50 @@ class _StudentHomePageState extends State<StudentHomePage> {
   TabController? _tabController;
 
   @override
-  @override
   void initState() {
     super.initState();
-
-    fetchRecommendations();
-    fetchUserMajor().then((_) {
-      fetchProviderOpportunities().then((_) {
-        filterProviderOpportunitiesByMajor();
-      });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeAllData();
     });
+  }
+
+  Future<void> _initializeAllData() async {
+    setState(() => isLoading = true);
+
+    await fetchCsvOpportunities(); // Ensure CSV loads first
+
+    await Future.wait([
+      fetchRecommendations(),
+      fetchUserMajor().then((_) async {
+        await fetchProviderOpportunities();
+        await filterProviderOpportunitiesByMajor();
+      }),
+    ]);
+
+    if (mounted) {
+      setState(() => isLoading = false);
+    }
+  }
+
+  //Fetch all opportunitites
+  Future<void> fetchCsvOpportunities() async {
+    try {
+      final response =
+          await http.get(Uri.parse("http://10.0.2.2:5000/opportunities"));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          csvOpportunities = data['opportunities'] ?? [];
+          isLoadingCsvOpportunities = false;
+        });
+      } else {
+        print("CSV error: ${response.body}");
+        setState(() => isLoadingCsvOpportunities = false);
+      }
+    } catch (e) {
+      print("CSV exception: $e");
+      setState(() => isLoadingCsvOpportunities = false);
+    }
   }
 
 //best match recs
@@ -293,9 +329,6 @@ class _StudentHomePageState extends State<StudentHomePage> {
           'contactInfo': contactInfo,
         });
       }
-
-      print('Fetched ${providerQuery.docs.length} opportunities');
-      print('Provider Opportunities: $fetchedOpportunities');
 
       setState(() {
         providerOpportunities = fetchedOpportunities;
@@ -489,10 +522,12 @@ class _StudentHomePageState extends State<StudentHomePage> {
                     opportunities: recommendations,
                     selectedIndex: selectedIndex,
                   ),
-                  OpportunitiesList(
-                    title: 'Other Opportunities',
-                    opportunities: filteredProviderOpportunities,
-                    selectedIndex: selectedIndex,
+                  FindOpportunitiesTab(
+                    key: ValueKey(csvOpportunities.length +
+                        filteredProviderOpportunities.length),
+                    csvOpportunities: csvOpportunities,
+                    firestoreOpportunities: filteredProviderOpportunities,
+                    isLoading: isLoadingCsvOpportunities,
                   ),
                 ],
               ),
@@ -508,7 +543,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
               const Text(
@@ -536,30 +571,43 @@ class _StudentHomePageState extends State<StudentHomePage> {
             ],
           ),
         ),
-        SizedBox(
-          height: 5,
-        ),
+        const SizedBox(height: 5),
         SizedBox(
           height: 160,
           child: FutureBuilder<QuerySnapshot>(
             future: FirebaseFirestore.instance
                 .collection('Feedback')
                 .orderBy('timestamp', descending: true)
-                .limit(3)
                 .get(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return const Center(child: CircularProgressIndicator());
               }
 
-              final docs = snapshot.data!.docs;
+              final allDocs = snapshot.data!.docs;
+              final showMoreButton = allDocs.length > 3;
+              final docs = allDocs.take(3).toList();
+
+              if (docs.isEmpty) {
+                return const Center(
+                  child: Text(
+                    "No feedback has been shared yet.",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  ),
+                );
+              }
 
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
-                itemCount: docs.length + 1,
+                itemCount: showMoreButton ? docs.length + 1 : docs.length,
                 itemBuilder: (context, index) {
-                  if (index < docs.length) {
+                  if (!showMoreButton || index < docs.length) {
                     final data = docs[index].data() as Map<String, dynamic>;
+                    final scrollController = ScrollController();
 
                     return FutureBuilder<DocumentSnapshot>(
                       future: FirebaseFirestore.instance
@@ -575,11 +623,6 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
                         final rating = data['rating'] ?? 0;
                         final experience = data['experience'] ?? '';
-
-                        final topicsRaw = data['topic'];
-                        final List<String> topics = topicsRaw is List
-                            ? List<String>.from(topicsRaw)
-                            : [topicsRaw?.toString() ?? 'General'];
 
                         return Container(
                           width: 240,
@@ -600,7 +643,6 @@ class _StudentHomePageState extends State<StudentHomePage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Name
                               Text(
                                 name,
                                 style: const TextStyle(
@@ -610,8 +652,6 @@ class _StudentHomePageState extends State<StudentHomePage> {
                                 ),
                               ),
                               const SizedBox(height: 4),
-
-                              // Star rating
                               Row(
                                 children: List.generate(5, (i) {
                                   return Icon(
@@ -624,16 +664,21 @@ class _StudentHomePageState extends State<StudentHomePage> {
                                 }),
                               ),
                               const SizedBox(height: 8),
-
-                              // Feedback text
                               Expanded(
-                                child: Text(
-                                  experience,
-                                  maxLines: 4,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    height: 1.3,
+                                child: Scrollbar(
+                                  controller: scrollController,
+                                  thumbVisibility: true,
+                                  radius: const Radius.circular(8),
+                                  child: SingleChildScrollView(
+                                    controller: scrollController,
+                                    padding: EdgeInsets.zero,
+                                    child: Text(
+                                      experience,
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        height: 1.3,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -656,8 +701,8 @@ class _StudentHomePageState extends State<StudentHomePage> {
                           );
                         },
                         child: Container(
-                          width: 60,
-                          height: 60,
+                          width: 50,
+                          height: 50,
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
                             color: Color(0xFF113F67),
@@ -718,36 +763,34 @@ class OpportunitiesList extends StatelessWidget {
       itemBuilder: (context, index) {
         final opportunity = opportunities[index];
 
-        print("Opportunities inside the list: $opportunities");
+        final oppTitle = opportunity['Job Title'] as String? ??
+            opportunity['jobTitle'] as String? ??
+            "Unknown Title";
 
-        final oppTitle = selectedIndex == 0
-            ? opportunity['Job Title'] ?? "Unknown Title"
-            : opportunity['jobTitle'] ?? "Unknown Title";
+        final companyName = opportunity['Company Name'] as String? ??
+            opportunity['companyName'] as String? ??
+            "Unknown Company";
 
-        final companyName = selectedIndex == 0
-            ? opportunity['Company Name'] ?? "Unknown Company"
-            : opportunity['companyName'] ?? "Unknown Company";
+        final description = opportunity['Description'] as String? ??
+            opportunity['description'] as String? ??
+            "No description available.";
 
-        final description = selectedIndex == 0
-            ? opportunity['Description'] ?? "No description available."
-            : opportunity['description'] ?? "No description available.";
+        final applyUrl = opportunity['Apply url'] as String? ??
+            opportunity['companyLink'] as String? ??
+            "unknown";
 
-        final applyUrl = selectedIndex == 0
-            ? opportunity['Apply url'] ?? "unknown"
-            : opportunity['companyLink'] ?? "unkown";
-        final gpa5 = selectedIndex == 0
-            ? double.tryParse(opportunity['GPA out of 5']?.toString() ?? '') ??
-                0.0
-            : opportunity['gpaOutOf5'] ?? 0.0;
+        final gpa5 = (opportunity['GPA out of 5'] is String)
+            ? double.tryParse(opportunity['GPA out of 5']) ?? 0.0
+            : opportunity['GPA out of 5'] ?? opportunity['gpaOutOf5'] ?? 0.0;
 
-        final gpa4 = selectedIndex == 0
-            ? double.tryParse(opportunity['GPA out of 4']?.toString() ?? '') ??
-                0.0
-            : opportunity['gpaOutOf4'] ?? 0.0;
+        final gpa4 = (opportunity['GPA out of 4'] is String)
+            ? double.tryParse(opportunity['GPA out of 4']) ?? 0.0
+            : opportunity['GPA out of 4'] ?? opportunity['gpaOutOf4'] ?? 0.0;
 
-        final contactInfo = selectedIndex == 0
-            ? opportunity['Contact Info'] ?? ""
-            : opportunity['contactInfo'] ?? "";
+        final contactInfo =
+            (opportunity['Contact Info'] ?? opportunity['contactInfo'])
+                    ?.toString() ??
+                "";
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 8.0),
@@ -852,7 +895,8 @@ class OpportunitiesList extends StatelessWidget {
                     ],
                     onPressed: () {
                       // Check which tab is currently selected
-                      if (selectedIndex == 0) {
+                      if (opportunity.containsKey('Skills Similarity') ||
+                          opportunity['id'] == null) {
                         // Best match tab - navigate to OpportunityDetailsPage
                         Navigator.push(
                           context,
@@ -919,5 +963,66 @@ class OpportunitiesList extends StatelessWidget {
 
   double correctSize(BuildContext context, double px) {
     return px / MediaQuery.of(context).devicePixelRatio;
+  }
+}
+
+class FindOpportunitiesTab extends StatefulWidget {
+  final List<dynamic> csvOpportunities;
+  final List<dynamic> firestoreOpportunities;
+  final bool isLoading;
+
+  const FindOpportunitiesTab({
+    super.key,
+    required this.csvOpportunities,
+    required this.firestoreOpportunities,
+    required this.isLoading,
+  });
+
+  @override
+  State<FindOpportunitiesTab> createState() => _FindOpportunitiesTabState();
+}
+
+class _FindOpportunitiesTabState extends State<FindOpportunitiesTab> {
+  late List<dynamic> allOpportunities;
+
+  @override
+  void initState() {
+    super.initState();
+    allOpportunities = [
+      ...widget.firestoreOpportunities,
+      ...widget.csvOpportunities
+    ];
+  }
+
+  @override
+  void didUpdateWidget(covariant FindOpportunitiesTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.csvOpportunities != widget.csvOpportunities ||
+        oldWidget.firestoreOpportunities != widget.firestoreOpportunities) {
+      setState(() {
+        allOpportunities = [
+          ...widget.firestoreOpportunities,
+          ...widget.csvOpportunities
+        ];
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        if (widget.isLoading) const LinearProgressIndicator(minHeight: 2),
+        Expanded(
+          child: allOpportunities.isEmpty
+              ? const Center(child: Text('No opportunities available.'))
+              : OpportunitiesList(
+                  title: 'Other Opportunities',
+                  opportunities: allOpportunities,
+                  selectedIndex: 3,
+                ),
+        ),
+      ],
+    );
   }
 }
