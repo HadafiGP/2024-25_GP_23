@@ -693,11 +693,11 @@ class _ProfilePageState extends State<ProfilePage> {
               Text(
                 'Personal Information:',
                 style: TextStyle(
-                fontSize: kFontSizeLarge, // ✅ حجم عنوان موحد
-                fontWeight: FontWeight.bold,
-                color: mainColor, // ✅ لون موحد
+                  fontSize: kFontSizeLarge,
+                  fontWeight: FontWeight.bold,
+                  color: mainColor,
+                ),
               ),
-                          ),
               SizedBox(height: 20),
               Center(
                 child: GestureDetector(
@@ -705,16 +705,20 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      CircleAvatar(
-                        radius: 60,
-                        backgroundColor: Colors.grey[300],
-                        backgroundImage: _profileImageFile != null
-                            ? FileImage(_profileImageFile!)
-                            : _profilePicUrl != null &&
-                                    _profilePicUrl!.isNotEmpty
-                                ? NetworkImage(_profilePicUrl!)
-                                : AssetImage('assets/default_avatar.png')
-                                    as ImageProvider,
+                      SizedBox(
+                        width: 120, // Set the width
+                        height: 120, // Set the height
+                        child: CircleAvatar(
+                          radius: 60,
+                          backgroundColor: Colors.grey[300],
+                          backgroundImage: _profileImageFile != null
+                              ? FileImage(_profileImageFile!)
+                              : _profilePicUrl != null &&
+                                      _profilePicUrl!.isNotEmpty
+                                  ? NetworkImage(_profilePicUrl!)
+                                  : AssetImage('assets/default_avatar.png')
+                                      as ImageProvider,
+                        ),
                       ),
                       if (_isEditing)
                         Positioned(
