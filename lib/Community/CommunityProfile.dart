@@ -11,15 +11,18 @@ import 'package:hadafi_application/Community/provider.dart';
 
 class Communityprofile extends ConsumerWidget {
   final String name;
+  
 
   const Communityprofile({
     super.key,
     required this.name,
+    
   });
 
   void joinCommunity(WidgetRef ref, Community community, BuildContext context) {
     ref.read(communityControllerProvider.notifier).joinCommunity(community, context);
   }
+  
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -176,16 +179,17 @@ class Communityprofile extends ConsumerWidget {
                       ),
                       const SizedBox(height: 10),
 
-                      Text(
-                        community.description,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black87,
-                          height: 1.5,
-                        ),
-                        maxLines: 6,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+              Text(
+  community.description.length > 200
+      ? '${community.description.substring(0, 200)}...'
+      : community.description,
+  style: const TextStyle(
+    fontSize: 16,
+    color: Colors.black87,
+    height: 1.5,
+  ),
+),
+
                       const SizedBox(height: 8),
 
                       if (community.description.length > 200)
