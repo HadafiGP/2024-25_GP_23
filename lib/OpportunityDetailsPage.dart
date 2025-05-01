@@ -184,7 +184,7 @@ class OpportunityDetailsPage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 5),
             // About the Company
             Card(
               elevation: 4,
@@ -217,7 +217,7 @@ class OpportunityDetailsPage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 5),
             // Location
             Card(
               elevation: 4,
@@ -272,7 +272,7 @@ class OpportunityDetailsPage extends StatelessWidget {
                       ),
                     ),
             ),
-            if (hasGpa) const SizedBox(height: 16),
+            if (hasGpa) const SizedBox(height: 5),
             // GPA
 if (hasGpa)
   Card(
@@ -340,7 +340,7 @@ if (hasGpa)
   ),
 
             // Skills
-            if (!hasGpa) const SizedBox(height: 16),
+            if (!hasGpa) const SizedBox(height: 5),
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -392,7 +392,7 @@ if (hasGpa)
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             // Apply button
             Center(
               child: ElevatedButton(
