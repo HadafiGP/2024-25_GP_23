@@ -44,7 +44,7 @@ void showSnackBar(BuildContext context, String message,
         ),
       ),
       backgroundColor:
-          success ? const Color.fromARGB(255, 0, 176, 15) : Colors.black,
+          success ? Colors.green : Colors.red,
     ),
   );
 }
@@ -357,7 +357,7 @@ class PostController extends StateNotifier<bool> {
     userDataAsync.when(
       data: (userData) async {
         if (userData == null) {
-          showSnackBar(context, 'Error: User data not found!');
+          showSnackBar(context, 'Error: User data not found!',success: false);
           return;
         }
 

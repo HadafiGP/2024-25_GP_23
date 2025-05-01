@@ -52,7 +52,7 @@ Future<void> _submitFeedback() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          backgroundColor: Color(0xFFDC3545),
+          backgroundColor: Colors.red,
           content: Row(
             children: [
               Icon(Icons.error_outline, color: Colors.white),
@@ -115,7 +115,7 @@ Future<void> _submitFeedback() async {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            backgroundColor: Color.fromARGB(255, 0, 118, 208),
+            backgroundColor:  Colors.green,
             content: Text('Feedback submitted successfully!'),
             duration: Duration(seconds: 2),
           ),
@@ -178,7 +178,7 @@ Future<void> _submitFeedback() async {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  backgroundColor: Color.fromARGB(255, 0, 118, 208),
+                  backgroundColor:  Colors.green,
                   content: Text('Feedback submitted successfully!'),
                   duration: Duration(seconds: 2),
                 ),

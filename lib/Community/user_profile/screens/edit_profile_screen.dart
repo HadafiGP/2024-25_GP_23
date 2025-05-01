@@ -94,7 +94,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             ),
           ),
           backgroundColor:
-              success ? const Color.fromARGB(255, 0, 176, 15) : Colors.black,
+              success ? Colors.green: Colors.red,
         ),
       );
     }

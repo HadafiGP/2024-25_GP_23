@@ -156,7 +156,7 @@ class CommunityController extends StateNotifier<bool> {
     final userId = _ref.read(userProvider);
 
     if (userId == null) {
-      showSnackBar(context, 'User not found!');
+      showSnackBar(context, 'User not found!', isSuccess: false);
       return;
     }
 
