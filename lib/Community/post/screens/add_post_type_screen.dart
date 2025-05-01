@@ -64,7 +64,7 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
   }
 
   void sharePost() async {
-    if (isLoading) return; // ✅ Prevent multiple clicks during loading
+    if (isLoading) return; // Prevent multiple clicks during loading
 
     setState(() {
       isLoading = true; // ✅ Show loading indicator
@@ -72,12 +72,11 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
 
     try {
       final stopwatch = Stopwatch()..start();
-      await Future.delayed(
-          Duration(milliseconds: 200)); // ✅ Ensure input is captured
 
       if (widget.type == 'image' &&
           bannerFile != null &&
           titleController.text.isNotEmpty) {
+        // Image post logic
         await ref.read(PostControllerProvider.notifier).sharedImagePost(
               context: context,
               title: titleController.text.trim(),
@@ -85,7 +84,6 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
               file: bannerFile,
               description: descriptionController.text.trim(),
             );
-        // ✅ Ensure the upload process completes before hiding the loader
         print("Image post upload completed!");
       } else if (titleController.text.isEmpty) {
         showSnackBar(context, 'Please enter a title.',success: false);
@@ -93,7 +91,7 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
         showSnackBar(context, 'Please select an image to upload.',success: false);
       } else if (widget.type == 'text') {
         if (titleController.text.isNotEmpty) {
-          ref.read(PostControllerProvider.notifier).sharedTextPost(
+          await ref.read(PostControllerProvider.notifier).sharedTextPost(
               context: context,
               title: titleController.text.trim(),
               selectedCommunity: selectedCommunity ?? communities[0],
