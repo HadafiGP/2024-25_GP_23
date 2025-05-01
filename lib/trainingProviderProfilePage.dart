@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hadafi_application/style.dart';
 import 'package:hadafi_application/welcome.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:hadafi_application/TrainingProviderHomePage.dart';
@@ -147,6 +148,7 @@ class _TrainingProviderProfilePageState
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: Color(0xFF113F67),
         title: Text(
@@ -185,11 +187,11 @@ class _TrainingProviderProfilePageState
             children: [
               Text(
                 'Company Information:',
-                style: TextStyle(
-                  color: Color(0xFF113F67),
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style:TextStyle(
+                  fontSize: kFontSizeLarge, // ✅ حجم عنوان موحد
+                fontWeight: FontWeight.bold,
+                color: mainColor,
+                ), 
               ),
               SizedBox(height: 20),
               _buildEditableField('Company Name', _companyNameController),
@@ -280,16 +282,7 @@ class _TrainingProviderProfilePageState
                       );
                     }
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    elevation: 5,
-                    shadowColor: Colors.black26,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(40),
-                      side: BorderSide(color: Color(0xFF113F67), width: 1.8),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-                  ),
+                  style: kSecondaryButtonStyle,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -314,17 +307,7 @@ class _TrainingProviderProfilePageState
                   children: [
                     ElevatedButton(
                       onPressed: _saveProfile,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF113F67),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 35, vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        elevation: 5, // Optional, add shadow
-                        shadowColor: Colors.black
-                            .withOpacity(0.3), // Optional shadow color
-                      ),
+                      style: kMainButtonStyle,
                       child: Text(
                         'Save',
                         style: TextStyle(
@@ -335,18 +318,7 @@ class _TrainingProviderProfilePageState
                     ),
                     ElevatedButton(
                       onPressed: _cancelEditMode,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            Colors.white, // White background for Cancel button
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 35, vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        elevation: 5, // Optional, add shadow
-                        shadowColor: Colors.black
-                            .withOpacity(0.3), // Optional shadow color
-                      ),
+                      style: kSecondaryButtonStyle,
                       child: Text(
                         'Cancel',
                         style: TextStyle(
@@ -494,22 +466,25 @@ class _TrainingProviderProfilePageState
             runSpacing: 6.0,
             children: _selectedLocations.map((location) {
               return Chip(
-                label: Text(
-                  location,
-                  style: TextStyle(
-                    color: Color(0xFF113F67),
-                  ),
-                ),
-                onDeleted: _isEditing
-                    ? () {
-                        setState(() {
-                          _selectedLocations.remove(location);
-                          _locationController.text =
-                              _selectedLocations.join(', ');
-                        });
-                      }
-                    : null,
-              );
+  backgroundColor: Colors.white,
+  label: Text(
+    location,
+    style: TextStyle(
+      color: Color(0xFF113F67),
+    ),
+  ),
+  deleteIconColor: Color(0xFF113F67),
+  onDeleted: _isEditing
+      ? () {
+          setState(() {
+            _selectedLocations.remove(location);
+            _locationController.text =
+                _selectedLocations.join(', ');
+          });
+        }
+      : null,
+);
+
             }).toList(),
           ),
         ],

@@ -6,6 +6,7 @@ import 'package:hadafi_application/TrainingProviderHomePage.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import 'dart:async';
+import 'package:hadafi_application/style.dart';
 
 class TrainingProviderSignupScreen extends StatefulWidget {
   const TrainingProviderSignupScreen({super.key});
@@ -152,9 +153,9 @@ class _TrainingProviderSignupScreenState
                       Text(
                         'Training Provider Sign Up',
                         style: TextStyle(
-                          fontSize: 24,
+                          fontSize: kFontSizeLarge, // ✅ حجم خط موحد للعناوين
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF113F67),
+                          color: mainColor, // ✅ لون موحد من ملف التنسيق
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -255,16 +256,7 @@ class _TrainingProviderSignupScreenState
                           ? CircularProgressIndicator()
                           : ElevatedButton(
                               onPressed: _signUp,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF113F67),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 50,
-                                  vertical: 15,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                              ),
+                              style: kMainButtonStyle,
                               child: Text(
                                 'Sign Up',
                                 style: TextStyle(

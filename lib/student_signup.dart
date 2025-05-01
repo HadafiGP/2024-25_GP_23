@@ -10,6 +10,7 @@ import 'package:hadafi_application/signup_widget.dart';
 import 'package:hadafi_application/StudentHomepage.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hadafi_application/style.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:hadafi_application/Community/controller/community_controller.dart';
@@ -662,9 +663,9 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                       Text(
                         'Student Sign Up',
                         style: TextStyle(
-                          fontSize: 24,
+                          fontSize: kFontSizeLarge, // ✅ توحيد الحجم
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF113F67),
+                          color: mainColor, // ✅ لون موحد
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -1004,16 +1005,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                                   _signUp(); // Proceed if form and skills validation pass
                                 }
                               },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF113F67),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 50,
-                                  vertical: 15,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                              ),
+                              style: kMainButtonStyle, // ✅ استخدام ستايل موحد
                               child: Text(
                                 'Sign Up',
                                 style: TextStyle(

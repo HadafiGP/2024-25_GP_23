@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hadafi_application/style.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:hadafi_application/favoriteProvider.dart';
 import 'package:hadafi_application/favoriteList.dart';
@@ -409,15 +410,16 @@ if (hasGpa)
                     );
                   }
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF096499),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  elevation: 6,
-                ),
+                style: kMainButtonStyle, 
+                // style: ElevatedButton.styleFrom(
+                //   backgroundColor: const Color(0xFF096499),
+                //   padding:
+                //       const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
+                //   shape: RoundedRectangleBorder(
+                //     borderRadius: BorderRadius.circular(8),
+                //   ),
+                //   elevation: 6,
+                // ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: const [

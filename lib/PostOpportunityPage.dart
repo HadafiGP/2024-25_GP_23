@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hadafi_application/TrainingProviderHomePage.dart';
+import 'package:hadafi_application/style.dart';
 
 class PostOpportunityPage extends StatefulWidget {
   const PostOpportunityPage({super.key});
@@ -484,11 +485,7 @@ final List<String> managementSkills = [
                       );
                     }
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: mainColor,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                  ),
+                  style:  kMainButtonStyle,
                   child: const Text('Post', style: TextStyle(color: Colors.white)),
                 ),
 
@@ -497,11 +494,7 @@ final List<String> managementSkills = [
                 //cancel button
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                  ),
+                  style: kSecondaryButtonStyle,
                   child: const Text('Cancel', style: TextStyle(color: mainColor)),
                 ),
               ],

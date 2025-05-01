@@ -7,6 +7,7 @@ import 'package:hadafi_application/signup_widget.dart';
 import 'package:hadafi_application/StudentHomepage.dart';
 import 'package:hadafi_application/TrainingProviderHomepage.dart';
 import 'package:hadafi_application/forget_password_page.dart';
+import 'package:hadafi_application/style.dart';
 
 final isLoadingProvider = StateProvider<bool>((ref) => false);
 final isPasswordVisibleProvider = StateProvider<bool>((ref) => false);
@@ -169,9 +170,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         const Text(
                           'Login',
                           style: TextStyle(
-                            fontSize: 24,
+                            fontSize: kFontSizeLarge, // ✅ حجم خط موحد
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF113F67),
+                            color: mainColor, // ✅
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -243,16 +244,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ? const CircularProgressIndicator()
                             : ElevatedButton(
                                 onPressed: _login,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF113F67),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 50,
-                                    vertical: 15,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                ),
+                                style: kMainButtonStyle, 
                                 child: const Text(
                                   'Login',
                                   style: TextStyle(
