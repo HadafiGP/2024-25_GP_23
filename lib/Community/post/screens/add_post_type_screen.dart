@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hadafi_application/Community/common/error_text.dart';
 import 'package:hadafi_application/Community/common/loader.dart';
 import 'package:hadafi_application/Community/controller/community_controller.dart';
 import 'package:hadafi_application/Community/model/community_model.dart';
@@ -31,6 +32,7 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
   File? bannerFile;
   List<Community> communities = [];
   Community? selectedCommunity;
+
   @override
   void dispose() {
     titleController.dispose();
@@ -61,9 +63,8 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
     return compressedFile;
   }
 
-//////////////////////////////////////////
   void sharePost() async {
-    if (isLoading) return;
+    if (isLoading) return; // ✅ Prevent multiple clicks during loading
 
     setState(() {
       isLoading = true; // ✅ Show loading indicator
@@ -102,12 +103,6 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
       if (widget.type == 'link') {
         String link = linkController.text.trim();
 
-        // Debugging step to ensure the linkController is correctly attached
-        print("Entered link before trimming: '${linkController.text}'");
-        print("Entered link after trimming: '$link'");
-
-        print("Entered link: '$link'");
-
         if (titleController.text.isEmpty) {
           showSnackBar(context, 'Please enter a title.');
           return;
@@ -119,9 +114,6 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
         }
 
         Uri? parsedUri = Uri.tryParse(link);
-
-        print("Parsed URI: $parsedUri");
-        print("isAbsolute: ${parsedUri?.isAbsolute}");
 
         if (parsedUri == null ||
             !parsedUri.isAbsolute ||
@@ -149,7 +141,7 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
         Future.delayed(const Duration(seconds: 2), () {
           if (mounted) {
             setState(() {
-              isLoading = false;
+              isLoading = false; // ✅ Hide loading indicator
             });
           }
         });
@@ -159,10 +151,6 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isTypeImage = widget.type == 'image';
-    final isTypeText = widget.type == 'text';
-    final isTypeLink = widget.type == 'link';
-
     // Get the userID from FirebaseAuth
     final userID = ref.watch(uidProvider) ?? '';
     if (userID.isEmpty) {
@@ -171,28 +159,25 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor:
-            const Color(0xFF113F67), // ✅ Same as "Create Community"
+        backgroundColor: const Color(0xFF113F67),
         title: Text(
-          isTypeImage
+          widget.type == 'image'
               ? 'Post Image'
-              : isTypeLink
+              : widget.type == 'link'
                   ? 'Post Link'
-                  : 'Post Text', // ✅ Dynamically change title
+                  : 'Post Text',
           style: const TextStyle(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context), // ✅ Go back to previous page
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: ref.watch(userCommunityProvider(userID)).when(
             data: (data) {
               communities = data;
-
-              // ✅ If the user is NOT in any community, show a message instead of the form
               if (data.isEmpty) {
                 return const Center(
                   child: Padding(
@@ -225,8 +210,8 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
                       maxLength: 30,
                     ),
                     const SizedBox(height: 10),
-
-                    if (isTypeImage)
+                    // Image upload area
+                    if (widget.type == 'image')
                       GestureDetector(
                         onTap: selectBannerImage,
                         child: DottedBorder(
@@ -253,7 +238,7 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
                           ),
                         ),
                       ),
-                    if (isTypeLink || isTypeImage)
+                    if (widget.type == 'link' || widget.type == 'image')
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -266,17 +251,14 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.all(18),
                             ),
-                            minLines: 3, // ✅ Minimum height of 3 lines
-                            maxLines:
-                                5, // ✅ Maximum visible height of 5 lines before scrolling
-                            maxLength:
-                                300, // ✅ Limit total input to 300 characters
+                            minLines: 3,
+                            maxLines: 5,
+                            maxLength: 300,
                           ),
                           const SizedBox(height: 10),
                         ],
                       ),
-
-                    if (isTypeText)
+                    if (widget.type == 'text')
                       TextField(
                         controller: descriptionController,
                         decoration: const InputDecoration(
@@ -285,12 +267,11 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.all(18),
                         ),
-                        minLines: 3, // ✅ Minimum height of 3 lines
-                        maxLines:
-                            5, // ✅ Maximum visible height of 5 lines before scrolling
-                        maxLength: 300, // ✅ Limit total input to 300 characters
+                        minLines: 3,
+                        maxLines: 5,
+                        maxLength: 300,
                       ),
-                    if (isTypeLink)
+                    if (widget.type == 'link')
                       TextField(
                         controller: linkController,
                         decoration: const InputDecoration(
@@ -299,9 +280,6 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.all(18),
                         ),
-                        onChanged: (val) {
-                          print("TextField Input: $val");
-                        },
                       ),
                     const SizedBox(height: 20),
                     const Align(
@@ -331,26 +309,21 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
                               ErrorText(error: error.toString()),
                           loading: () => const Loader(),
                         ),
-                    const Spacer(), // ✅ Pushes the button to the bottom
-
+                    const Spacer(),
                     GestureDetector(
-                      onTap: isLoading
-                          ? null
-                          : sharePost, // ✅ Disable button while loading
+                      onTap: isLoading ? null : sharePost,
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         decoration: BoxDecoration(
-                          color: isLoading
-                              ? Colors.grey
-                              : const Color(
-                                  0xFF113F67), // ✅ Change color while loading
+                          color:
+                              isLoading ? Colors.grey : const Color(0xFF113F67),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Center(
                           child: isLoading
                               ? const CircularProgressIndicator(
-                                  color: Colors.white) // ✅ Show loading
+                                  color: Colors.white)
                               : const Text(
                                   "Share",
                                   style: TextStyle(
@@ -370,25 +343,6 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
             },
             loading: () => const Loader(),
           ),
-    );
-  }
-}
-
-class ErrorText extends StatelessWidget {
-  final String error;
-
-  const ErrorText({Key? key, required this.error}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        error,
-        style: TextStyle(
-          color: Colors.red,
-          fontSize: 16,
-        ),
-      ),
     );
   }
 }

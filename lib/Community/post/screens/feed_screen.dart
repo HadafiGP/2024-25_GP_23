@@ -3,6 +3,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hadafi_application/Community/common/error_text.dart';
 import 'package:hadafi_application/Community/common/loader.dart';
 import 'package:hadafi_application/Community/common/post_card.dart';
 import 'package:hadafi_application/Community/model/community_model.dart';
