@@ -9,7 +9,6 @@ import 'package:hadafi_application/CV.dart';
 import 'package:hadafi_application/Community/CommunityHomeScreen.dart';
 import 'package:hadafi_application/favoriteList.dart';
 import 'package:hadafi_application/interview.dart';
-import 'package:hadafi_application/style.dart';
 import 'package:hadafi_application/welcome.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -693,9 +692,9 @@ class _ProfilePageState extends State<ProfilePage> {
               Text(
                 'Personal Information:',
                 style: TextStyle(
-                  fontSize: kFontSizeLarge,
+                  color: Color(0xFF113F67),
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: mainColor,
                 ),
               ),
               SizedBox(height: 20),
@@ -705,20 +704,16 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      SizedBox(
-                        width: 120, // Set the width
-                        height: 120, // Set the height
-                        child: CircleAvatar(
-                          radius: 60,
-                          backgroundColor: Colors.grey[300],
-                          backgroundImage: _profileImageFile != null
-                              ? FileImage(_profileImageFile!)
-                              : _profilePicUrl != null &&
-                                      _profilePicUrl!.isNotEmpty
-                                  ? NetworkImage(_profilePicUrl!)
-                                  : AssetImage('assets/default_avatar.png')
-                                      as ImageProvider,
-                        ),
+                      CircleAvatar(
+                        radius: 60,
+                        backgroundColor: Colors.grey[300],
+                        backgroundImage: _profileImageFile != null
+                            ? FileImage(_profileImageFile!)
+                            : _profilePicUrl != null &&
+                                    _profilePicUrl!.isNotEmpty
+                                ? NetworkImage(_profilePicUrl!)
+                                : AssetImage('assets/default_avatar.png')
+                                    as ImageProvider,
                       ),
                       if (_isEditing)
                         Positioned(
@@ -832,8 +827,16 @@ class _ProfilePageState extends State<ProfilePage> {
                       );
                     }
                   },
-                  style: kSecondaryButtonStyle, // ✅ زر ثانوي أبيض
-
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    elevation: 5,
+                    shadowColor: Colors.black26,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(40),
+                      side: BorderSide(color: Color(0xFF113F67), width: 1.8),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -915,7 +918,16 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     ElevatedButton(
                       onPressed: _saveProfile, // Save changes to Firestore
-                      style: kMainButtonStyle,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF113F67),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 35, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        elevation: 5,
+                        shadowColor: Colors.black.withOpacity(0.3),
+                      ),
 
                       child: Text(
                         'Save',
@@ -932,8 +944,16 @@ class _ProfilePageState extends State<ProfilePage> {
                           _loadStudentData();
                         });
                       },
-                      style: kSecondaryButtonStyle, // ✅ زر ثانوي أبيض
-
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFFFFFF),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 35, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        elevation: 5,
+                        shadowColor: Colors.black.withOpacity(0.3),
+                      ),
                       child: Text(
                         'Cancel',
                         style: TextStyle(
