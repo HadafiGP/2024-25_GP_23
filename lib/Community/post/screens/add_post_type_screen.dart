@@ -86,9 +86,9 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
             );
         print("Image post upload completed!");
       } else if (titleController.text.isEmpty) {
-        showSnackBar(context, 'Please enter a title.');
+        showSnackBar(context, 'Please enter a title.',success: false);
       } else if (widget.type == 'image' && bannerFile == null) {
-        showSnackBar(context, 'Please select an image to upload.');
+        showSnackBar(context, 'Please select an image to upload.',success: false);
       } else if (widget.type == 'text') {
         if (titleController.text.isNotEmpty) {
           await ref.read(PostControllerProvider.notifier).sharedTextPost(
@@ -102,12 +102,12 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
         String link = linkController.text.trim();
 
         if (titleController.text.isEmpty) {
-          showSnackBar(context, 'Please enter a title.');
+          showSnackBar(context, 'Please enter a title.',success: false);
           return;
         }
 
         if (link.isEmpty) {
-          showSnackBar(context, 'Please enter a link URL.');
+          showSnackBar(context, 'Please enter a link URL.',success: false);
           return;
         }
 
@@ -116,7 +116,7 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
         if (parsedUri == null ||
             !parsedUri.isAbsolute ||
             parsedUri.scheme.isEmpty) {
-          showSnackBar(context, 'Please enter a valid URL.');
+          showSnackBar(context, 'Please enter a valid URL.',success: false);
           return;
         }
 
@@ -132,7 +132,7 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
       stopwatch.stop();
       print("Firestore write took: ${stopwatch.elapsedMilliseconds}ms");
     } catch (e) {
-      showSnackBar(context, "Error: ${e.toString()}");
+      showSnackBar(context, "Error: ${e.toString()}",success: false);
     } finally {
       // ✅ Ensure that `isLoading` is set to false **only after** upload is fully done
       if (mounted) {

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hadafi_application/style.dart';
 import 'package:intl/intl.dart'; // Import the intl package
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -186,7 +187,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                                           )
                                         : null,
                                     backgroundColor:
-                                        const Color.fromARGB(255, 0, 118, 208),
+                                        Colors.green,
                                     duration: const Duration(seconds: 2),
                                   ),
                                 );
@@ -555,7 +556,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
                   await launchUrl(Uri.parse(applyUrl));
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Could not open the URL")),
+                    const SnackBar(content: Text("Could not open the URL"),backgroundColor:Colors.red,),
                   );
                 }
               },
