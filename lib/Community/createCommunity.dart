@@ -23,7 +23,7 @@ class createCommunityUI extends ConsumerWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AddCommunityScreen()),
+                  MaterialPageRoute(builder: (context) =>  CreateACommunity(),),
                 );
               },
               child: Container(

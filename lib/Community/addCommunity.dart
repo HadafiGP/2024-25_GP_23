@@ -1,26 +1,26 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hadafi_application/Community/controller/community_controller.dart';
 import 'package:hadafi_application/Community/common/loader.dart';
+import 'package:hadafi_application/StudentHomePage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:hadafi_application/Community/constants/constants.dart';
 import 'package:hadafi_application/Community/repoistory/communitory_repository.dart';
 import "package:hadafi_application/Community/CommunityHomeScreen.dart";
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-class AddCommunityScreen extends ConsumerStatefulWidget {
-  const AddCommunityScreen({super.key});
+class CreateACommunity extends ConsumerStatefulWidget {
+  const CreateACommunity({super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
       _AddCommunityScreenState();
 }
 
-class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
+class _AddCommunityScreenState extends ConsumerState<CreateACommunity> {
   final TextEditingController communityNameController = TextEditingController();
   final TextEditingController communityDescription = TextEditingController();
   PageController _pageController = PageController();
@@ -30,6 +30,7 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
   List<String> selectedTopics = [];
   String _networkError = '';
   bool _isCheckingNetwork = false;
+  bool _isCreatingCommunity = false;
 
   //Community Banner: Camera/Gallery
   Future pickImage(ImageSource source) async {
@@ -117,7 +118,6 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
       }
     }
 
-   
     if (_currentPage < 2) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
@@ -188,31 +188,52 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
       );
       return;
     }
+
+    setState(() => _isCreatingCommunity = true);
     //Save community in Firebase
-    ref.read(communityControllerProvider.notifier).createCommunity(
-        communityNameController.text.trim(),
-        communityDescription.text.trim(),
-        avatarPath ?? Constants.avatarDefault,
-        bannerPath ?? Constants.bannerDefault,
-        selectedTopics,
-        context);
+    () async {
+      final hasInternet = await hasRealInternet();
+      if (!hasInternet) {
+        _showBanner("No internet connection. Please check your network.");
+        setState(() => _isCreatingCommunity = false);
+        return;
+      }
 
-    //Navigate to the "Create Community" page
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-          builder: (context) => Communityhomescreen(initialIndex: 0)),
-      (route) => false,
-    );
+      // Proceed to create community
+      try {
+        await ref.read(communityControllerProvider.notifier).createCommunity(
+              communityNameController.text.trim(),
+              communityDescription.text.trim(),
+              avatarPath ?? Constants.avatarDefault,
+              bannerPath ?? Constants.bannerDefault,
+              selectedTopics,
+              context,
+            );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-            "Community created successfully! If it doesn't appear, please check your internet."),
-        duration: Duration(seconds: 5),
-        backgroundColor: Colors.green,
-      ),
-    );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Community created successfully!"),
+            duration: Duration(seconds: 5),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Reset form
+        setState(() {
+          _isCreatingCommunity = false;
+          communityNameController.clear();
+          communityDescription.clear();
+          selectedTopics.clear();
+          avatarPath = null;
+          bannerPath = null;
+          _currentPage = 0;
+          _pageController.jumpToPage(0);
+        });
+      } catch (e) {
+        _showBanner("Unexpected error occurred. Please try again.");
+        setState(() => _isCreatingCommunity = false);
+      }
+    }();
   }
 
   @override
@@ -220,20 +241,25 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
     final isLoading = ref.watch(communityControllerProvider);
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF113F67),
-        title: Text(
-          'Create Community',
-          style: TextStyle(color: Colors.white),
-        ),
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text("Communities", style: TextStyle(color: Colors.white)),
         centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: previousPage,
-        ),
+        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: const Color(0xFF113F67),
+        leading: _currentPage == 0
+            ? Builder(
+                builder: (context) => IconButton(
+                  icon: const Icon(Icons.menu),
+                  onPressed: () => Scaffold.of(context).openDrawer(),
+                ),
+              )
+            : IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: previousPage,
+              ),
       ),
+      drawer: _currentPage == 0 ? const HadafiDrawer() : null,
+      resizeToAvoidBottomInset: false,
       body: isLoading
           ? const Loader()
           : SafeArea(
@@ -749,24 +775,26 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
                   },
                 ),
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  createCommunity();
-                },
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                  backgroundColor: const Color(0xFF113F67),
-                  textStyle: const TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                child: const Text(
-                  "Create Community",
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
+              _isCreatingCommunity
+                  ? const CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: () async {
+                        createCommunity();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 50),
+                        backgroundColor: const Color(0xFF113F67),
+                        textStyle: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      child: const Text(
+                        "Create Community",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
             ],
           ),
         );

@@ -36,7 +36,7 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
   final List<Widget> screens = [
     FeedScreen(),
     ExplorePage(),
-    AddPostScreen(),
+    CreateACommunity(),
   ];
 
   String getUserUID() {
@@ -47,38 +47,29 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: screens[index],
-      drawer: const HadafiDrawer(),
-      appBar: AppBar(
-        title: const Text(
-          'Communities',
-          style: TextStyle(color: Colors.white),
-        ),
-        centerTitle: true,
-        backgroundColor: const Color(0xFF113F67),
-        iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              showSearch(
-                context: context,
-                delegate: SearchCommunityDelegate(ref),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.group_add),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const AddCommunityScreen(),
+      drawer: index == 2 ? null : const HadafiDrawer(),
+      appBar: index == 2
+          ? null
+          : AppBar(
+              title: const Text(
+                'Communities',
+                style: TextStyle(color: Colors.white),
+              ),
+              centerTitle: true,
+              backgroundColor: const Color(0xFF113F67),
+              iconTheme: const IconThemeData(color: Colors.white),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () {
+                    showSearch(
+                      context: context,
+                      delegate: SearchCommunityDelegate(ref),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
-        ],
-      ),
+              ],
+            ),
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
           indicatorColor: Colors.white,
@@ -91,7 +82,6 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
           backgroundColor: const Color.fromARGB(255, 214, 230, 243),
           selectedIndex: index,
           onDestinationSelected: (newIndex) => setState(() => index = newIndex),
-          labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
           animationDuration: Duration(milliseconds: 1250),
           destinations: const [
             NavigationDestination(
@@ -104,6 +94,11 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
               selectedIcon: Icon(Icons.explore),
               label: "Explore",
             ),
+            NavigationDestination(
+              icon: Icon(Icons.add_outlined),
+              selectedIcon: Icon(Icons.add),
+              label: "Create",
+            ),
 
             //    NavigationDestination(
             //    icon: Icon(Icons.post_add_outlined),
@@ -113,142 +108,140 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
           ],
         ),
       ),
-      floatingActionButton: index == 0
-          ? Stack(
-              clipBehavior: Clip.none,
+      floatingActionButton: index == 0 ? buildFABIcon() : null,
+    );
+  }
+
+  Widget buildFABIcon() {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        // Main floating action button
+        Positioned(
+          bottom: 5,
+          right: 20,
+          child: GestureDetector(
+            onTap: () {
+              setState(() {
+                isIconsVisible = !isIconsVisible; // Toggle visibility of icons
+              });
+            },
+            child: AnimatedActionButton(
+              icon: Icons.add,
+              onPressed: () {
+                setState(() {
+                  isIconsVisible = !isIconsVisible;
+                });
+              },
+            ),
+          ),
+        ),
+        // Floating action icons that appear when the main button is pressed
+        if (isIconsVisible)
+          Positioned(
+            bottom: 90,
+            right: 18,
+            child: Column(
               children: [
-                // Main floating action button
-                Positioned(
-                  bottom: 5,
-                  right: 20,
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        isIconsVisible =
-                            !isIconsVisible; // Toggle visibility of icons
-                      });
-                    },
-                    child: AnimatedActionButton(
-                      icon: Icons.add,
-                      onPressed: () {
-                        setState(() {
-                          isIconsVisible = !isIconsVisible;
-                        });
-                      },
+                // Image icon button
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddPostTypeScreen(type: 'image'),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: 65,
+                    height: 65,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: const [
+                          Color(0xFF113F67),
+                          Color.fromARGB(255, 105, 185, 255),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.image_outlined,
+                      size: 35,
+                      color: Colors.white,
                     ),
                   ),
                 ),
-                // Floating action icons that appear when the main button is pressed
-                if (isIconsVisible)
-                  Positioned(
-                    bottom: 90,
-                    right: 18,
-                    child: Column(
-                      children: [
-                        // Image icon button
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    AddPostTypeScreen(type: 'image'),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            width: 65,
-                            height: 65,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: LinearGradient(
-                                colors: const [
-                                  Color(0xFF113F67),
-                                  Color.fromARGB(255, 105, 185, 255),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                            ),
-                            child: Icon(
-                              Icons.image_outlined,
-                              size: 35,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        // Text icon button
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    AddPostTypeScreen(type: 'text'),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            width: 65,
-                            height: 65,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: LinearGradient(
-                                colors: const [
-                                  Color(0xFF113F67),
-                                  Color.fromARGB(255, 105, 185, 255),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                            ),
-                            child: Icon(
-                              Icons.article,
-                              size: 35,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        // Link icon button
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    AddPostTypeScreen(type: 'link'),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            width: 65,
-                            height: 65,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: LinearGradient(
-                                colors: const [
-                                  Color(0xFF113F67),
-                                  Color.fromARGB(255, 105, 185, 255),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                            ),
-                            child: Icon(
-                              Icons.link_outlined,
-                              size: 35,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
+                const SizedBox(height: 16),
+                // Text icon button
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddPostTypeScreen(type: 'text'),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: 65,
+                    height: 65,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: const [
+                          Color(0xFF113F67),
+                          Color.fromARGB(255, 105, 185, 255),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.article,
+                      size: 35,
+                      color: Colors.white,
                     ),
                   ),
+                ),
+                const SizedBox(height: 16),
+                // Link icon button
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddPostTypeScreen(type: 'link'),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: 65,
+                    height: 65,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: const [
+                          Color(0xFF113F67),
+                          Color.fromARGB(255, 105, 185, 255),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.link_outlined,
+                      size: 35,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
               ],
-            )
-          : null, // Don't show the floating action button on other pages
+            ),
+          ),
+      ],
     );
   }
 }

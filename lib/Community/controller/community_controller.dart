@@ -53,8 +53,7 @@ final searchCommunityProvider = StreamProvider.family((ref, String query) {
   return ref.watch(communityControllerProvider.notifier).searchCommunity(query);
 });
 
-final getCommunityPostsProvider =
-    StreamProvider.family((ref, String name) {
+final getCommunityPostsProvider = StreamProvider.family((ref, String name) {
   return ref.read(communityControllerProvider.notifier).getCommunityPosts(name);
 });
 
@@ -84,66 +83,77 @@ class CommunityController extends StateNotifier<bool> {
     );
   }
 
-  void createCommunity(String name, String description, String? avatarPath,
-      String? bannerPath, List<String> topics, BuildContext context) async {
-    state = true;
-    final uid = _ref.read(uidProvider) ?? '';
+  Future<void> createCommunity(
+    String name,
+    String description,
+    String? avatarPath,
+    String? bannerPath,
+    List<String> topics,
+    BuildContext context,
+  ) async {
+    try {
+      state = true;
+      final uid = _ref.read(uidProvider) ?? '';
 
-    // Upload avatar if provided
-    String avatarUrl = Constants.avatarDefault;
-    if (avatarPath != null && avatarPath.isNotEmpty) {
-      final avatarRes = await _storageRepository.storeFile(
-        path: 'communities/avatar',
+      // Upload avatar
+      String avatarUrl = Constants.avatarDefault;
+      if (avatarPath != null && avatarPath.isNotEmpty) {
+        final avatarRes = await _storageRepository.storeFile(
+          path: 'communities/avatar',
+          id: name,
+          file: File(avatarPath),
+        );
+        avatarRes.fold(
+          (l) => print("⚠️ Avatar upload failed: ${l.message}"),
+          (r) => avatarUrl = r,
+        );
+      }
+
+      // Upload banner
+      String bannerUrl = Constants.bannerDefault;
+      if (bannerPath != null && bannerPath.isNotEmpty) {
+        final bannerRes = await _storageRepository.storeFile(
+          path: 'communities/banner',
+          id: name,
+          file: File(bannerPath),
+        );
+        bannerRes.fold(
+          (l) => print("⚠️ Banner upload failed: ${l.message}"),
+          (r) => bannerUrl = r,
+        );
+      }
+
+      // Create community object
+      final community = Community(
         id: name,
-        file: File(avatarPath),
+        name: name,
+        description: description,
+        avatar: avatarUrl,
+        banner: bannerUrl,
+        topics: topics,
+        members: [uid],
+        mods: [uid],
       );
-      avatarRes.fold(
-          (l) => print("⚠️ Avatar upload failed: ${l.message}"), 
-      (r) => avatarUrl = r,
-      );
-    }
 
-    // Upload banner if provided
-    String bannerUrl = Constants.bannerDefault;
-    if (bannerPath != null && bannerPath.isNotEmpty) {
-      final bannerRes = await _storageRepository.storeFile(
-        path: 'communities/banner',
-        id: name,
-        file: File(bannerPath),
-      );
-      bannerRes.fold(
-        (l) => print("⚠️ Banner upload failed: ${l.message}"), 
-      (r) => bannerUrl = r,
-      );
-    }
+      // Save to Firestore
+      final res = await _communityRepoistory.createCommunity(community);
+      state = false;
 
-    // Create community object
-    Community community = Community(
-      id: name,
-      name: name,
-      description: description,
-      avatar: avatarUrl,
-      banner: bannerUrl,
-      topics: topics,
-      members: [uid],
-      mods: [uid],
-    );
-
-    // Save community details in Firestore
-    final res = await _communityRepoistory.createCommunity(community);
-    state = false;
-
-    res.fold(
-      (l) => showSnackBar(context, l.message),
-      (r) {
-        Navigator.push(
+      res.fold(
+        (l) => showSnackBar(context, l.message),
+        (r) => Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => Communityhomescreen(initialIndex: 2),
           ),
-        );
-      },
-    );
+        ),
+      );
+    } catch (e, st) {
+      state = false;
+      print("🔥 Unexpected error: $e\n$st");
+      showSnackBar(context, "Unexpected error occurred. Please try again.");
+      rethrow; // allows UI to catch and handle as well if needed
+    }
   }
 
   Future<bool> checkIfCommunityExists(String name) async {
@@ -242,7 +252,7 @@ class CommunityController extends StateNotifier<bool> {
     );
   }
 
-  Stream<List<Post>> getCommunityPosts(String name){
+  Stream<List<Post>> getCommunityPosts(String name) {
     return _communityRepoistory.getCommunityPosts(name);
   }
 }
