@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,13 +37,38 @@ class _AddCommunityScreenState extends ConsumerState<CreateACommunity> {
   Future pickImage(ImageSource source) async {
     try {
       final pickedFile = await ImagePicker().pickImage(source: source);
-      if (pickedFile == null) return;
+      if (pickedFile == null) {
+        _showError("Image selection cancelled.");
+        return;
+      }
+
+      final file = File(pickedFile.path);
+
+      if (!file.existsSync()) {
+        _showError("Selected file is missing or deleted.");
+        return;
+      }
+
+      final fileSize = await file.length();
+      if (fileSize > 5 * 1024 * 1024) {
+        // 5 MB limit
+        _showError("File too large. Please select an image under 5MB.");
+        return;
+      }
+
+      final extension = pickedFile.path.split('.').last.toLowerCase();
+      if (!['jpg', 'jpeg', 'png', 'gif'].contains(extension)) {
+        _showError("Unsupported file format. Use JPG, PNG, or GIF.");
+        return;
+      }
 
       setState(() {
         bannerPath = pickedFile.path;
       });
     } on PlatformException catch (e) {
-      print('Failed to pick image: $e');
+      _showError("Permission denied or system error: $e");
+    } catch (e) {
+      _showError("Unexpected error: $e");
     }
   }
 
@@ -50,13 +76,37 @@ class _AddCommunityScreenState extends ConsumerState<CreateACommunity> {
   Future pickImage2(ImageSource source) async {
     try {
       final pickedFile = await ImagePicker().pickImage(source: source);
-      if (pickedFile == null) return;
+      if (pickedFile == null) {
+        _showError("Image selection cancelled.");
+        return;
+      }
+
+      final file = File(pickedFile.path);
+
+      if (!file.existsSync()) {
+        _showError("Selected file is missing or deleted.");
+        return;
+      }
+
+      final fileSize = await file.length();
+      if (fileSize > 5 * 1024 * 1024) {
+        _showError("File too large. Please select an image under 5MB.");
+        return;
+      }
+
+      final extension = pickedFile.path.split('.').last.toLowerCase();
+      if (!['jpg', 'jpeg', 'png', 'gif'].contains(extension)) {
+        _showError("Unsupported file format. Use JPG, PNG, or GIF.");
+        return;
+      }
 
       setState(() {
         avatarPath = pickedFile.path;
       });
     } on PlatformException catch (e) {
-      print('Failed to pick image: $e');
+      _showError("Permission denied or system error: $e");
+    } catch (e) {
+      _showError("Unexpected error: $e");
     }
   }
 
@@ -68,14 +118,15 @@ class _AddCommunityScreenState extends ConsumerState<CreateACommunity> {
     _pageController.dispose();
   }
 
-  Future<bool> hasRealInternet() async {
+  Future<bool> hasFirestoreConnection() async {
     try {
-      final result = await InternetAddress.lookup('google.com')
-          .timeout(const Duration(seconds: 5));
-      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
-    } on SocketException catch (_) {
-      return false;
-    } on TimeoutException {
+      await FirebaseFirestore.instance
+          .collection('Community')
+          .limit(1)
+          .get(const GetOptions(source: Source.server))
+          .timeout(const Duration(seconds: 10));
+      return true;
+    } catch (_) {
       return false;
     }
   }
@@ -192,9 +243,9 @@ class _AddCommunityScreenState extends ConsumerState<CreateACommunity> {
     setState(() => _isCreatingCommunity = true);
     //Save community in Firebase
     () async {
-      final hasInternet = await hasRealInternet();
-      if (!hasInternet) {
-        _showBanner("No internet connection. Please check your network.");
+      final canReachFirestore = await hasFirestoreConnection();
+      if (!canReachFirestore) {
+        _showBanner("Cannot reach Firestore. Please check your internet.");
         setState(() => _isCreatingCommunity = false);
         return;
       }
@@ -260,33 +311,31 @@ class _AddCommunityScreenState extends ConsumerState<CreateACommunity> {
       ),
       drawer: _currentPage == 0 ? const HadafiDrawer() : null,
       resizeToAvoidBottomInset: false,
-      body: isLoading
-          ? const Loader()
-          : SafeArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+      body: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (_networkError.isNotEmpty)
+              buildNetworkErrorBanner(_networkError),
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentPage = index;
+                  });
+                },
                 children: [
-                  if (_networkError.isNotEmpty)
-                    buildNetworkErrorBanner(_networkError),
-                  Expanded(
-                    child: PageView(
-                      controller: _pageController,
-                      physics: const NeverScrollableScrollPhysics(),
-                      onPageChanged: (index) {
-                        setState(() {
-                          _currentPage = index;
-                        });
-                      },
-                      children: [
-                        _buildCommunityInfoPage(),
-                        _buildCommunityMediaPage(),
-                        _buildCommunityTopicsPage(),
-                      ],
-                    ),
-                  ),
+                  _buildCommunityInfoPage(),
+                  _buildCommunityMediaPage(),
+                  _buildCommunityTopicsPage(),
                 ],
               ),
             ),
+          ],
+        ),
+      ),
     );
   }
 

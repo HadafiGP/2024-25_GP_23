@@ -95,35 +95,29 @@ class CommunityController extends StateNotifier<bool> {
       state = true;
       final uid = _ref.read(uidProvider) ?? '';
 
-      // Upload avatar
-      String avatarUrl = Constants.avatarDefault;
-      if (avatarPath != null && avatarPath.isNotEmpty) {
-        final avatarRes = await _storageRepository.storeFile(
-          path: 'communities/avatar',
+      // Helper function to upload images
+      Future<String> uploadFile(
+          String? path, String type, String defaultUrl) async {
+        if (path == null || path.isEmpty) return defaultUrl;
+        final res = await _storageRepository.storeFile(
+          path: 'communities/$type',
           id: name,
-          file: File(avatarPath),
+          file: File(path),
         );
-        avatarRes.fold(
-          (l) => print("⚠️ Avatar upload failed: ${l.message}"),
-          (r) => avatarUrl = r,
+        return res.fold(
+          (l) {
+            print("⚠️ $type upload failed: ${l.message}");
+            return defaultUrl;
+          },
+          (r) => r,
         );
       }
 
-      // Upload banner
-      String bannerUrl = Constants.bannerDefault;
-      if (bannerPath != null && bannerPath.isNotEmpty) {
-        final bannerRes = await _storageRepository.storeFile(
-          path: 'communities/banner',
-          id: name,
-          file: File(bannerPath),
-        );
-        bannerRes.fold(
-          (l) => print("⚠️ Banner upload failed: ${l.message}"),
-          (r) => bannerUrl = r,
-        );
-      }
+      final avatarUrl =
+          await uploadFile(avatarPath, 'avatar', Constants.avatarDefault);
+      final bannerUrl =
+          await uploadFile(bannerPath, 'banner', Constants.bannerDefault);
 
-      // Create community object
       final community = Community(
         id: name,
         name: name,
@@ -135,7 +129,6 @@ class CommunityController extends StateNotifier<bool> {
         mods: [uid],
       );
 
-      // Save to Firestore
       final res = await _communityRepoistory.createCommunity(community);
       state = false;
 
@@ -152,7 +145,7 @@ class CommunityController extends StateNotifier<bool> {
       state = false;
       print("🔥 Unexpected error: $e\n$st");
       showSnackBar(context, "Unexpected error occurred. Please try again.");
-      rethrow; // allows UI to catch and handle as well if needed
+      rethrow;
     }
   }
 
