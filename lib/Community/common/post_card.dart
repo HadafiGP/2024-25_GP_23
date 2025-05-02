@@ -124,7 +124,7 @@ class _PostCardState extends ConsumerState<PostCard>
                         child: Row(
                           children: [
                             Text(
-                              'c/${post.communityName}',
+                              '${post.communityName}',
                               style: const TextStyle(
                                   fontSize: 16, fontWeight: FontWeight.bold),
                             ),
@@ -140,14 +140,8 @@ class _PostCardState extends ConsumerState<PostCard>
                         ),
                       ),
                       GestureDetector(
-                        // onTap: () => Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => UserProfileScreen(uid: post.uid),
-                        //   ),
-                        // ),
                         child: Text(
-                          'u/${post.username}',
+                          '${post.username}',
                           style:
                               const TextStyle(fontSize: 14, color: Colors.grey),
                         ),
