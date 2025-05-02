@@ -10,6 +10,7 @@ import 'package:hadafi_application/Community/model/community_model.dart';
 import 'package:hadafi_application/Community/post/controller/post_controller.dart';
 import 'package:hadafi_application/Community/post/screens/add_post_type_screen.dart';
 import 'package:hadafi_application/Community/controller/community_controller.dart';
+import 'package:hadafi_application/Community/post/screens/communityHeader.dart';
 import 'package:hadafi_application/Community/provider.dart';
 
 class FeedScreen extends ConsumerWidget {
@@ -24,7 +25,6 @@ class FeedScreen extends ConsumerWidget {
 
     return ref.watch(userCommunityProvider(userID)).when(
           data: (communities) {
-            // ✅ If user is not in any community, show a message
             if (communities.isEmpty) {
               return const Center(
                 child: Padding(
@@ -43,26 +43,42 @@ class FeedScreen extends ConsumerWidget {
 
             return ref.watch(userPostProvider(communities)).when(
                   data: (data) {
-                    print("Fetched posts: ${data.length}"); // 🔍 Debugging Step
                     return ListView.builder(
-                      itemCount: data.length,
+                      itemCount: data.length + 1,
                       itemBuilder: (BuildContext context, int index) {
-                        final post = data[index];
-                        print(
-                            "Post data: ${post.toMap()}"); // 🔍 Debugging Step
-                        return PostCard(post: post);
+                        if (index == 0) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              FeedCommunitiesHeader(),
+                              Divider(
+                                color: Colors.grey,
+                                thickness: 0.7,
+                                height:
+                                    24, 
+                                indent: 12,
+                                endIndent: 12,
+                              ),
+                            ],
+                          );
+                        }
+                        final post = data[index - 1];
+                        return PostCard(
+                          key: ValueKey(post.id),
+                          post: post,
+                        );
                       },
                     );
                   },
                   error: (error, stackTrace) {
-                    print("Error loading posts: $error"); // 🔍 Debugging Step
+                    print("Error loading posts: $error");
                     return ErrorText(error: error.toString());
                   },
                   loading: () => const Loader(),
                 );
           },
           error: (error, stackTrace) {
-            print("Error loading communities: $error"); // 🔍 Debugging Step
+            print("Error loading communities: $error");
             return ErrorText(error: error.toString());
           },
           loading: () => const Loader(),

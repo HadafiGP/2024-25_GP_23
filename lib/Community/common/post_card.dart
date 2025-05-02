@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:any_link_preview/any_link_preview.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -18,8 +21,24 @@ class PostCard extends ConsumerStatefulWidget {
   ConsumerState<PostCard> createState() => _PostCardState();
 }
 
-class _PostCardState extends ConsumerState<PostCard> {
+class _PostCardState extends ConsumerState<PostCard>
+    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   bool showFullDescription = false;
+  late final Ticker _ticker;
+  DateTime _lastUpdate = DateTime.now();
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _scheduleNextUpdate();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   void toggleDescription() {
     setState(() {
@@ -34,7 +53,7 @@ class _PostCardState extends ConsumerState<PostCard> {
     }
   }
 
-    void deletePost(BuildContext context, WidgetRef ref) async {
+  void deletePost(BuildContext context, WidgetRef ref) async {
     bool confirmDelete = await showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -54,12 +73,18 @@ class _PostCardState extends ConsumerState<PostCard> {
     );
 
     if (confirmDelete) {
-      ref.read(PostControllerProvider.notifier).deletePost(widget.post, context);
+      ref
+          .read(PostControllerProvider.notifier)
+          .deletePost(widget.post, context);
     }
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final post = widget.post;
     final userID = ref.watch(uidProvider) ?? '';
 
@@ -92,12 +117,26 @@ class _PostCardState extends ConsumerState<PostCard> {
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => Communityprofile(name: post.communityName),
+                            builder: (context) =>
+                                Communityprofile(name: post.communityName),
                           ),
                         ),
-                        child: Text(
-                          'c/${post.communityName}',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        child: Row(
+                          children: [
+                            Text(
+                              'c/${post.communityName}',
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              '• ${timeAgo(getCreatedAtDateTime(post.createdAt))}',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       GestureDetector(
@@ -109,26 +148,27 @@ class _PostCardState extends ConsumerState<PostCard> {
                         // ),
                         child: Text(
                           'u/${post.username}',
-                          style: const TextStyle(fontSize: 14, color: Colors.grey),
+                          style:
+                              const TextStyle(fontSize: 14, color: Colors.grey),
                         ),
                       ),
                     ],
                   ),
                 ),
-                                ref.watch(getCommunityByNameProvider(post.communityName)).when(
-                  data: (community) {
-                    bool isModerator = community.mods.contains(userID);
-                    if (post.uid == userID || isModerator) {
-                      return IconButton(
-                        onPressed: () => deletePost(context, ref),
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                      );
-                    }
-                    return const SizedBox();
-                  },
-                  loading: () => const SizedBox(),
-                  error: (e, _) => const SizedBox(),
-                ),
+                ref.watch(getCommunityByNameProvider(post.communityName)).when(
+                      data: (community) {
+                        bool isModerator = community.mods.contains(userID);
+                        if (post.uid == userID || isModerator) {
+                          return IconButton(
+                            onPressed: () => deletePost(context, ref),
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                          );
+                        }
+                        return const SizedBox();
+                      },
+                      loading: () => const SizedBox(),
+                      error: (e, _) => const SizedBox(),
+                    ),
               ],
             ),
             const SizedBox(height: 10),
@@ -138,7 +178,7 @@ class _PostCardState extends ConsumerState<PostCard> {
               post.title,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            
+
             // Description
             if (post.description != null && post.description!.isNotEmpty)
               AnimatedSize(
@@ -150,7 +190,8 @@ class _PostCardState extends ConsumerState<PostCard> {
                       showFullDescription || post.description!.length <= 100
                           ? post.description!
                           : "${post.description!.substring(0, 100)}...",
-                      style: const TextStyle(fontSize: 15, color: Colors.black87),
+                      style:
+                          const TextStyle(fontSize: 15, color: Colors.black87),
                     ),
                     if (post.description!.length > 100)
                       GestureDetector(
@@ -159,16 +200,19 @@ class _PostCardState extends ConsumerState<PostCard> {
                           alignment: Alignment.centerLeft,
                           child: Text(
                             showFullDescription ? "Show Less" : "Show More",
-                            style: const TextStyle(fontSize: 14, color: Colors.blue, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
                   ],
                 ),
               ),
-            
+
             const SizedBox(height: 8),
-            
+
             // Image Post
             if (post.type == 'image')
               ClipRRect(
@@ -180,32 +224,42 @@ class _PostCardState extends ConsumerState<PostCard> {
                   height: 250,
                 ),
               ),
-            
+
             // Link Preview
-            if (post.type == 'link' && post.link != null && post.link!.isNotEmpty)
+            if (post.type == 'link' &&
+                post.link != null &&
+                post.link!.isNotEmpty)
               GestureDetector(
                 onTap: () => _launchURL(post.link!),
                 child: Card(
                   elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   child: ListTile(
                     leading: const Icon(Icons.link, color: Colors.blue),
                     title: Text(post.link!,
-                        style: const TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+                        style: const TextStyle(
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline),
                         overflow: TextOverflow.ellipsis),
                   ),
                 ),
               ),
-            
+
             // Voting & Comments Section
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-              Row(
+                Row(
                   children: [
                     IconButton(
-                      icon: Icon(Icons.arrow_upward, color: post.upvotes.contains(userID) ? Colors.blue : Colors.grey),
-                      onPressed: () => ref.read(PostControllerProvider.notifier).upvote(post),
+                      icon: Icon(Icons.arrow_upward,
+                          color: post.upvotes.contains(userID)
+                              ? Colors.blue
+                              : Colors.grey),
+                      onPressed: () => ref
+                          .read(PostControllerProvider.notifier)
+                          .upvote(post),
                     ),
                     Text(
                       post.upvotes.length - post.downvotes.length == 0
@@ -214,8 +268,13 @@ class _PostCardState extends ConsumerState<PostCard> {
                       style: const TextStyle(fontSize: 16),
                     ),
                     IconButton(
-                      icon: Icon(Icons.arrow_downward, color: post.downvotes.contains(userID) ? Colors.red : Colors.grey),
-                      onPressed: () => ref.read(PostControllerProvider.notifier).downvote(post),
+                      icon: Icon(Icons.arrow_downward,
+                          color: post.downvotes.contains(userID)
+                              ? Colors.red
+                              : Colors.grey),
+                      onPressed: () => ref
+                          .read(PostControllerProvider.notifier)
+                          .downvote(post),
                     ),
                   ],
                 ),
@@ -238,11 +297,13 @@ class _PostCardState extends ConsumerState<PostCard> {
                           onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CommentsScreen(postId: post.id),
+                              builder: (context) =>
+                                  CommentsScreen(postId: post.id),
                             ),
                           ),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
                               color: Colors.blueAccent.withOpacity(0.7),
                               borderRadius: BorderRadius.circular(8),
@@ -272,4 +333,53 @@ class _PostCardState extends ConsumerState<PostCard> {
       ),
     );
   }
+
+  void _scheduleNextUpdate() {
+    _timer?.cancel();
+
+    final postDate = getCreatedAtDateTime(widget.post.createdAt);
+    final diff = DateTime.now().difference(postDate);
+
+    Duration next;
+
+    if (diff.inSeconds < 60) {
+      next = const Duration(seconds: 1);
+    } else if (diff.inMinutes < 60) {
+      next = Duration(minutes: 1) - Duration(seconds: diff.inSeconds % 60);
+    } else if (diff.inHours < 24) {
+      next = Duration(hours: 1) - Duration(minutes: diff.inMinutes % 60);
+    } else {
+      next = Duration(days: 1) - Duration(hours: diff.inHours % 24);
+    }
+
+    _timer = Timer(next, () {
+      if (mounted) {
+        setState(() {});
+        _scheduleNextUpdate();
+      }
+    });
+  }
+}
+
+String timeAgo(DateTime date) {
+  final now = DateTime.now();
+  final diff = now.difference(date);
+
+  if (diff.inSeconds < 60) return '${diff.inSeconds}s';
+  if (diff.inMinutes < 60) return '${diff.inMinutes}m';
+  if (diff.inHours < 24) return '${diff.inHours}h';
+
+  final days = diff.inDays;
+  if (days <= 7) return '${days}d';
+
+  // More than 7 days: format as dd/mm/yyyy
+  final day = date.day.toString().padLeft(2, '0');
+  final month = date.month.toString().padLeft(2, '0');
+  final year = date.year.toString();
+  return '$day/$month/$year';
+}
+
+DateTime getCreatedAtDateTime(dynamic timestamp) {
+  if (timestamp is DateTime) return timestamp;
+  return (timestamp as dynamic).toDate();
 }

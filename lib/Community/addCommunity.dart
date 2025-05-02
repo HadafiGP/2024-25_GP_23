@@ -101,7 +101,7 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
         communityExists = await ref
             .read(communityControllerProvider.notifier)
             .checkIfCommunityExists(name)
-            .timeout(const Duration(seconds: 5));
+            .timeout(const Duration(seconds: 10));
       } catch (e) {
         _showBanner("No internet connection. Please check your network.");
         setState(() => _isCheckingNetwork = false);
@@ -201,7 +201,7 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
-          builder: (context) => Communityhomescreen(initialIndex: 2)),
+          builder: (context) => Communityhomescreen(initialIndex: 0)),
       (route) => false,
     );
 

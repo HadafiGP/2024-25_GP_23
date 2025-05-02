@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, Response, json, request, jsonify
 import pandas as pd
 from dotenv import load_dotenv
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -90,33 +90,51 @@ def vectorize_user(user_data):
     return user_skill_vector
 
 
- # Get all opportunites  
+
+
+
+
+from flask import Response
+import json
+
 @app.route("/opportunities", methods=["GET"])
 def get_all_opportunities():
-    try:
-        all_opps = []
+    def generate():
+        yield '{"opportunities": ['
+        first = True
         for _, row in opp_df.iterrows():
-            # If opportunity has no apply link, display the LinkedIn page URL instead
-            apply_url = row['Company Apply link'] if pd.notna(row['Company Apply link']) and row['Company Apply link'].strip() else None
-            if not apply_url: 
-                apply_url = row.get('Job LinkedIn URL', '') 
+            try:
+                apply_url = row['Company Apply link']
+                if not apply_url or not apply_url.strip():
+                    apply_url = row.get('Job LinkedIn URL', '')
 
-            all_opps.append({
-                'Job Title': row['Job Title'],
-                'Description': row['Company Descreption' or ''],
-                'Apply url': apply_url,
-                'Company Name': row.get('Company Name', 'N/A'),
-                'Locations': list(row['Location']),
-                'Skills': row['Skills'],
-                'GPA out of 5': float(row['GPA out of 5'] or 0),
-                'GPA out of 4': float(row['GPA out of 4'] or 0),
-            })
-        return jsonify({"opportunities": all_opps})
-    except Exception as e:
-        return jsonify({
-            "error": "Failed to load opportunities.",
-            "details": str(e)
-        }), 500 
+                # Ensure JSON serializable types only
+                item = {
+                    'Job Title': str(row.get('Job Title', '')),
+                    'Description': str(row.get('Company Descreption', '')),
+                    'Apply url': str(apply_url),
+                    'Company Name': str(row.get('Company Name', 'N/A')),
+                    'Locations': list(row.get('Location', set())),
+                    'Skills': row.get('Skills', []),
+                    'GPA out of 5': float(row.get('GPA out of 5', 0) or 0),
+                    'GPA out of 4': float(row.get('GPA out of 4', 0) or 0),
+                }
+
+                json_string = json.dumps(item, ensure_ascii=False)
+
+                if not first:
+                    yield ','
+                yield json_string
+                first = False
+            except Exception as e:
+                print(f"Skipping bad row due to error: {e}")
+                continue
+        yield ']}'
+
+    return Response(generate(), mimetype='application/json; charset=utf-8')
+
+
+
 
 
 
@@ -157,10 +175,7 @@ def recommend():
             if user_data['major'].lower() not in map(str.strip, row['Majors'].lower().split(',')):
                 continue
 
-            # Filter by location
-            opp_locations = row['Location']
-            if not user_locations.intersection(opp_locations):
-                continue
+
 
             # Calculate skills similarity using cosine similarity
             job_skill_vector = job_skill_vectors[i]
@@ -177,7 +192,7 @@ def recommend():
                 'Description': row['Company Descreption'],
                 'Apply url': apply_url,
                 'Company Name': row.get('Company Name', 'N/A'),
-                'Locations': list(opp_locations),
+                'Locations': list(row['Location']),
                 'Skills': row['Skills'],
                 'GPA out of 5': row['GPA out of 5'],
                 'GPA out of 4': row['GPA out of 4'],

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hadafi_application/Community/CommunityProfile.dart';
+import 'package:hadafi_application/Community/addCommunity.dart';
 import 'package:hadafi_application/Community/createCommunity.dart';
 import 'package:hadafi_application/Community/delegates/search_community_delegate.dart';
 import 'package:hadafi_application/Community/explore_page.dart';
 import 'package:hadafi_application/Community/model/community_model.dart';
 import 'package:hadafi_application/Community/post/screens/add_post_type_screen.dart';
+import 'package:hadafi_application/Community/post/screens/communityHeader.dart';
 import 'package:hadafi_application/StudentHomePage.dart';
 import 'package:hadafi_application/Community/CommunityProfile.dart';
 import 'package:hadafi_application/Community/user_profile/screens/user_profile_screen.dart';
@@ -34,7 +36,6 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
   final List<Widget> screens = [
     FeedScreen(),
     ExplorePage(),
-    createCommunityUI(),
     AddPostScreen(),
   ];
 
@@ -48,7 +49,6 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
       body: screens[index],
       drawer: const HadafiDrawer(),
       appBar: AppBar(
-
         title: const Text(
           'Communities',
           style: TextStyle(color: Colors.white),
@@ -63,6 +63,17 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
               showSearch(
                 context: context,
                 delegate: SearchCommunityDelegate(ref),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.group_add),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AddCommunityScreen(),
+                ),
               );
             },
           ),
@@ -89,15 +100,11 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
               label: "Home",
             ),
             NavigationDestination(
-              icon: Icon(Icons.explore_outlined), 
+              icon: Icon(Icons.explore_outlined),
               selectedIcon: Icon(Icons.explore),
               label: "Explore",
             ),
-            NavigationDestination(
-              icon: Icon(Icons.add_outlined),
-              selectedIcon: Icon(Icons.add),
-              label: "Create Community",
-            ),
+
             //    NavigationDestination(
             //    icon: Icon(Icons.post_add_outlined),
             //    selectedIcon: Icon(Icons.post_add),

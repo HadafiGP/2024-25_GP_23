@@ -188,6 +188,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
     setState(() => isLoading = true);
 
     await fetchCsvOpportunities(); // Ensure CSV loads first
+    print("CSV loaded: ${csvOpportunities.length} items");
 
     await Future.wait([
       fetchRecommendations(),
@@ -204,23 +205,38 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
   //Fetch all opportunitites
   Future<void> fetchCsvOpportunities() async {
-    try {
-      final response =
-          await http.get(Uri.parse("http://10.0.2.2:5000/opportunities"));
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        setState(() {
-          csvOpportunities = data['opportunities'] ?? [];
-          isLoadingCsvOpportunities = false;
-        });
-      } else {
-        print("CSV error: ${response.body}");
-        setState(() => isLoadingCsvOpportunities = false);
+    int attempts = 0;
+    const maxRetries = 5;
+
+    while (attempts < maxRetries) {
+      try {
+        final response =
+            await http.get(Uri.parse("http://10.0.2.2:5000/opportunities"));
+
+        if (response.statusCode == 200) {
+          try {
+            final data = json.decode(response.body);
+            setState(() {
+              csvOpportunities = data['opportunities'] ?? [];
+              isLoadingCsvOpportunities = false;
+            });
+            print("CSV loaded: ${csvOpportunities.length} items");
+            return;
+          } catch (e) {
+            print("⚠️ JSON decoding error: $e (retrying...)");
+          }
+        } else {
+          print("CSV error: ${response.body}");
+        }
+      } catch (e) {
+        print("CSV exception: $e");
       }
-    } catch (e) {
-      print("CSV exception: $e");
-      setState(() => isLoadingCsvOpportunities = false);
+
+      attempts++;
+      await Future.delayed(const Duration(seconds: 2)); 
     }
+
+    setState(() => isLoadingCsvOpportunities = false);
   }
 
 //best match recs
@@ -795,53 +811,122 @@ class OpportunitiesList extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 8.0),
           child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 5,
-                    spreadRadius: 2,
-                  ),
-                ],
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 5,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: ListTile(
+              onTap: () {
+                if (opportunity.containsKey('Skills Similarity') ||
+                    opportunity['id'] == null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => OpportunityDetailsPage(
+                        jobTitle: oppTitle,
+                        companyName: companyName,
+                        description: description,
+                        applyUrl: applyUrl,
+                        similarity: 0.0,
+                        skills: List<String>.from(opportunity['Skills'] ??
+                            opportunity['skills'] ??
+                            []),
+                        location: (opportunity['Locations'] ??
+                                opportunity['locations'] ??
+                                [])
+                            .join(', '),
+                        gpa5: gpa5,
+                        gpa4: gpa4,
+                        opportunityId: null,
+                      ),
+                    ),
+                  );
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TpOpportunityDetailsPage(
+                        opportunityId: opportunity['id'],
+                        jobTitle: oppTitle,
+                        companyName: companyName,
+                        description: description,
+                        applyUrl: applyUrl,
+                        skills: List<String>.from(opportunity['Skills'] ??
+                            opportunity['skills'] ??
+                            []),
+                        location: (opportunity['Locations'] ??
+                                opportunity['locations'] ??
+                                [])
+                            .join(', '),
+                        gpa5: opportunity['gpaOutOf5'] is double
+                            ? opportunity['gpaOutOf5']
+                            : double.tryParse(
+                                    opportunity['gpaOutOf5'].toString()) ??
+                                0.0,
+                        gpa4: opportunity['gpaOutOf4'] is double
+                            ? opportunity['gpaOutOf4']
+                            : double.tryParse(
+                                    opportunity['gpaOutOf4'].toString()) ??
+                                0.0,
+                        duration: opportunity['duration'] ?? "",
+                        endDate: opportunity['endDate'] ?? "",
+                        createdAt: opportunity['createdAt'] ?? "",
+                        startDate: opportunity['startDate'] ?? "",
+                        jobType: opportunity['jobType'] ?? "",
+                        major: (opportunity['major'] ?? []).join(', '),
+                        contactInfo: contactInfo,
+                      ),
+                    ),
+                  );
+                }
+              },
+              title: Text(
+                oppTitle,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF113F67),
+                ),
+                softWrap: true,
               ),
-              child: ListTile(
-                title: Text(
-                  oppTitle,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF113F67),
-                  ),
-                  softWrap: true,
-                ),
-                subtitle: Text(
-                  companyName,
-                  style: const TextStyle(fontSize: 13),
-                ),
-                trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+              subtitle: Text(
+                companyName,
+                style: const TextStyle(fontSize: 13),
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
                   Consumer(
                     builder: (context, ref, child) {
                       final favoriteOpps = ref.watch(favoriteProvider);
                       final isFavorited = favoriteOpps.favOpportunities
                           .any((opp) => opp['Job Title'] == oppTitle);
 
+                      final favoriteOpp = {
+                        'Job Title': oppTitle,
+                        'Company Name': companyName,
+                        'Description': description,
+                        'Apply url': applyUrl,
+                        'GPA out of 5': gpa5,
+                        'GPA out of 4': gpa4,
+                        'Locations': opportunity['Locations'] ??
+                            opportunity['locations'] ??
+                            [],
+                        'Skills': opportunity['Skills'] ??
+                            opportunity['skills'] ??
+                            [],
+                      };
+
                       return GestureDetector(
                         onTap: () {
                           final wasFavorited = isFavorited;
-
-                          final favoriteOpp = {
-                            'Job Title': oppTitle,
-                            'Company Name': companyName,
-                            'Description': description,
-                            'Apply url': applyUrl,
-                            'GPA out of 5': gpa5,
-                            'GPA out of 4': gpa4,
-                            'Locations': opportunity['Locations'] ?? [],
-                            'Skills': opportunity['Skills'] ?? [],
-                          };
-
                           ref
                               .read(favoriteProvider.notifier)
                               .toggleFavorite(favoriteOpp);
@@ -865,8 +950,7 @@ class OpportunitiesList extends StatelessWidget {
                                       },
                                     )
                                   : null,
-                              backgroundColor:
-                                  Colors.green,
+                              backgroundColor: Colors.green,
                               duration: const Duration(seconds: 2),
                             ),
                           );
@@ -879,25 +963,25 @@ class OpportunitiesList extends StatelessWidget {
                                 : Icons.bookmark_add_outlined,
                             color:
                                 isFavorited ? Colors.amber[400] : Colors.grey,
-                            size: correctSize(context, 72),
+                            size: MediaQuery.of(context).devicePixelRatio < 2.5
+                                ? 20
+                                : 24,
                             key: ValueKey<bool>(isFavorited),
                           ),
                         ),
                       );
                     },
                   ),
-                  SizedBox(width: 5),
+                  const SizedBox(width: 5),
                   GradientButton(
                     text: "More",
-                    gradientColors: [
-                      const Color(0xFF113F67),
+                    gradientColors: const [
+                      Color(0xFF113F67),
                       Color.fromARGB(255, 105, 185, 255),
                     ],
                     onPressed: () {
-                      // Check which tab is currently selected
                       if (opportunity.containsKey('Skills Similarity') ||
                           opportunity['id'] == null) {
-                        // Best match tab - navigate to OpportunityDetailsPage
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -907,10 +991,13 @@ class OpportunitiesList extends StatelessWidget {
                               description: description,
                               applyUrl: applyUrl,
                               similarity: 0.0,
-                              skills: List<String>.from(
-                                  opportunity['Skills'] ?? []),
-                              location:
-                                  (opportunity['Locations'] ?? []).join(', '),
+                              skills: List<String>.from(opportunity['Skills'] ??
+                                  opportunity['skills'] ??
+                                  []),
+                              location: (opportunity['Locations'] ??
+                                      opportunity['locations'] ??
+                                      [])
+                                  .join(', '),
                               gpa5: gpa5,
                               gpa4: gpa4,
                               opportunityId: null,
@@ -927,16 +1014,19 @@ class OpportunitiesList extends StatelessWidget {
                               companyName: companyName,
                               description: description,
                               applyUrl: applyUrl,
-                              skills: List<String>.from(
-                                  opportunity['skills'] ?? []),
-                              location:
-                                  (opportunity['locations'] ?? []).join(', '),
-                              gpa5: (opportunity['gpaOutOf5'] is double)
+                              skills: List<String>.from(opportunity['Skills'] ??
+                                  opportunity['skills'] ??
+                                  []),
+                              location: (opportunity['Locations'] ??
+                                      opportunity['locations'] ??
+                                      [])
+                                  .join(', '),
+                              gpa5: opportunity['gpaOutOf5'] is double
                                   ? opportunity['gpaOutOf5']
                                   : double.tryParse(opportunity['gpaOutOf5']
                                           .toString()) ??
                                       0.0,
-                              gpa4: (opportunity['gpaOutOf4'] is double)
+                              gpa4: opportunity['gpaOutOf4'] is double
                                   ? opportunity['gpaOutOf4']
                                   : double.tryParse(opportunity['gpaOutOf4']
                                           .toString()) ??
@@ -954,8 +1044,10 @@ class OpportunitiesList extends StatelessWidget {
                       }
                     },
                   ),
-                ]),
-              )),
+                ],
+              ),
+            ),
+          ),
         );
       },
     );
