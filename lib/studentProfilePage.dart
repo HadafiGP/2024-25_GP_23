@@ -9,6 +9,7 @@ import 'package:hadafi_application/CV.dart';
 import 'package:hadafi_application/Community/CommunityHomeScreen.dart';
 import 'package:hadafi_application/favoriteList.dart';
 import 'package:hadafi_application/interview.dart';
+import 'package:hadafi_application/style.dart';
 import 'package:hadafi_application/welcome.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -827,16 +828,17 @@ class _ProfilePageState extends State<ProfilePage> {
                       );
                     }
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    elevation: 5,
-                    shadowColor: Colors.black26,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(40),
-                      side: BorderSide(color: Color(0xFF113F67), width: 1.8),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-                  ),
+                  // style: ElevatedButton.styleFrom(
+                  //   backgroundColor: Colors.white,
+                  //   elevation: 5,
+                  //   shadowColor: Colors.black26,
+                  //   shape: RoundedRectangleBorder(
+                  //     borderRadius: BorderRadius.circular(40),
+                  //     side: BorderSide(color: Color(0xFF113F67), width: 1.8),
+                  //   ),
+                  //   padding: EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                  // ),
+                  style: kSecondaryButtonStyle,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

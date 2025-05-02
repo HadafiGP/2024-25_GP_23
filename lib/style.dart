@@ -22,17 +22,46 @@ const TextStyle kFieldTextStyle = TextStyle(
 );
 
 // Button Styles
+// final ButtonStyle kMainButtonStyle = ElevatedButton.styleFrom(
+//   backgroundColor: mainColor,
+//   foregroundColor: Colors.white,
+//   padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20), // ✅ أكبر
+//   minimumSize: const Size(double.infinity, 60), // ✅ يعطيه عرض وارتفاع واضح
+//   shape: RoundedRectangleBorder(
+//     borderRadius: BorderRadius.circular(30),
+//   ),
+//   elevation: 5,
+//   shadowColor: Colors.black.withOpacity(0.3),
+// );
+
 final ButtonStyle kMainButtonStyle = ElevatedButton.styleFrom(
   backgroundColor: mainColor,
   foregroundColor: Colors.white,
-  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20), // ✅ أكبر
-  minimumSize: const Size(double.infinity, 60), // ✅ يعطيه عرض وارتفاع واضح
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(30),
   ),
-  elevation: 5,
-  shadowColor: Colors.black.withOpacity(0.3),
+  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
 );
+
+// final ButtonStyle Singlebtn =ElevatedButton.styleFrom(
+//     backgroundColor: const Color(0xFF113F67), // نفس لون الزر
+//     padding: const EdgeInsets.symmetric(vertical: 14),
+//     shape: RoundedRectangleBorder(
+//       borderRadius: BorderRadius.circular(8), // نفس الزوايا
+//     ),
+//     minimumSize: const Size.fromHeight(50), // يأخذ عرض الشاشة بالكامل
+//   );
+
+  final ButtonStyle Singlebtn =ElevatedButton.styleFrom(
+    backgroundColor: const Color(0xFF113F67), // نفس لون الزر
+    padding: const EdgeInsets.symmetric(vertical: 16),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(30), // نفس الزوايا
+    ),
+    minimumSize: const Size.fromHeight(50), // يأخذ عرض الشاشة بالكامل
+  );
+
+  
 
 
 
@@ -46,3 +75,4 @@ final ButtonStyle kSecondaryButtonStyle = ElevatedButton.styleFrom(
   ),
   padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
 );
+
