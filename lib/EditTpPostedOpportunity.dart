@@ -313,7 +313,7 @@ List<String> selectedMajors = [];
         startDate = DateTime.parse(opportunityData['startDate']);
         endDate = DateTime.parse(opportunityData['endDate']);
         durationController.text = opportunityData['duration'];
-        final majorsList = opportunityData['major'];
+        final majorsList = opportunityData['majors'];
 if (majorsList is List) {
   selectedMajors = List<String>.from(majorsList);
 } else if (majorsList is String) {

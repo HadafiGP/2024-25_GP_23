@@ -122,7 +122,7 @@ class ViewOpportunityPage extends StatelessWidget {
                     if (hasGpa)
                       Card(
                         elevation: 4,
-                        color: Colors.white,
+                        color: Color(0xFFF3F9FB),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -176,7 +176,7 @@ class ViewOpportunityPage extends StatelessWidget {
                     const SizedBox(height: 5),
                     Card(
                       elevation: 4,
-                      color: Colors.white,
+                      color:Color(0xFFF3F9FB),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -239,10 +239,12 @@ class ViewOpportunityPage extends StatelessWidget {
                         content: contactInfo,
                         icon: Icons.contact_mail),
                     const SizedBox(height: 5),
-                    _nonExpandableCard(
-                        title: 'Company Link',
-                        content: companyLink,
-                        icon: Icons.link),
+          if (companyLink.trim().isNotEmpty)
+  _nonExpandableCard(
+    title: 'Company Link',
+    content: companyLink,
+    icon: Icons.link),
+
                   ],
                 ),
               );
@@ -306,7 +308,7 @@ class ViewOpportunityPage extends StatelessWidget {
       required IconData icon}) {
     return Card(
       elevation: 4,
-      color: Colors.white,
+      color: Color(0xFFF3F9FB),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ExpansionTile(
         leading: Icon(icon, color: const Color(0xFF096499)),
@@ -334,7 +336,7 @@ class ViewOpportunityPage extends StatelessWidget {
       required IconData icon}) {
     return Card(
       elevation: 4,
-      color: Colors.white,
+      color: Color(0xFFF3F9FB),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
