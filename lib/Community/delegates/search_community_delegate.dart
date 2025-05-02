@@ -9,11 +9,20 @@ class SearchCommunityDelegate extends SearchDelegate {
   final WidgetRef ref;
   SearchCommunityDelegate(this.ref);
 
-
-
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    return [
+      IconButton(
+        onPressed: () {
+          query = '';
+        },
+        icon: const Icon(Icons.close),
+      ),
+    ];
+  }
 @override
 ThemeData appBarTheme(BuildContext context) {
-  final ThemeData theme = Theme.of(context);
+  final theme = Theme.of(context);
   return theme.copyWith(
     appBarTheme: const AppBarTheme(
       backgroundColor: Color(0xFF113F67),
@@ -26,29 +35,16 @@ ThemeData appBarTheme(BuildContext context) {
     ),
     inputDecorationTheme: const InputDecorationTheme(
       hintStyle: TextStyle(color: Colors.white70),
-      border: InputBorder.none,     
+      border: InputBorder.none,         
       enabledBorder: InputBorder.none,  
       focusedBorder: InputBorder.none,  
     ),
     textTheme: const TextTheme(
-      titleLarge: TextStyle(color: Colors.white, fontSize: 18),
+      titleLarge: TextStyle(color: Colors.white),
     ),
   );
 }
 
-
-
-  @override
-  List<Widget>? buildActions(BuildContext context) {
-    return [
-      IconButton(
-        onPressed: () {
-          query = '';
-        },
-        icon: const Icon(Icons.close),
-      ),
-    ];
-  }
 
   @override
   Widget? buildLeading(BuildContext context) {
@@ -69,7 +65,10 @@ ThemeData appBarTheme(BuildContext context) {
   Widget buildSuggestions(BuildContext context) {
     final searchResults = ref.watch(searchCommunityProvider(query));
 
-
+  
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      query = query; 
+    });
 
     return searchResults.when(
       data: (communities) {
