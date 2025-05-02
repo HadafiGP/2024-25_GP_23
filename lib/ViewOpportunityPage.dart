@@ -66,7 +66,7 @@ class ViewOpportunityPage extends StatelessWidget {
               final startDate = opportunityData['startDate'] ?? '';
               final endDate = opportunityData['endDate'] ?? '';
               final duration = opportunityData['duration'] ?? '';
-              final majorData = opportunityData['major'];
+              final majorData = opportunityData['majors'];
               final major = majorData is List
                   ? majorData.join(', ')
                   : majorData?.toString() ?? 'Not specified';

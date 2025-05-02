@@ -942,7 +942,7 @@ void _saveData() async {
         'startDate': startDate?.toIso8601String(),
         'endDate': endDate?.toIso8601String(),
         'duration': durationController.text.trim(),
-        'major': selectedMajors,
+        'majors': selectedMajors,
 
         'gpaOutOf4': gpa4Controller.text.trim(),
         'gpaOutOf5': gpa5Controller.text.trim(),
