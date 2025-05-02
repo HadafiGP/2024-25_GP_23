@@ -77,9 +77,13 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   final List<String> _cities = [
     'Abha',
     'Al Ahsa',
+    'Al-Kharj',
     'Al Khobar',
     'Al Qassim',
+    'Baha',
+    'Bisha',
     'Dammam',
+    'Dhahran',
     'Hail',
     'Jeddah',
     'Jizan',
@@ -115,55 +119,120 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
 
 // List of all available majors
   final List<String> _majors = [
-    'Clinical Laboratory Sciences',
-    'Occupational Therapy',
-    'Physical Therapy',
-    'Prosthetics and Orthotics',
-    'Radiology',
     'Architecture',
-    'Graphic Design',
-    'Industrial Design',
-    'Interior Design',
-    'Urban Planning',
     'Accounting',
-    'Business Administration',
-    'Finance',
-    'Human Resources Management',
-    'International Business',
-    'Management Information Systems',
-    'Marketing',
-    'Supply Chain Management',
+    'Anthropology',
     'Artificial Intelligence',
-    'Computer Science',
-    'Cybersecurity',
-    'Data Science',
-    'Information Systems',
-    'Information Technology',
-    'Software Engineering',
-    'Dentistry',
-    'Oral and Maxillofacial Surgery',
-    'Orthodontics',
+    'Arts',
+    'Administrative',
+    'Arabic',
+    'Advertising',
+    'Business',
+    'Business Administration',
     'Biomedical Engineering',
+    'Business Informatics',
+    'Biological Science',
+    'Biology',
+    'Clinical Laboratory Sciences',
+    'Computer Science',
+    'Criminal Justice',
+    'Computer Engineering',
+    'Computer Information Systems',
+    'Computer Programming',
+    'Cybersecurity',
+    'Chemistry',
     'Chemical Engineering',
+    'Clinical Nutrition',
     'Civil Engineering',
+    'Commerce',
+    'Communication',
+    'Comparative Literature',
+    'Data Science',
+    'Dentistry',
+    'Data Analytics',
+    'Design',
+    'Drafting',
     'Electrical Engineering',
     'Environmental Engineering',
-    'Industrial Engineering',
-    'Mechanical Engineering',
-    'Petroleum Engineering',
-    'Clinical Nutrition',
+    'Economics',
+    'Education',
+    'Electronics',
+    'Engineering',
+    'English',
+    'Environmental Science',
+    'Finance',
+    'Film',
+    'Fine Arts',
+    'Foreign Language',
+    'Forensic science',
+    'Forestry',
+    'Graphic Design',
+    'General Studies',
+    'Geography',
+    'Geology',
+    'Government',
     'Health Informatics',
-    'Medical Laboratory Sciences',
-    'Nursing',
-    'Public Health',
-    'Radiologic Technology',
-    'Respiratory Therapy',
-    'Medicine (MBBS)',
-    'Clinical Pharmacy',
-    'Pharmacy',
-    'Law',
+    'Human Resources Management',
+    'Healthcare',
+    'History',
+    'Hospitality Management',
+    'Human Computer Interaction',
     'Islamic Law (Sharia)',
-    'Economics'
+    'International Business',
+    'Information System',
+    'Information Technology',
+    'Industrial Design',
+    'Interior Design',
+    'Industrial Engineering',
+    'Journalism',
+    'Law',
+    'Liberal Arts',
+    'Linguistics',
+    'Literature',
+    'Medicine (MBBS)',
+    'Medical Laboratory Sciences',
+    'Mechanical Engineering',
+    'Management Information Systems',
+    'Marketing',
+    'Management',
+    'Mathematics',
+    'Media',
+    'Music',
+    'Manufacturing Engineering',
+    'Nursing',
+    'Nutrition',
+    'Oral and Maxillofacial Surgery',
+    'Orthodontics',
+    'Occupational Therapy',
+    'Organization Development',
+    'Other',
+    'Pharmacy',
+    'Petroleum Engineering',
+    'Public Health',
+    'Public Policy',
+    'Physical Therapy',
+    'Prosthetics and Orthotics',
+    'Public Administration',
+    'Public Relations',
+    'Philosophy',
+    'Physics',
+    'Political Science',
+    'Psychology',
+    'Radiology',
+    'Respiratory Therapy',
+    'Religion',
+    'Risk Management',
+    'Supply Chain Management',
+    'Software Engineering',
+    'Science',
+    'Sociology',
+    'Statistics',
+    'Safety Engineering',
+    'Telecommunications',
+    'Theatre',
+    'Translation',
+    'Urban Planning',
+    'Visual Arts'
   ];
 
 /////////////////////////////////////////////////////
@@ -185,36 +254,11 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     "MATLAB",
     "Excel",
     "Word",
+    "Outlook",
     "PowerPoint",
     "Statistical Analysis",
-    "Tableau"
-  ];
-
-  final List<String> healthSoftSkills = [
-    "Accountability",
-    "Adaptability",
-    "Analytical Thinking",
-    "Attention to Detail",
-    "Collaboration and Teamwork",
-    "Communication",
-    "Critical Thinking",
-    "Customer Orientation",
-    "Decision Making",
-    "Dependability",
-    "Emotional Intelligence",
-    "Empathy",
-    "Flexibility to Changing Environments",
-    "Interpersonal Skills",
-    "Patience",
-    "Problem Solving",
-    "Resilience",
-    "Self-Motivation",
-    "Stress Management",
-    "Thoroughness",
-    "Time Management",
-    "Verbal and Written Clarity",
-    "Workplace Etiquette",
-    "Working Effectively Within Teams"
+    "Tableau",
+    "SharePoint"
   ];
 
   final List<String> healthManagementSkills = [
@@ -240,17 +284,22 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   ];
 
   final List<String> humanitiesTechnicalSkills = [
+    "Adobe Creative Suite",
+    "Content Creation tools",
     "Data Analysis",
     "Data Visualization",
     "Excel",
+    "Outlook",
     "Word",
     "PowerPoint",
+    "Project Management tools",
     "Microsoft Office Suite",
     "Tableau",
     "Content Management Systems (CMS)",
     "Graphic Design Tools",
     "Basic HTML and CSS",
     "Social Media Management Tools",
+    "Social media platforms",
     "Digital Archiving",
     "Citation Management Tools",
     "Editing Software",
@@ -259,7 +308,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     "Video Editing Tools"
   ];
 
-  final List<String> humanitiesSoftSkills = [
+  final List<String> softSkills = [
     "Accountability",
     "Adaptability",
     "Analytical Thinking",
@@ -268,30 +317,39 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     "Communication",
     "Conflict Resolution",
     "Creative Solutions",
+    "Creative writing",
     "Critical Thinking",
     "Customer Orientation",
     "Decision Making",
     "Dependability",
+    "Deal with ambiguity",
     "Emotional Intelligence",
     "Empathy",
     "Flexibility to Changing Environments",
+    "Ideation Concepts",
     "Interpersonal Skills",
     "Leadership",
+    "Logical Reasoning",
+    "Multitasking",
     "Patience",
     "Problem Solving",
     "Resilience",
+    "Responsibility",
     "Self-Motivation",
+    "Strong Work Ethic",
     "Stress Management",
     "Task Prioritization",
     "Thoroughness",
     "Time Management",
+    "Verbal and Written Clarity",
     "Verbal and Written Clarity",
     "Workplace Etiquette",
     "Working Effectively Within Teams",
     "Networking",
     "Public Speaking",
     "Presentation Skills",
-    "Relationship Building"
+    "Relationship Building",
+    "Willingness to learn"
   ];
 
   final List<String> humanitiesManagementSkills = [
@@ -319,35 +377,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     "Public Relations Management"
   ];
 
-  final List<String> scientificSoftSkills = [
-    "Accountability",
-    "Adaptability",
-    "Analytical Thinking",
-    "Attention to Detail",
-    "Collaboration and Teamwork",
-    "Communication",
-    "Conflict Resolution",
-    "Creative Solutions",
-    "Critical Thinking",
-    "Decision Making",
-    "Dependability",
-    "Flexibility to Changing Environments",
-    "Interpersonal Skills",
-    "Logical Reasoning",
-    "Patience",
-    "Problem Solving",
-    "Resilience",
-    "Self-Motivation",
-    "Strong Work Ethic",
-    "Stress Management",
-    "Task Prioritization",
-    "Thoroughness",
-    "Time Management",
-    "Verbal and Written Clarity",
-    "Workplace Etiquette",
-    "Working Effectively Within Teams"
-  ];
-
   final List<String> scientificManagementSkills = [
     "Adapting to Organizational Changes",
     "Change Management",
@@ -372,7 +401,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     "Team Building",
     "Timeline Setting"
   ];
-
   final List<String> scientificTechnicalSkills = [
     "Adobe XD",
     "Agile",
@@ -385,12 +413,14 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     "Big Data Analytics",
     "Bitbucket",
     "Blockchain",
+    "C",
     "C#",
     "C++",
     "Cloud Architecture",
     "Confluence",
     "CRM systems",
     "CSS",
+    "Cybersecurity Tools",
     "Cybersecurity",
     "Data Analysis",
     "Data Mining",
@@ -404,8 +434,11 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     "Figma",
     "Firebase",
     "Firewalls",
+    "Flutter",
+    "Familiarity with laboratory techniques",
     "Git and GitHub",
     "GCP",
+    "Golang",
     "Hadoop",
     "HTML",
     "Java",
@@ -414,8 +447,10 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     "JIRA",
     "JUnit",
     "Kubernetes",
+    "Linux",
     "Machine Learning",
     "MATLAB",
+    "Microsoft Office 365",
     "Microsoft Office Suite",
     "MongoDB",
     "MS Project",
@@ -423,6 +458,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     "NoSQL",
     "Node.js",
     "NLP",
+    "Outlook",
     "Object-Oriented Programming (OOP)",
     "Oracle APEX",
     "Penetration Testing",
@@ -436,6 +472,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     "R Programming",
     "React",
     "Ruby",
+    "Rust",
     "Selenium",
     "Sketch",
     "SQL",
@@ -443,16 +480,20 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     "Supervised/Unsupervised Learning",
     "SVN",
     "Swift",
+    "Troubleshooting Techniques",
     "Tableau",
     "TensorFlow",
     "Trello",
+    "Ubuntu",
     "UI/UX Design",
     "User Research",
     "VLOOKUP",
     "Vue.js",
     "Waterfall",
     "Web Development",
-    "Word"
+    "Word",
+    "CAD",
+    "Engineering software packages"
   ];
 
   void _updateSkillsBasedOnMajor(String? major) {
@@ -473,55 +514,98 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
       _isMajorSelected = true;
 
       final healthMajors = [
+        'Biomedical Engineering',
         'Clinical Laboratory Sciences',
+        'Clinical Nutrition',
+        'Dentistry',
+        "Forensic Science",
+        'Health Informatics',
+        'Healthcare',
+        'Medicine (MBBS)',
+        'Medical Laboratory Sciences',
+        'Nursing',
+        'Nutrition',
+        'Oral and Maxillofacial Surgery',
+        'Orthodontics',
         'Occupational Therapy',
+        'Pharmacy',
+        'Public Health',
         'Physical Therapy',
         'Prosthetics and Orthotics',
         'Radiology',
-        'Dentistry',
-        'Oral and Maxillofacial Surgery',
-        'Orthodontics',
-        'Biomedical Engineering',
-        'Clinical Nutrition',
-        'Health Informatics',
-        'Medical Laboratory Sciences',
-        'Nursing',
-        'Public Health',
-        'Radiologic Technology',
         'Respiratory Therapy',
-        'Medicine (MBBS)',
         'Clinical Pharmacy',
-        'Pharmacy'
-      ];
-      final humanitiesMajors = [
-        'Architecture',
-        'Graphic Design',
-        'Industrial Design',
-        'Interior Design',
-        'Urban Planning',
-        'Accounting',
-        'Business Administration',
-        'Finance',
-        'Human Resources Management',
-        'International Business',
-        'Marketing',
-        'Supply Chain Management',
-        'Law',
-        'Islamic Law (Sharia)',
-        'Economics'
       ];
 
+      final List<String> humanitiesMajors = [
+        'Accounting',
+        'Administrative',
+        'Anthropology',
+        'Arts',
+        'Arabic',
+        'Advertising',
+        'Business',
+        'Business Administration',
+        'Business Informatics',
+        'Commerce',
+        'Communication',
+        'Comparative Literature',
+        'Design',
+        'Drafting',
+        'Economics',
+        'Education',
+        'English',
+        'Film',
+        'Fine Arts',
+        'Foreign Language',
+        'Forestry',
+        'Graphic Design',
+        'General Studies',
+        'Geography',
+        'Geology',
+        'Government',
+        'Hospitality Management',
+        'Human Resources Management',
+        'History',
+        'Human Computer Interaction',
+        'Islamic Law (Sharia)',
+        'International Business',
+        'Interior Design',
+        'Journalism',
+        'Law',
+        'Liberal Arts',
+        'Linguistics',
+        'Literature',
+        'Marketing',
+        'Management',
+        'Media',
+        'Music',
+        'Organization Development',
+        'Public Policy',
+        'Public Administration',
+        'Public Relations',
+        'Philosophy',
+        'Political Science',
+        'Psychology',
+        'Religion',
+        'Risk Management',
+        'Supply Chain Management',
+        'Sociology',
+        'Theatre',
+        'Translation',
+        'Visual Arts'
+      ];
       if (healthMajors.contains(major)) {
         _currentTechnicalSkills = List.from(healthTechnicalSkills);
-        _currentSoftSkills = List.from(healthSoftSkills);
+        _currentSoftSkills = List.from(softSkills);
         _currentManagementSkills = List.from(healthManagementSkills);
       } else if (humanitiesMajors.contains(major)) {
         _currentTechnicalSkills = List.from(humanitiesTechnicalSkills);
-        _currentSoftSkills = List.from(humanitiesSoftSkills);
+        _currentSoftSkills = List.from(softSkills);
         _currentManagementSkills = List.from(humanitiesManagementSkills);
       } else {
         _currentTechnicalSkills = List.from(scientificTechnicalSkills);
-        _currentSoftSkills = List.from(scientificSoftSkills);
+        _currentSoftSkills = List.from(softSkills);
         _currentManagementSkills = List.from(scientificManagementSkills);
       }
 
@@ -1205,12 +1289,22 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
       children: [
         GestureDetector(
           onTap: () {
-            // Ensure the dialog opens for Technical Skills
-            _showSkillsDialog(
-              "Select Technical Skills",
-              _currentTechnicalSkills,
-              _selectedTechnicalSkills,
-            );
+            if (!_isMajorSelected) {
+              // Show snackbar warning if no major is selected
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Please choose your major first.'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            } else {
+              // Ensure the dialog opens for Technical Skills
+              _showSkillsDialog(
+                "Select Technical Skills",
+                _currentTechnicalSkills,
+                _selectedTechnicalSkills,
+              );
+            }
           },
           child: AbsorbPointer(
             child: TextFormField(
@@ -1256,12 +1350,22 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
       children: [
         GestureDetector(
           onTap: () {
-            // Ensure the dialog opens for Management Skills
-            _showSkillsDialog(
-              "Select Management Skills",
-              _currentManagementSkills,
-              _selectedManagementSkills,
-            );
+            if (!_isMajorSelected) {
+              // Show snackbar warning if no major is selected
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Please choose your major first.'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            } else {
+              // Ensure the dialog opens for Management Skills
+              _showSkillsDialog(
+                "Select Management Skills",
+                _currentManagementSkills,
+                _selectedManagementSkills,
+              );
+            }
           },
           child: AbsorbPointer(
             child: TextFormField(
@@ -1307,9 +1411,19 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
       children: [
         GestureDetector(
           onTap: () {
-            // Use the dynamic soft skills list (_currentSoftSkills)
-            _showSkillsDialog(
-                "Select Soft Skills", _currentSoftSkills, _selectedSoftSkills);
+            if (!_isMajorSelected) {
+              // Show snackbar warning if no major is selected
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Please choose your major first.'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            } else {
+              // Use the dynamic soft skills list (_currentSoftSkills)
+              _showSkillsDialog("Select Soft Skills", _currentSoftSkills,
+                  _selectedSoftSkills);
+            }
           },
           child: AbsorbPointer(
             child: TextFormField(
