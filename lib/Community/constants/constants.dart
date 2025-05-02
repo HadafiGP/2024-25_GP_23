@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class Constants {
   static const bannerDefault =
-      'https://static.vecteezy.com/system/resources/previews/000/701/690/original/abstract-polygonal-banner-background-vector.jpg';
+      'https://www.beautylabinternational.com/wp-content/uploads/2020/03/Hero-Banner-Placeholder-Light-1024x480-1.png';
   static const avatarDefault =
       'https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg';
 

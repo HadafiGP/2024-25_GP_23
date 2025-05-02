@@ -136,12 +136,10 @@ class CommunityController extends StateNotifier<bool> {
     res.fold(
       (l) => showSnackBar(context, l.message),
       (r) {
-        showSnackBar(context, "Community created successfully!",
-            isSuccess: true);
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => Communityhomescreen(initialIndex: 1),
+            builder: (context) => Communityhomescreen(initialIndex: 2),
           ),
         );
       },
@@ -156,7 +154,7 @@ class CommunityController extends StateNotifier<bool> {
     final userId = _ref.read(userProvider);
 
     if (userId == null) {
-      showSnackBar(context, 'User not found!', isSuccess: false);
+      showSnackBar(context, 'User not found!');
       return;
     }
 

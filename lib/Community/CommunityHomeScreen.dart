@@ -89,13 +89,13 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
               label: "Home",
             ),
             NavigationDestination(
-              icon: Icon(Icons.explore_outlined), // ✅ Explore icon
+              icon: Icon(Icons.explore_outlined), 
               selectedIcon: Icon(Icons.explore),
               label: "Explore",
             ),
             NavigationDestination(
-              icon: Icon(Icons.add_box_outlined),
-              selectedIcon: Icon(Icons.add_box),
+              icon: Icon(Icons.add_outlined),
+              selectedIcon: Icon(Icons.add),
               label: "Create Community",
             ),
             //    NavigationDestination(

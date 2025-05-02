@@ -38,14 +38,16 @@ firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 # Load COOP/internship opportunities dataset
-dataset_name = "ClayWebScrapingwithskills20NOV 4.csv"
+dataset_name = "tempOpp.csv"
 dataset_path = os.path.join(script_dir, dataset_name)
 
 # Handle dataset errors
 if not os.path.exists(dataset_path):
     raise FileNotFoundError(f"Dataset file not found at path: {dataset_path}")
 
-opp_df = pd.read_csv(dataset_path)
+opp_df = pd.read_csv(dataset_path, encoding='ISO-8859-1')
+
+
 
 # Columns of interest for COOP/internship opportunities
 job_columns = ['Company Descreption', 'Skills', 'Majors', 'Location', 'Job Title', 'Company Apply link', 'Company Name', 'GPA out of 5', 'GPA out of 4', ]

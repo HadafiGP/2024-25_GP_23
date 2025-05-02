@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:hadafi_application/Community/constants/constants.dart';
 import 'package:hadafi_application/Community/repoistory/communitory_repository.dart';
 import "package:hadafi_application/Community/CommunityHomeScreen.dart";
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class AddCommunityScreen extends ConsumerStatefulWidget {
   const AddCommunityScreen({super.key});
@@ -26,6 +28,8 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
   String? avatarPath;
   String? bannerPath;
   List<String> selectedTopics = [];
+  String _networkError = '';
+  bool _isCheckingNetwork = false;
 
   //Community Banner: Camera/Gallery
   Future pickImage(ImageSource source) async {
@@ -63,55 +67,76 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
     _pageController.dispose();
   }
 
+  Future<bool> hasRealInternet() async {
+    try {
+      final result = await InternetAddress.lookup('google.com')
+          .timeout(const Duration(seconds: 5));
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } on SocketException catch (_) {
+      return false;
+    } on TimeoutException {
+      return false;
+    }
+  }
+
   //Coomunity creation pages
-  void nextPage() async {
-    //Check if the community name and description filled,and name isn't used before moving to next page
+  Future<void> nextPage() async {
     if (_currentPage == 0) {
-      if (communityNameController.text.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Please enter a community name"),
-            duration: Duration(seconds: 2),
-            backgroundColor: Colors.red,
-          ),
-        );
+      final name = communityNameController.text.trim();
+      final description = communityDescription.text.trim();
+
+      if (name.isEmpty) {
+        _showError("Please enter a community name");
+        return;
+      }
+      if (description.isEmpty) {
+        _showError("Please enter a description");
         return;
       }
 
-      if (communityDescription.text.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Please enter a description"),
-            duration: Duration(seconds: 2),
-            backgroundColor: Colors.red,
-          ),
-        );
+      setState(() => _isCheckingNetwork = true);
+      bool communityExists = false;
+
+      try {
+        communityExists = await ref
+            .read(communityControllerProvider.notifier)
+            .checkIfCommunityExists(name)
+            .timeout(const Duration(seconds: 5));
+      } catch (e) {
+        _showBanner("No internet connection. Please check your network.");
+        setState(() => _isCheckingNetwork = false);
         return;
       }
 
-      bool communityExists = await ref
-          .read(communityControllerProvider.notifier)
-          .checkIfCommunityExists(communityNameController.text.trim());
+      setState(() => _isCheckingNetwork = false);
 
       if (communityExists) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                "Community with this name already exists! Choose another name."),
-            duration: Duration(seconds: 2),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showError(
+            "Community with this name already exists! Choose another name.");
         return;
       }
     }
-    //Move to next page if all required information and validation is done
+
+   
     if (_currentPage < 2) {
       _pageController.nextPage(
-        duration: Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
     }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
+  }
+
+  void _showBanner(String message) {
+    setState(() => _networkError = message);
+    Future.delayed(Duration(seconds: 3), () {
+      if (mounted) setState(() => _networkError = '');
+    });
   }
 
 //Navigates through the creation steps, if in the first page navigate back to the "Create Community" page
@@ -121,6 +146,9 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
         duration: Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+      setState(() {
+        _currentPage = _currentPage - 1;
+      });
     } else {
       Navigator.pop(context);
     }
@@ -179,8 +207,9 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text("Community created successfully!"),
-        duration: Duration(seconds: 2),
+        content: Text(
+            "Community created successfully! If it doesn't appear, please check your internet."),
+        duration: Duration(seconds: 5),
         backgroundColor: Colors.green,
       ),
     );
@@ -207,19 +236,30 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
       ),
       body: isLoading
           ? const Loader()
-          : PageView(
-              controller: _pageController,
-              physics: NeverScrollableScrollPhysics(),
-              onPageChanged: (index) {
-                setState(() {
-                  _currentPage = index;
-                });
-              },
-              children: [
-                _buildCommunityInfoPage(),
-                _buildCommunityMediaPage(),
-                _buildCommunityTopicsPage(),
-              ],
+          : SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (_networkError.isNotEmpty)
+                    buildNetworkErrorBanner(_networkError),
+                  Expanded(
+                    child: PageView(
+                      controller: _pageController,
+                      physics: const NeverScrollableScrollPhysics(),
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentPage = index;
+                        });
+                      },
+                      children: [
+                        _buildCommunityInfoPage(),
+                        _buildCommunityMediaPage(),
+                        _buildCommunityTopicsPage(),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
     );
   }
@@ -301,29 +341,31 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
             maxLines: 5,
           ),
           const SizedBox(height: 40),
-          GestureDetector(
-            onTap: () {
-              nextPage();
-            },
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              decoration: BoxDecoration(
-                color: const Color(0xFF113F67),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Center(
-                child: Text(
-                  "Next",
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+          _isCheckingNetwork
+              ? const CircularProgressIndicator()
+              : GestureDetector(
+                  onTap: () async {
+                    await nextPage();
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF113F67),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        "Next",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ),
-          ),
+                )
         ],
       ),
     );
@@ -708,7 +750,7 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
                 ),
               ),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   createCommunity();
                 },
                 style: ElevatedButton.styleFrom(
@@ -729,6 +771,33 @@ class _AddCommunityScreenState extends ConsumerState<AddCommunityScreen> {
           ),
         );
       },
+    );
+  }
+
+  Widget buildNetworkErrorBanner(String message) {
+    return Container(
+      width: double.infinity,
+      color: Colors.red,
+      padding: const EdgeInsets.all(12),
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.wifi_off, color: Colors.white),
+            const SizedBox(width: 10),
+            Flexible(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
