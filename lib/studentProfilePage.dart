@@ -87,9 +87,11 @@ class _ProfilePageState extends State<ProfilePage> {
     "MATLAB",
     "Excel",
     "Word",
+    "Outlook",
     "PowerPoint",
     "Statistical Analysis",
-    "Tableau"
+    "Tableau",
+    "SharePoint"
   ];
 
   final List<String> healthSoftSkills = [
@@ -99,24 +101,41 @@ class _ProfilePageState extends State<ProfilePage> {
     "Attention to Detail",
     "Collaboration and Teamwork",
     "Communication",
+    "Conflict Resolution",
+    "Creative Solutions",
+    "Creative writing",
     "Critical Thinking",
     "Customer Orientation",
     "Decision Making",
     "Dependability",
+    "Deal with ambiguity",
     "Emotional Intelligence",
     "Empathy",
     "Flexibility to Changing Environments",
+    "Ideation Concepts",
     "Interpersonal Skills",
+    "Leadership",
+    "Logical Reasoning",
+    "Multitasking",
     "Patience",
     "Problem Solving",
     "Resilience",
+    "Responsibility",
     "Self-Motivation",
+    "Strong Work Ethic",
     "Stress Management",
+    "Task Prioritization",
     "Thoroughness",
     "Time Management",
     "Verbal and Written Clarity",
+    "Verbal and Written Clarity",
     "Workplace Etiquette",
-    "Working Effectively Within Teams"
+    "Working Effectively Within Teams",
+    "Networking",
+    "Public Speaking",
+    "Presentation Skills",
+    "Relationship Building",
+    "Willingness to learn"
   ];
 
   final List<String> healthManagementSkills = [
@@ -142,17 +161,22 @@ class _ProfilePageState extends State<ProfilePage> {
   ];
 
   final List<String> humanitiesTechnicalSkills = [
+    "Adobe Creative Suite",
+    "Content Creation tools",
     "Data Analysis",
     "Data Visualization",
     "Excel",
+    "Outlook",
     "Word",
     "PowerPoint",
+    "Project Management tools",
     "Microsoft Office Suite",
     "Tableau",
     "Content Management Systems (CMS)",
     "Graphic Design Tools",
     "Basic HTML and CSS",
     "Social Media Management Tools",
+    "Social media platforms",
     "Digital Archiving",
     "Citation Management Tools",
     "Editing Software",
@@ -170,30 +194,39 @@ class _ProfilePageState extends State<ProfilePage> {
     "Communication",
     "Conflict Resolution",
     "Creative Solutions",
+    "Creative writing",
     "Critical Thinking",
     "Customer Orientation",
     "Decision Making",
     "Dependability",
+    "Deal with ambiguity",
     "Emotional Intelligence",
     "Empathy",
     "Flexibility to Changing Environments",
+    "Ideation Concepts",
     "Interpersonal Skills",
     "Leadership",
+    "Logical Reasoning",
+    "Multitasking",
     "Patience",
     "Problem Solving",
     "Resilience",
+    "Responsibility",
     "Self-Motivation",
+    "Strong Work Ethic",
     "Stress Management",
     "Task Prioritization",
     "Thoroughness",
     "Time Management",
+    "Verbal and Written Clarity",
     "Verbal and Written Clarity",
     "Workplace Etiquette",
     "Working Effectively Within Teams",
     "Networking",
     "Public Speaking",
     "Presentation Skills",
-    "Relationship Building"
+    "Relationship Building",
+    "Willingness to learn"
   ];
 
   final List<String> humanitiesManagementSkills = [
@@ -230,15 +263,24 @@ class _ProfilePageState extends State<ProfilePage> {
     "Communication",
     "Conflict Resolution",
     "Creative Solutions",
+    "Creative writing",
     "Critical Thinking",
+    "Customer Orientation",
     "Decision Making",
     "Dependability",
+    "Deal with ambiguity",
+    "Emotional Intelligence",
+    "Empathy",
     "Flexibility to Changing Environments",
+    "Ideation Concepts",
     "Interpersonal Skills",
+    "Leadership",
     "Logical Reasoning",
+    "Multitasking",
     "Patience",
     "Problem Solving",
     "Resilience",
+    "Responsibility",
     "Self-Motivation",
     "Strong Work Ethic",
     "Stress Management",
@@ -246,8 +288,14 @@ class _ProfilePageState extends State<ProfilePage> {
     "Thoroughness",
     "Time Management",
     "Verbal and Written Clarity",
+    "Verbal and Written Clarity",
     "Workplace Etiquette",
-    "Working Effectively Within Teams"
+    "Working Effectively Within Teams",
+    "Networking",
+    "Public Speaking",
+    "Presentation Skills",
+    "Relationship Building",
+    "Willingness to learn"
   ];
 
   final List<String> scientificManagementSkills = [
@@ -287,12 +335,14 @@ class _ProfilePageState extends State<ProfilePage> {
     "Big Data Analytics",
     "Bitbucket",
     "Blockchain",
+    "C",
     "C#",
     "C++",
     "Cloud Architecture",
     "Confluence",
     "CRM systems",
     "CSS",
+    "Cybersecurity Tools",
     "Cybersecurity",
     "Data Analysis",
     "Data Mining",
@@ -306,8 +356,11 @@ class _ProfilePageState extends State<ProfilePage> {
     "Figma",
     "Firebase",
     "Firewalls",
+    "Flutter",
+    "Familiarity with laboratory techniques",
     "Git and GitHub",
     "GCP",
+    "Golang",
     "Hadoop",
     "HTML",
     "Java",
@@ -316,8 +369,10 @@ class _ProfilePageState extends State<ProfilePage> {
     "JIRA",
     "JUnit",
     "Kubernetes",
+    "Linux",
     "Machine Learning",
     "MATLAB",
+    "Microsoft Office 365",
     "Microsoft Office Suite",
     "MongoDB",
     "MS Project",
@@ -325,6 +380,7 @@ class _ProfilePageState extends State<ProfilePage> {
     "NoSQL",
     "Node.js",
     "NLP",
+    "Outlook",
     "Object-Oriented Programming (OOP)",
     "Oracle APEX",
     "Penetration Testing",
@@ -338,6 +394,7 @@ class _ProfilePageState extends State<ProfilePage> {
     "R Programming",
     "React",
     "Ruby",
+    "Rust",
     "Selenium",
     "Sketch",
     "SQL",
@@ -345,16 +402,20 @@ class _ProfilePageState extends State<ProfilePage> {
     "Supervised/Unsupervised Learning",
     "SVN",
     "Swift",
+    "Troubleshooting Techniques",
     "Tableau",
     "TensorFlow",
     "Trello",
+    "Ubuntu",
     "UI/UX Design",
     "User Research",
     "VLOOKUP",
     "Vue.js",
     "Waterfall",
     "Web Development",
-    "Word"
+    "Word",
+    "CAD",
+    "Engineering software packages"
   ];
 
   final List<String> _nationalities = [
@@ -376,12 +437,17 @@ class _ProfilePageState extends State<ProfilePage> {
     'Yemeni',
     'Other',
   ];
+
   final List<String> _cities = [
     'Abha',
     'Al Ahsa',
+    'Al-Kharj',
     'Al Khobar',
     'Al Qassim',
+    'Baha',
+    'Bisha',
     'Dammam',
+    'Dhahran',
     'Hail',
     'Jeddah',
     'Jizan',
@@ -400,32 +466,6 @@ class _ProfilePageState extends State<ProfilePage> {
     _loadStudentData();
   }
 
-  Future<void> pickCV() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf'],
-      withData: false, // avoid loading non-PDFs in memory
-    );
-
-    if (result != null && result.files.single.path != null) {
-      final path = result.files.single.path!;
-      final extension = path.split('.').last.toLowerCase();
-
-      if (extension != 'pdf') {
-        // ⚠️ Handle if somehow a non-PDF is selected (some pickers may allow it)
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Only PDF files are allowed.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
-      }
-
-      setState(() {});
-    }
-  }
-
   void _enterEditMode() {
     setState(() {
       _isEditing = true;
@@ -439,7 +479,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void _cancelEditMode() {
     setState(() {
+      _formKey.currentState?.reset();
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
       _isEditing = false;
+      _emailError = null;
       _selectedNationality = _tempNationality;
       _selectedLocations = List<String>.from(_tempLocations);
       _selectedTechnicalSkills = List<String>.from(_tempTechnicalSkills);
@@ -564,13 +607,27 @@ class _ProfilePageState extends State<ProfilePage> {
       return;
     }
 
-    // Checl if the email is already in use
-    bool isEmailInUse = await checkEmailInUse(_emailController.text.trim());
-    if (isEmailInUse) {
-      setState(() {
-        _emailError = 'This email is already in use';
-      });
-      return;
+    // Check if the email is already in use
+    final email = _emailController.text.trim();
+    final currentEmail = _auth.currentUser?.email;
+
+    if (email != currentEmail) {
+      final emailRegex =
+          RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+      if (!emailRegex.hasMatch(email)) {
+        setState(() {
+          _emailError = 'Please enter a valid email address';
+        });
+        return;
+      }
+
+      bool isEmailInUse = await checkEmailInUse(email);
+      if (isEmailInUse) {
+        setState(() {
+          _emailError = 'This email is already in use';
+        });
+        return;
+      }
     }
 
     if (_profileImageFile != null) {
@@ -621,7 +678,7 @@ class _ProfilePageState extends State<ProfilePage> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('✅ Profile updated successfully'),
+            content: Text('Profile updated successfully'),
             backgroundColor: Colors.green,
           ),
         );
@@ -673,9 +730,7 @@ class _ProfilePageState extends State<ProfilePage> {
           icon: Icon(_isEditing ? Icons.arrow_back : Icons.menu),
           onPressed: () {
             if (_isEditing) {
-              setState(() {
-                _isEditing = false; // Exit edit mode
-              });
+              _cancelEditMode();
             } else {
               _scaffoldKey.currentState!.openDrawer();
             }

@@ -29,9 +29,13 @@ class _TrainingProviderProfilePageState
   final List<String> _cities = [
     'Abha',
     'Al Ahsa',
+    'Al-Kharj',
     'Al Khobar',
     'Al Qassim',
+    'Baha',
+    'Bisha',
     'Dammam',
+    'Dhahran',
     'Hail',
     'Jeddah',
     'Jizan',
@@ -96,9 +100,11 @@ class _TrainingProviderProfilePageState
       }
     } catch (e) {
       print("Failed to load profile data: $e");
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Failed to load profile data')                      , duration: Duration(seconds: 2),
-        backgroundColor: Colors.red,));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Failed to load profile data'),
+        duration: Duration(seconds: 2),
+        backgroundColor: Colors.red,
+      ));
     }
   }
 
@@ -120,15 +126,19 @@ class _TrainingProviderProfilePageState
           _isEditing = false; // Exit edit mode after saving
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Profile updated successfully')                      , duration: Duration(seconds: 2),
-        backgroundColor: Colors.green,));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Profile updated successfully'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.green,
+        ));
       }
     } catch (e) {
       print("Failed to save profile data: $e");
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Failed to update profile')                      , duration: Duration(seconds: 2),
-        backgroundColor: Colors.red,));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Failed to update profile'),
+        duration: Duration(seconds: 2),
+        backgroundColor: Colors.red,
+      ));
     }
   }
 
@@ -187,11 +197,11 @@ class _TrainingProviderProfilePageState
             children: [
               Text(
                 'Company Information:',
-                style:TextStyle(
+                style: TextStyle(
                   fontSize: kFontSizeLarge, // ✅ حجم عنوان موحد
-                fontWeight: FontWeight.bold,
-                color: mainColor,
-                ), 
+                  fontWeight: FontWeight.bold,
+                  color: mainColor,
+                ),
               ),
               SizedBox(height: 20),
               _buildEditableField('Company Name', _companyNameController),
@@ -466,25 +476,24 @@ class _TrainingProviderProfilePageState
             runSpacing: 6.0,
             children: _selectedLocations.map((location) {
               return Chip(
-  backgroundColor: Colors.white,
-  label: Text(
-    location,
-    style: TextStyle(
-      color: Color(0xFF113F67),
-    ),
-  ),
-  deleteIconColor: Color(0xFF113F67),
-  onDeleted: _isEditing
-      ? () {
-          setState(() {
-            _selectedLocations.remove(location);
-            _locationController.text =
-                _selectedLocations.join(', ');
-          });
-        }
-      : null,
-);
-
+                backgroundColor: Colors.white,
+                label: Text(
+                  location,
+                  style: TextStyle(
+                    color: Color(0xFF113F67),
+                  ),
+                ),
+                deleteIconColor: Color(0xFF113F67),
+                onDeleted: _isEditing
+                    ? () {
+                        setState(() {
+                          _selectedLocations.remove(location);
+                          _locationController.text =
+                              _selectedLocations.join(', ');
+                        });
+                      }
+                    : null,
+              );
             }).toList(),
           ),
         ],
@@ -608,8 +617,11 @@ class _TrainingProviderProfilePageState
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Logout failed. Please try again.')                      , duration: Duration(seconds: 2),
-        backgroundColor: Colors.red,),
+        SnackBar(
+          content: Text('Logout failed. Please try again.'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
