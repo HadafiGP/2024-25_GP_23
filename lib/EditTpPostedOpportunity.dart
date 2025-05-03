@@ -72,6 +72,21 @@ List<String> selectedMajors = [];
     return null;
   }
 
+List<String> getFilteredTechnicalSkills() {
+  // If all selected majors are in one category, return its respective skills
+  if (selectedMajors.every((major) => healthMajors.contains(major))) {
+    return healthTechnicalSkills;
+  } else if (selectedMajors.every((major) => humanitiesMajors.contains(major))) {
+    return humanitiesTechnicalSkills;
+  } else if (selectedMajors.every((major) => !healthMajors.contains(major) && !humanitiesMajors.contains(major))) {
+    // Assuming the rest are scientific majors
+    return scientificTechnicalSkills;
+  } else {
+    // If mixed majors or unclear, return general technicalSkills as fallback
+    return technicalSkills;
+  }
+}
+
   final List<String> majors = [
     'Clinical Laboratory Sciences',
     'Occupational Therapy',
@@ -123,7 +138,91 @@ List<String> selectedMajors = [];
     'Islamic Law (Sharia)',
     'Economics'
   ];
+      final List<String> humanitiesMajors = [
+        'Accounting',
+        'Administrative',
+        'Anthropology',
+        'Arts',
+        'Arabic',
+        'Advertising',
+        'Business',
+        'Business Administration',
+        'Business Informatics',
+        'Commerce',
+        'Communication',
+        'Comparative Literature',
+        'Design',
+        'Drafting',
+        'Economics',
+        'Education',
+        'English',
+        'Film',
+        'Fine Arts',
+        'Foreign Language',
+        'Forestry',
+        'Graphic Design',
+        'General Studies',
+        'Geography',
+        'Geology',
+        'Government',
+        'Hospitality Management',
+        'Human Resources Management',
+        'History',
+        'Human Computer Interaction',
+        'Islamic Law (Sharia)',
+        'International Business',
+        'Interior Design',
+        'Journalism',
+        'Law',
+        'Liberal Arts',
+        'Linguistics',
+        'Literature',
+        'Marketing',
+        'Management',
+        'Media',
+        'Music',
+        'Organization Development',
+        'Public Policy',
+        'Public Administration',
+        'Public Relations',
+        'Philosophy',
+        'Political Science',
+        'Psychology',
+        'Religion',
+        'Risk Management',
+        'Supply Chain Management',
+        'Sociology',
+        'Theatre',
+        'Translation',
+        'Visual Arts'
+      ];
 
+
+      final healthMajors = [
+        'Biomedical Engineering',
+        'Clinical Laboratory Sciences',
+        'Clinical Nutrition',
+        'Dentistry',
+        "Forensic Science",
+        'Health Informatics',
+        'Healthcare',
+        'Medicine (MBBS)',
+        'Medical Laboratory Sciences',
+        'Nursing',
+        'Nutrition',
+        'Oral and Maxillofacial Surgery',
+        'Orthodontics',
+        'Occupational Therapy',
+        'Pharmacy',
+        'Public Health',
+        'Physical Therapy',
+        'Prosthetics and Orthotics',
+        'Radiology',
+        'Respiratory Therapy',
+        'Clinical Pharmacy',
+      ];
+
+      //
   final List<String> jobTypes = ['Internship', 'COOP'];
 
   final List<String> durations = [
@@ -135,13 +234,17 @@ List<String> selectedMajors = [];
     '9 Months',
     '1 Year'
   ];
-
+//
   final List<String> cities = [
     'Abha',
     'Al Ahsa',
+    'Al-Kharj',
     'Al Khobar',
     'Al Qassim',
+    'Baha',
+    'Bisha',
     'Dammam',
+    'Dhahran',
     'Hail',
     'Jeddah',
     'Jizan',
@@ -152,8 +255,7 @@ List<String> selectedMajors = [];
     'Riyadh',
     'Tabuk',
     'Taif',
-    'Dhahran',
-    'Yanbu'
+    'Other'
   ];
   final List<String> softSkills = [
     "Accountability",
@@ -164,15 +266,24 @@ List<String> selectedMajors = [];
     "Communication",
     "Conflict Resolution",
     "Creative Solutions",
+    "Creative writing",
     "Critical Thinking",
+    "Customer Orientation",
     "Decision Making",
     "Dependability",
+    "Deal with ambiguity",
+    "Emotional Intelligence",
+    "Empathy",
     "Flexibility to Changing Environments",
+    "Ideation Concepts",
     "Interpersonal Skills",
+    "Leadership",
     "Logical Reasoning",
+    "Multitasking",
     "Patience",
     "Problem Solving",
     "Resilience",
+    "Responsibility",
     "Self-Motivation",
     "Strong Work Ethic",
     "Stress Management",
@@ -180,9 +291,17 @@ List<String> selectedMajors = [];
     "Thoroughness",
     "Time Management",
     "Verbal and Written Clarity",
+    "Verbal and Written Clarity",
     "Workplace Etiquette",
-    "Working Effectively Within Teams"
+    "Working Effectively Within Teams",
+    "Networking",
+    "Public Speaking",
+    "Presentation Skills",
+    "Relationship Building",
+    "Willingness to learn"
   ];
+
+  //tech
 
   final List<String> technicalSkills = [
     "Adobe XD",
@@ -266,29 +385,182 @@ List<String> selectedMajors = [];
     "Word"
   ];
 
+
+    final List<String> healthTechnicalSkills = [
+    "Data Analysis",
+    "Data Visualization",
+    "Electronic Health Records (EHR)",
+    "EMR (Electronic Medical Records)",
+    "Health Informatics",
+    "Clinical Decision Support Systems (CDSS)",
+    "Medical Imaging Software",
+    "DICOM Standards",
+    "Healthcare Cybersecurity",
+    "HIPAA Compliance",
+    "Mobile Health (mHealth)",
+    "Telehealth",
+    "IoMT (Internet of Medical Things)",
+    "Wearable Devices Integration",
+    "MATLAB",
+    "Excel",
+    "Word",
+    "Outlook",
+    "PowerPoint",
+    "Statistical Analysis",
+    "Tableau",
+    "SharePoint"
+  ];
+
+    final List<String> humanitiesTechnicalSkills = [
+    "Adobe Creative Suite",
+    "Content Creation tools",
+    "Data Analysis",
+    "Data Visualization",
+    "Excel",
+    "Outlook",
+    "Word",
+    "PowerPoint",
+    "Project Management tools",
+    "Microsoft Office Suite",
+    "Tableau",
+    "Content Management Systems (CMS)",
+    "Graphic Design Tools",
+    "Basic HTML and CSS",
+    "Social Media Management Tools",
+    "Social media platforms",
+    "Digital Archiving",
+    "Citation Management Tools",
+    "Editing Software",
+    "Web Content Creation",
+    "Audio Editing Tools",
+    "Video Editing Tools"
+  ];
+
+    final List<String> scientificTechnicalSkills = [
+    "Adobe XD",
+    "Agile",
+    "Angular",
+    "API integration (REST)",
+    "API integration (SOAP)",
+    "ASP.NET",
+    "AWS",
+    "Azure",
+    "Big Data Analytics",
+    "Bitbucket",
+    "Blockchain",
+    "C",
+    "C#",
+    "C++",
+    "Cloud Architecture",
+    "Confluence",
+    "CRM systems",
+    "CSS",
+    "Cybersecurity Tools",
+    "Cybersecurity",
+    "Data Analysis",
+    "Data Mining",
+    "Data Visualization",
+    "Database Design",
+    "DevOps",
+    "Docker",
+    "Encryption",
+    "Excel",
+    "Express",
+    "Figma",
+    "Firebase",
+    "Firewalls",
+    "Flutter",
+    "Familiarity with laboratory techniques",
+    "Git and GitHub",
+    "GCP",
+    "Golang",
+    "Hadoop",
+    "HTML",
+    "Java",
+    "JavaScript",
+    "Jest",
+    "JIRA",
+    "JUnit",
+    "Kubernetes",
+    "Linux",
+    "Machine Learning",
+    "MATLAB",
+    "Microsoft Office 365",
+    "Microsoft Office Suite",
+    "MongoDB",
+    "MS Project",
+    "Network Fundamentals",
+    "NoSQL",
+    "Node.js",
+    "NLP",
+    "Outlook",
+    "Object-Oriented Programming (OOP)",
+    "Oracle APEX",
+    "Penetration Testing",
+    "PHP",
+    "PL/SQL",
+    "Postman",
+    "Power BI",
+    "PowerPoint",
+    "Prototyping",
+    "Python",
+    "R Programming",
+    "React",
+    "Ruby",
+    "Rust",
+    "Selenium",
+    "Sketch",
+    "SQL",
+    "Statistical Analysis",
+    "Supervised/Unsupervised Learning",
+    "SVN",
+    "Swift",
+    "Troubleshooting Techniques",
+    "Tableau",
+    "TensorFlow",
+    "Trello",
+    "Ubuntu",
+    "UI/UX Design",
+    "User Research",
+    "VLOOKUP",
+    "Vue.js",
+    "Waterfall",
+    "Web Development",
+    "Word",
+    "CAD",
+    "Engineering software packages"
+  ];
+
+  //mang
+
   final List<String> managementSkills = [
-    "Adapting to Organizational Changes",
-    "Change Management",
-    "Conflict Resolution",
-    "Crisis Management",
-    "Delegation",
-    "Facilitating Transitions Smoothly",
-    "Forecasting",
-    "Innovation Management",
-    "Leadership",
-    "Mentorship",
-    "Operational Planning",
-    "Performance Evaluation",
-    "Process Improvement",
-    "Project Lifecycle Management",
-    "Project Planning and Coordination",
-    "Resource Management",
-    "Risk Assessment",
-    "Stakeholder Management",
-    "Strategic Planning",
-    "Task Prioritization",
-    "Team Building",
-    "Timeline Setting"
+  "Adapting to Organizational Changes",
+  "Change Management",
+  "Client Relationship Management",
+  "Conflict Resolution",
+  "Crisis Management",
+  "Creative Project Management",
+  "Delegation",
+  "Event Planning",
+  "Expense Tracking",
+  "Facilitating Transitions Smoothly",
+  "Forecasting",
+  "Innovation Management",
+  "Leadership",
+  "Mentorship",
+  "Operational Planning",
+  "Performance Evaluation",
+  "Process Improvement",
+  "Project Lifecycle Management",
+  "Project Planning and Coordination",
+  "Public Relations Management",
+  "Resource Management",
+  "Risk Assessment",
+  "Stakeholder Management",
+  "Strategic Planning",
+  "Task Prioritization",
+  "Team Building",
+  "Timeline Setting"
   ];
 
   @override
@@ -446,7 +718,8 @@ if (majorsList is List) {
                 const SizedBox(height: 15),
                 _buildSkillSelector("Select Soft Skills", softSkills, selectedSoftSkills),
                 const SizedBox(height: 15),
-                _buildSkillSelector("Select Technical Skills", technicalSkills, selectedTechnicalSkills),
+                _buildSkillSelector("Select Technical Skills", getFilteredTechnicalSkills(), selectedTechnicalSkills),
+
                 const SizedBox(height: 15),
                 _buildSkillSelector("Select Management Skills", managementSkills, selectedManagementSkills),
                 const SizedBox(height: 15),
