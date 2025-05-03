@@ -25,6 +25,7 @@ class _TrainingProviderProfilePageState
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isEditing = false;
   List<String> _selectedLocations = [];
+  String? _emailError;
 
   final List<String> _cities = [
     'Abha',
@@ -83,6 +84,12 @@ class _TrainingProviderProfilePageState
     'riderise.sa@gmail.com',
   ];
 
+  Future<bool> checkEmailInUse(String email) async {
+    final methods =
+        await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
+    return methods.isNotEmpty;
+  }
+
   Future<void> _loadProfileData() async {
     try {
       User? user = _auth.currentUser;
@@ -113,32 +120,61 @@ class _TrainingProviderProfilePageState
       return;
     }
 
+    final email = _emailController.text.trim();
+    final currentEmail = _auth.currentUser?.email;
+
+    // Email format validation
+    final emailRegex =
+        RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    if (!emailRegex.hasMatch(email)) {
+      setState(() {
+        _emailError = 'Please enter a valid email address';
+      });
+      return;
+    }
+
+    // Check if the email has changed and already exists
+    if (email != currentEmail) {
+      bool isEmailInUse = await checkEmailInUse(email);
+      if (isEmailInUse) {
+        setState(() {
+          _emailError = 'This email is already in use';
+        });
+        return;
+      }
+    }
+
     try {
       User? user = _auth.currentUser;
       if (user != null) {
         await _firestore.collection('TrainingProvider').doc(user.uid).update({
           'company_name': _companyNameController.text.trim(),
-          'email': _emailController.text.trim(),
+          'email': email,
           'location': _selectedLocations,
         });
 
         setState(() {
-          _isEditing = false; // Exit edit mode after saving
+          _isEditing = false;
+          _emailError = null;
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Profile updated successfully'),
-          duration: Duration(seconds: 2),
-          backgroundColor: Colors.green,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Profile updated successfully'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.green,
+          ),
+        );
       }
     } catch (e) {
       print("Failed to save profile data: $e");
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Failed to update profile'),
-        duration: Duration(seconds: 2),
-        backgroundColor: Colors.red,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update profile'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -148,10 +184,13 @@ class _TrainingProviderProfilePageState
     });
   }
 
-  void _cancelEditMode() {
+  void _cancelEditMode() async {
     setState(() {
       _isEditing = false;
+      _emailError = null;
+      _formKey.currentState?.reset();
     });
+    await _loadProfileData();
   }
 
   @override
@@ -176,14 +215,16 @@ class _TrainingProviderProfilePageState
         centerTitle: true,
         leading: IconButton(
           icon: Icon(_isEditing ? Icons.arrow_back : Icons.menu),
-          onPressed: () {
+          onPressed: () async {
             if (_isEditing) {
               setState(() {
                 _isEditing = false;
+                _emailError = null;
+                _formKey.currentState?.reset();
               });
+              await _loadProfileData();
             } else {
-              _scaffoldKey.currentState!
-                  .openDrawer(); // Open the drawer using scaffoldKey
+              _scaffoldKey.currentState!.openDrawer();
             }
           },
         ),
@@ -198,7 +239,7 @@ class _TrainingProviderProfilePageState
               Text(
                 'Company Information:',
                 style: TextStyle(
-                  fontSize: kFontSizeLarge, // ✅ حجم عنوان موحد
+                  fontSize: kFontSizeLarge,
                   fontWeight: FontWeight.bold,
                   color: mainColor,
                 ),
@@ -400,20 +441,12 @@ class _TrainingProviderProfilePageState
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
+          errorText: label == 'Email' ? _emailError : null,
           border: OutlineInputBorder(
             borderSide: BorderSide(color: Color(0xFF113F67)),
             borderRadius: BorderRadius.circular(10),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: Color(0xFF113F67)), // Same color as student profile
-            borderRadius: BorderRadius.circular(10),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF113F67)),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          disabledBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Color(0xFF113F67)),
             borderRadius: BorderRadius.circular(10),
           ),
