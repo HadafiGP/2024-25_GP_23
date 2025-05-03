@@ -166,7 +166,8 @@ class _CommunityTabsScreenState extends ConsumerState<CommunityTabsScreen>
         backgroundColor: const Color(0xFF113F67),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text("Your Communities", style: TextStyle(color: Colors.white)),
+        title: const Text("Your Communities",
+            style: TextStyle(color: Colors.white)),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
           child: Material(
@@ -187,34 +188,34 @@ class _CommunityTabsScreenState extends ConsumerState<CommunityTabsScreen>
         ),
       ),
       body: ref.watch(userCommunityProvider(userID)).when(
-        data: (communities) {
-          final joined = communities
-              .where((c) => c.members.contains(userID) && !c.mods.contains(userID))
-              .toList();
-          final moderating =
-              communities.where((c) => c.mods.contains(userID)).toList();
+            data: (communities) {
+              final joined = communities
+                  .where((c) =>
+                      c.members.contains(userID) && !c.mods.contains(userID))
+                  .toList();
+              final moderating =
+                  communities.where((c) => c.mods.contains(userID)).toList();
 
-          return TabBarView(
-            controller: _tabController,
-            children: [
-              CommunityList(
-                communities: moderating,
-                emptyMessage: "You are not moderating any communities yet.",
-              ),
-              CommunityList(
-                communities: joined,
-                emptyMessage: "You have not joined any communities yet.",
-              ),
-            ],
-          );
-        },
-        error: (e, _) => Center(child: Text('Error: $e')),
-        loading: () => const Loader(),
-      ),
+              return TabBarView(
+                controller: _tabController,
+                children: [
+                  CommunityList(
+                    communities: moderating,
+                    emptyMessage: "You are not moderating any communities yet.",
+                  ),
+                  CommunityList(
+                    communities: joined,
+                    emptyMessage: "You have not joined any communities yet.",
+                  ),
+                ],
+              );
+            },
+            error: (e, _) => Center(child: Text('Error: $e')),
+            loading: () => const Loader(),
+          ),
     );
   }
 }
-
 
 class CommunityList extends StatelessWidget {
   final List<Community> communities;
@@ -244,7 +245,7 @@ class CommunityList extends StatelessWidget {
                 ? NetworkImage(community.avatar)
                 : FileImage(File(community.avatar)) as ImageProvider,
           ),
-          title: Text('r/${community.name}'),
+          title: Text('${community.name}'),
           onTap: () {
             Navigator.push(
               context,

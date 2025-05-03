@@ -32,12 +32,12 @@ class CommentCard extends ConsumerWidget {
                 children: [
                   // Username
                   Text(
-                    'u/${comment.username}',
+                    '${comment.username}',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  
+
                   // Comment Text
                   Text(comment.text),
                 ],

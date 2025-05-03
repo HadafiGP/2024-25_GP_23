@@ -58,6 +58,7 @@ dependencies:
   routemaster: ^0.5.0
   any_link_preview: ^3.0.3
   intl: ^0.19.0
+  dropdown_search: ^6.0.2
 
 dev_dependencies:
   flutter_test:

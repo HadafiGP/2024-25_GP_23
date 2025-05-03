@@ -23,7 +23,9 @@ class createCommunityUI extends ConsumerWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>  CreateACommunity(),),
+                  MaterialPageRoute(
+                    builder: (context) => CreateACommunity(),
+                  ),
                 );
               },
               child: Container(
@@ -46,7 +48,6 @@ class createCommunityUI extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 24),
-          
           ],
         ),
       ),
@@ -62,7 +63,7 @@ class createCommunityUI extends ConsumerWidget {
             ? NetworkImage(community.avatar) as ImageProvider
             : FileImage(File(community.avatar)),
       ),
-      title: Text('r/${community.name}'),
+      title: Text('${community.name}'),
       onTap: () {
         Navigator.push(
           context,

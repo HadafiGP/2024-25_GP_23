@@ -28,7 +28,9 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
   final linkController = TextEditingController();
-  bool isLoading = false; // ✅ Added loading state
+
+  bool isLoading = false;
+  bool _isCheckingNetwork = false;
   File? bannerFile;
   List<Community> communities = [];
   Community? selectedCommunity;
@@ -41,54 +43,95 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
     super.dispose();
   }
 
+  Future<bool> hasFirestoreConnection() async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('Community')
+          .limit(1)
+          .get(const GetOptions(source: Source.server))
+          .timeout(const Duration(seconds: 10));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   void selectBannerImage() async {
-    final XFile? res =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (res != null) {
+    setState(() => isLoading = true); // Show loader during image processing
+
+    try {
+      final XFile? res =
+          await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (res == null) {
+        showSnackBar(context, "No image selected.");
+        setState(() => isLoading = false);
+        return;
+      }
+
       File selectedFile = File(res.path);
-      File compressedFile =
-          await compressImage(selectedFile); // ✅ Compress image
+      File compressedFile = await compressImage(selectedFile);
+
       setState(() {
         bannerFile = compressedFile;
+        isLoading = false;
       });
+    } catch (e) {
+      showSnackBar(context, "Image selection failed: $e");
+      setState(() => isLoading = false);
     }
   }
 
   Future<File> compressImage(File imageFile) async {
     Uint8List imageBytes = await imageFile.readAsBytes();
     img.Image image = img.decodeImage(imageBytes)!;
-    List<int> compressedBytes = img.encodeJpg(image, quality: 50);
-    File compressedFile = File(imageFile.path)
-      ..writeAsBytesSync(compressedBytes);
+
+    // Resize to a max width of 800px (preserving aspect ratio)
+    final resized = img.copyResize(image, width: 800);
+
+    List<int> compressedBytes = img.encodeJpg(resized, quality: 50);
+
+    final compressedFile = File(imageFile.path);
+    await compressedFile.writeAsBytes(compressedBytes); // ✅ Async write
     return compressedFile;
   }
 
   void sharePost() async {
-    if (isLoading) return; // Prevent multiple clicks during loading
+    if (isLoading) return;
 
     setState(() {
-      isLoading = true; // ✅ Show loading indicator
+      isLoading = true;
+      _isCheckingNetwork = true;
     });
 
-    try {
-      final stopwatch = Stopwatch()..start();
+    final hasConnection = await hasFirestoreConnection();
+    if (!hasConnection) {
+      showSnackBar(context, "No internet connection.");
+      setState(() {
+        isLoading = false;
+        _isCheckingNetwork = false;
+      });
+      return;
+    }
 
+    setState(() => _isCheckingNetwork = false);
+
+    try {
       if (widget.type == 'image' &&
           bannerFile != null &&
           titleController.text.isNotEmpty) {
-        // Image post logic
+        showSnackBar(context, "Uploading image, please wait...", success: true);
+
         await ref.read(PostControllerProvider.notifier).sharedImagePost(
               context: context,
               title: titleController.text.trim(),
               selectedCommunity: selectedCommunity ?? communities[0],
-              file: bannerFile,
+              file: bannerFile!,
               description: descriptionController.text.trim(),
             );
-        print("Image post upload completed!");
       } else if (titleController.text.isEmpty) {
-        showSnackBar(context, 'Please enter a title.',success: false);
+        showSnackBar(context, 'Please enter a title.');
       } else if (widget.type == 'image' && bannerFile == null) {
-        showSnackBar(context, 'Please select an image to upload.',success: false);
+        showSnackBar(context, 'Please select an image to upload.');
       } else if (widget.type == 'text') {
         if (titleController.text.isNotEmpty) {
           await ref.read(PostControllerProvider.notifier).sharedTextPost(
@@ -102,12 +145,12 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
         String link = linkController.text.trim();
 
         if (titleController.text.isEmpty) {
-          showSnackBar(context, 'Please enter a title.',success: false);
+          showSnackBar(context, 'Please enter a title.');
           return;
         }
 
         if (link.isEmpty) {
-          showSnackBar(context, 'Please enter a link URL.',success: false);
+          showSnackBar(context, 'Please enter a link URL.');
           return;
         }
 
@@ -116,7 +159,7 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
         if (parsedUri == null ||
             !parsedUri.isAbsolute ||
             parsedUri.scheme.isEmpty) {
-          showSnackBar(context, 'Please enter a valid URL.',success: false);
+          showSnackBar(context, 'Please enter a valid URL.');
           return;
         }
 
@@ -128,22 +171,14 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
               description: descriptionController.text.trim(),
             );
       }
-
-      stopwatch.stop();
-      print("Firestore write took: ${stopwatch.elapsedMilliseconds}ms");
     } catch (e) {
-      showSnackBar(context, "Error: ${e.toString()}",success: false);
-    } finally {
-      // ✅ Ensure that `isLoading` is set to false **only after** upload is fully done
-      if (mounted) {
-        Future.delayed(const Duration(seconds: 2), () {
-          if (mounted) {
-            setState(() {
-              isLoading = false; // ✅ Hide loading indicator
-            });
-          }
-        });
-      }
+      showSnackBar(context, "Error: ${e.toString()}");
+    }
+
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -282,25 +317,71 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
                     const SizedBox(height: 20),
                     const Align(
                       alignment: Alignment.topLeft,
-                      child: Text('Select Community'),
+                      child: Text(
+                        'Select Community:',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF113F67),
+                        ),
+                      ),
                     ),
+                    const SizedBox(height: 10),
                     ref.watch(userCommunityProvider(userID)).when(
                           data: (data) {
                             communities = data;
                             if (data.isEmpty) {
                               return const SizedBox();
                             }
-                            return DropdownButton(
-                              value: selectedCommunity ?? data[0],
-                              items: data
-                                  .map((e) => DropdownMenuItem(
-                                      value: e, child: Text(e.name)))
-                                  .toList(),
-                              onChanged: (val) {
-                                setState(() {
-                                  selectedCommunity = val;
-                                });
-                              },
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0, vertical: 12.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFF113F67),
+                                      Color.fromARGB(255, 105, 185, 255),
+                                    ],
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
+                                  ),
+                                ),
+                                child: Container(
+                                  margin: const EdgeInsets.all(1.8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16),
+                                  child: DropdownButtonHideUnderline(
+                                    child: DropdownButton<Community>(
+                                      value: selectedCommunity ?? data[0],
+                                      isExpanded: true,
+                                      icon: const Icon(Icons.arrow_drop_down,
+                                          color: Color(0xFF113F67)),
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF113F67),
+                                      ),
+                                      items: data.map((e) {
+                                        return DropdownMenuItem(
+                                          value: e,
+                                          child: Text(e.name),
+                                        );
+                                      }).toList(),
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedCommunity = val;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
                             );
                           },
                           error: (error, StackTrace) =>

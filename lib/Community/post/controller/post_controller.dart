@@ -12,6 +12,8 @@ import 'dart:io';
 import 'package:uuid/uuid.dart';
 import 'package:routemaster/routemaster.dart';
 
+Map<String, dynamic>? currentUserData;
+
 final userDataProvider =
     StreamProvider.family<Map<String, dynamic>?, String>((ref, uid) {
   final firestore = ref.watch(firestoreProvider);
@@ -43,8 +45,7 @@ void showSnackBar(BuildContext context, String message,
           color: Colors.white,
         ),
       ),
-      backgroundColor:
-          success ? Colors.green : Colors.red,
+      backgroundColor: success ? Colors.green : Colors.red,
     ),
   );
 }
@@ -120,7 +121,7 @@ class PostController extends StateNotifier<bool> {
         final res = await _postRepository.addPost(post);
         state = false;
         res.fold((l) => showSnackBar(context, l.message), (r) {
-          showSnackBar(context, 'Post successfully!', success: true);
+          showSnackBar(context, 'Post shared successfully!', success: true);
           Navigator.pop(context);
         });
       },
@@ -178,7 +179,7 @@ class PostController extends StateNotifier<bool> {
         final res = await _postRepository.addPost(post);
         state = false;
         res.fold((l) => showSnackBar(context, l.message), (r) {
-          showSnackBar(context, 'Post successfully!', success: true);
+          showSnackBar(context, 'Post shared successfully!', success: true);
           Navigator.pop(context);
         });
       },
@@ -243,7 +244,7 @@ class PostController extends StateNotifier<bool> {
           final res = await _postRepository.addPost(post);
           state = false;
           res.fold((l) => showSnackBar(context, l.message), (r) {
-            showSnackBar(context, 'Post successfully!', success: true);
+            showSnackBar(context, 'Post shared successfully!', success: true);
             Navigator.pop(context);
           });
         });
@@ -357,7 +358,7 @@ class PostController extends StateNotifier<bool> {
     userDataAsync.when(
       data: (userData) async {
         if (userData == null) {
-          showSnackBar(context, 'Error: User data not found!',success: false);
+          showSnackBar(context, 'Error: User data not found!', success: false);
           return;
         }
 
