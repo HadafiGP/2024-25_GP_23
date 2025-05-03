@@ -88,8 +88,8 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                                       .watch(favoriteProvider)
                                       .favOpportunities
                                       .any((opp) =>
-                                          opp['Job Title'] ==
-                                          opportunity['Job Title']);
+                                          isSameOpportunity(opp, opportunity));
+
 
                                   return GestureDetector(
                                     onTap: () {
@@ -274,4 +274,30 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
   double correctSize(BuildContext context, double px) {
     return px / MediaQuery.of(context).devicePixelRatio;
   }
+}
+
+bool isSameOpportunity(Map<String, dynamic> a, Map<String, dynamic> b) {
+  final titleA = (a['Job Title'] ?? a['jobTitle'] ?? '').trim();
+  final titleB = (b['Job Title'] ?? b['jobTitle'] ?? '').trim();
+
+  final idA = a['id'] ?? '';
+  final idB = b['id'] ?? '';
+
+  // Firestore-opps: Match by ID only
+  if (idA.isNotEmpty && idB.isNotEmpty) return idA == idB;
+
+  // CSV/recommendations: match ONLY if title and main URL match
+  final urlA = (a['Apply url'] ??
+      a['Company Apply link'] ??
+      a['Job LinkedIn URL'] ??
+      a['companyLink'] ??
+      '').trim();
+
+  final urlB = (b['Apply url'] ??
+      b['Company Apply link'] ??
+      b['Job LinkedIn URL'] ??
+      b['companyLink'] ??
+      '').trim();
+
+  return titleA == titleB && urlA == urlB;
 }

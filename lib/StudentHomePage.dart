@@ -233,7 +233,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
       }
 
       attempts++;
-      await Future.delayed(const Duration(seconds: 2)); 
+      await Future.delayed(const Duration(seconds: 2));
     }
 
     setState(() => isLoadingCsvOpportunities = false);
@@ -906,10 +906,34 @@ class OpportunitiesList extends StatelessWidget {
                   Consumer(
                     builder: (context, ref, child) {
                       final favoriteOpps = ref.watch(favoriteProvider);
-                      final isFavorited = favoriteOpps.favOpportunities
-                          .any((opp) => opp['Job Title'] == oppTitle);
+                      final oppUrl = opportunity['Job LinkedIn URL'] ??
+                          opportunity['Company Apply link'] ??
+                          opportunity['Apply url'] ??
+                          opportunity['companyLink'] ??
+                          '';
+                      final isFavorited =
+                          favoriteOpps.favOpportunities.any((opp) {
+                        // Firestore-based match by id
+                        if (opp['id'] != null && opportunity['id'] != null) {
+                          return opp['id'] == opportunity['id'];
+                        }
+
+                        // CSV-based match by URL
+                        final urlA = opp['Job LinkedIn URL'] ??
+                            opp['Company Apply link'] ??
+                            opp['Apply url'] ??
+                            opp['companyLink'] ??
+                            '';
+                        final urlB = opportunity['Job LinkedIn URL'] ??
+                            opportunity['Company Apply link'] ??
+                            opportunity['Apply url'] ??
+                            opportunity['companyLink'] ??
+                            '';
+                        return urlA == urlB;
+                      });
 
                       final favoriteOpp = {
+                        'id': opportunity['id'],
                         'Job Title': oppTitle,
                         'Company Name': companyName,
                         'Description': description,
@@ -955,9 +979,7 @@ class OpportunitiesList extends StatelessWidget {
                             ),
                           );
                         },
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 300),
-                          child: Icon(
+                        child:  Icon(
                             isFavorited
                                 ? Icons.bookmark_added
                                 : Icons.bookmark_add_outlined,
@@ -968,7 +990,7 @@ class OpportunitiesList extends StatelessWidget {
                                 : 24,
                             key: ValueKey<bool>(isFavorited),
                           ),
-                        ),
+                        
                       );
                     },
                   ),

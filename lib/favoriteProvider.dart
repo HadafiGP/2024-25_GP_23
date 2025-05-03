@@ -72,32 +72,62 @@ Future<void> loadFavorites() async {
 }
 
 
-  Future<void> toggleFavorite(Map<String, dynamic> opportunity) async {
-    final user = _auth.currentUser;
-    if (user == null) return;
+Future<void> toggleFavorite(Map<String, dynamic> opportunity) async {
+  final user = _auth.currentUser;
+  if (user == null) return;
 
-    final collectionRef = _firestore
-        .collection('Student')
-        .doc(user.uid)
-        .collection('favorites');
+  final collectionRef = _firestore
+      .collection('Student')
+      .doc(user.uid)
+      .collection('favorites');
 
-    final existingIndex =
-        _favoriteOpps.indexWhere((opp) => opp['Job Title'] == opportunity['Job Title']);
+  int existingIndex = -1;
 
-    if (existingIndex != -1) {
-      final docId = _favoriteOpps[existingIndex]['id'];
-      await collectionRef.doc(docId).delete();
-      _favoriteOpps.removeAt(existingIndex);
-    } else {
-      final docRef = await collectionRef.add(opportunity);
-      opportunity['id'] = docRef.id;
-      _favoriteOpps.add(opportunity);
-    }
+  final oppId = opportunity['id'];
+  final oppUrl = opportunity['Job LinkedIn URL'] ??
+      opportunity['Company Apply link'] ??
+      opportunity['Apply url'] ??
+      opportunity['companyLink'] ??
+      '';
 
-    notifyListeners();
+
+
+  if (oppId != null) {
+ 
+    existingIndex = _favoriteOpps.indexWhere((opp) =>
+        opp['id'] != null && opp['id'] == oppId);
+  } else {
+
+    existingIndex = _favoriteOpps.indexWhere((opp) {
+      final savedUrl = opp['Job LinkedIn URL'] ??
+          opp['Company Apply link'] ??
+          opp['Apply url'] ??
+          opp['companyLink'] ??
+          '';
+      final match = savedUrl == oppUrl;
+
+      return match;
+    });
   }
+
+  if (existingIndex != -1) {
+    final docId = _favoriteOpps[existingIndex]['documentId'];
+
+    await collectionRef.doc(docId).delete();
+    _favoriteOpps.removeAt(existingIndex);
+
+    final docRef = await collectionRef.add(opportunity);
+    opportunity['documentId'] = docRef.id;
+    _favoriteOpps.add(opportunity);
+  }
+
+  notifyListeners();
+}
+
+
 }
 
 final favoriteProvider = ChangeNotifierProvider<FavoriteProvider>((ref) {
   return FavoriteProvider();
 });
+
