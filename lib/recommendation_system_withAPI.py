@@ -38,7 +38,7 @@ firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 # Load COOP/internship opportunities dataset
-dataset_name = "tempOpp.csv"
+dataset_name = "LinkedInOpportunities.csv.csv"
 dataset_path = os.path.join(script_dir, dataset_name)
 
 # Handle dataset errors

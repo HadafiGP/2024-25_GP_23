@@ -1,10 +1,16 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:hadafi_application/Feedback/allFeedback.dart';
 import 'package:hadafi_application/StudentHomePage.dart';
 import 'dart:async';
+
+
 
 class FeedbackScreen extends StatefulWidget {
   @override
@@ -40,174 +46,172 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     super.dispose();
   }
 
-
-
-
-Future<void> _submitFeedback() async {
-  setState(() {
-    _ratingError = _rating == null;
-  });
-
-  if (!_formKey.currentState!.validate() || _rating == null) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          backgroundColor: Colors.red,
-          content: Row(
-            children: [
-              Icon(Icons.error_outline, color: Colors.white),
-              SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  'Please complete all fields',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
-                ),
-              ),
-            ],
-          ),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    });
-    return;
-  }
-
-  bool hasInternet = await _checkInternetConnection();
-  if (!hasInternet) {
-    if (mounted) {
-      setState(() {
-        _networkError = 'Network timeout. Please check your internet connection.';
-      });
-      Future.delayed(const Duration(seconds: 4), () {
-        if (mounted) {
-          setState(() {
-            _networkError = '';
-          });
-        }
-      });
-    }
-    return;
-  }
-
-  if (mounted) {
+  Future<void> _submitFeedback() async {
     setState(() {
-      _isSubmitting = true;
-      _networkError = '';
+      _ratingError = _rating == null;
     });
-  }
 
-  final DateTime submitTime = DateTime.now();
-  final String attemptedExperience = _experience;
-  final int? attemptedRating = _rating;
-
-  try {
-    await FirebaseFirestore.instance
-        .collection('Feedback')
-        .add({
-          'uid': uid,
-          'rating': _rating,
-          'experience': _experience,
-          'timestamp': FieldValue.serverTimestamp(),
-        })
-        .timeout(const Duration(seconds: 5));
-
-    if (mounted) {
+    if (!_formKey.currentState!.validate() || _rating == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            backgroundColor:  Colors.green,
-            content: Text('Feedback submitted successfully!'),
+            backgroundColor: Colors.red,
+            content: Row(
+              children: [
+                Icon(Icons.error_outline, color: Colors.white),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Please complete all fields',
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ],
+            ),
             duration: Duration(seconds: 2),
           ),
         );
       });
+      return;
     }
 
-    if (mounted) {
-      setState(() {
-        _rating = null;
-        _experience = '';
-        _charLimitReached = false;
-      });
-    }
-    _formKey.currentState!.reset();
-  } catch (e) {
-    if (mounted) {
-      setState(() {
-        _networkError = 'Network timeout. Please check your internet connection.';
-      });
-      Future.delayed(const Duration(seconds: 4), () {
-        if (mounted) {
-          setState(() {
-            _networkError = '';
-          });
-        }
-      });
-
-
-      _feedbackListener?.cancel(); 
-      _feedbackListener = FirebaseFirestore.instance
-          .collection('Feedback')
-          .where('uid', isEqualTo: uid)
-          .snapshots()
-          .listen((snapshot) {
-        bool feedbackMatched = false;
-
-        for (var doc in snapshot.docs) {
-
-          if(doc.metadata.hasPendingWrites){
-            continue;
-          }
-          var data = doc.data() as Map<String, dynamic>;
-          var docTimestamp = (data['timestamp'] as Timestamp?)?.toDate();
-
-          if (data['experience'] == attemptedExperience &&
-              data['rating'] == attemptedRating &&
-              docTimestamp != null &&
-              docTimestamp.isAfter(submitTime)) {
-            
-            feedbackMatched = true;
-            break; 
-          }
-        }
-
-        if (feedbackMatched) {
-          _feedbackListener?.cancel(); 
-
+    bool hasInternet = await _checkInternetConnection();
+    if (!hasInternet) {
+      if (mounted) {
+        setState(() {
+          _networkError =
+              'Network timeout. Please check your internet connection.';
+        });
+        Future.delayed(const Duration(seconds: 4), () {
           if (mounted) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  backgroundColor:  Colors.green,
-                  content: Text('Feedback submitted successfully!'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-            });
-
             setState(() {
-              _rating = null;
-              _experience = '';
-              _charLimitReached = false;
+              _networkError = '';
             });
-            _formKey.currentState!.reset();
           }
-        }
-      });
-
-
-      Future.delayed(const Duration(seconds: 120), () {
-        _feedbackListener?.cancel();
-      });
+        });
+      }
+      return;
     }
-  } finally {
+
     if (mounted) {
       setState(() {
-        _isSubmitting = false;
+        _isSubmitting = true;
+        _networkError = '';
       });
+    }
+
+    final DateTime submitTime = DateTime.now();
+    final String attemptedExperience = _experience;
+    final int? attemptedRating = _rating;
+
+    try {
+      await FirebaseFirestore.instance.collection('Feedback').add({
+        'uid': uid,
+        'rating': _rating,
+        'experience': _experience,
+        'timestamp': FieldValue.serverTimestamp(),
+      }).timeout(const Duration(seconds: 5));
+
+      if (mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              backgroundColor: Colors.green,
+              content: Text('Feedback submitted successfully!'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        });
+      }
+
+      if (mounted) {
+        setState(() {
+          _rating = null;
+          _experience = '';
+          _charLimitReached = false;
+        });
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AllFeedbackScreen()),
+        );
+      }
+      _formKey.currentState!.reset();
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _networkError =
+              'Network timeout. Please check your internet connection.';
+        });
+        Future.delayed(const Duration(seconds: 4), () {
+          if (mounted) {
+            setState(() {
+              _networkError = '';
+            });
+          }
+        });
+
+        _feedbackListener?.cancel();
+        _feedbackListener = FirebaseFirestore.instance
+            .collection('Feedback')
+            .where('uid', isEqualTo: uid)
+            .snapshots()
+            .listen((snapshot) {
+          bool feedbackMatched = false;
+
+          for (var doc in snapshot.docs) {
+            if (doc.metadata.hasPendingWrites) {
+              continue;
+            }
+            var data = doc.data() as Map<String, dynamic>;
+            var docTimestamp = (data['timestamp'] as Timestamp?)?.toDate();
+
+            if (data['experience'] == attemptedExperience &&
+                data['rating'] == attemptedRating &&
+                docTimestamp != null &&
+                docTimestamp.isAfter(submitTime)) {
+              feedbackMatched = true;
+              break;
+            }
+          }
+
+          if (feedbackMatched) {
+            _feedbackListener?.cancel();
+
+            if (mounted) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    backgroundColor: Colors.green,
+                    content: Text('Feedback submitted successfully!'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              });
+
+              setState(() {
+                _rating = null;
+                _experience = '';
+                _charLimitReached = false;
+              });
+              _formKey.currentState!.reset();
+            }
+          }
+        });
+
+        Future.delayed(const Duration(seconds: 120), () {
+          _feedbackListener?.cancel();
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
     }
   }
-}
 
   Widget _buildStar(int index) {
     return IconButton(
@@ -230,9 +234,9 @@ Future<void> _submitFeedback() async {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      drawer: const HadafiDrawer(),
       appBar: AppBar(
-        title: const Text('Feedback', style: TextStyle(color: Colors.white)),
+        title:
+            const Text('Write Feedback', style: TextStyle(color: Colors.white)),
         centerTitle: true,
         backgroundColor: const Color(0xFF113F67),
         iconTheme: const IconThemeData(color: Colors.white),

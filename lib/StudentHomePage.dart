@@ -61,7 +61,7 @@ class HadafiDrawer extends StatelessWidget {
               const InterviewPage(),
             ),
             _buildDrawerItem(
-                context, Icons.feedback, 'Feedback', FeedbackScreen()),
+                context, Icons.feedback, 'App Feedback', AllFeedbackScreen()),
             _buildDrawerItem(
                 context, Icons.group, 'Communities', Communityhomescreen()),
             _buildDrawerItem(context, Icons.bookmark_added,
@@ -446,7 +446,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                       children: <Widget>[
                         _buildSectionTitle('Training Opportunities'),
                         _buildOpportunitiesTab(tabController),
-                        _buildSectionTitle('Feedback from Users'),
+                        _buildSectionTitle('App Feedback'),
                         _buildFeedbackList(),
                       ],
                     ),
