@@ -133,75 +133,103 @@ class FeedCommunitiesHeader extends ConsumerWidget {
   }
 }
 
-class CommunityTabsScreen extends ConsumerWidget {
+class CommunityTabsScreen extends ConsumerStatefulWidget {
   const CommunityTabsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CommunityTabsScreen> createState() =>
+      _CommunityTabsScreenState();
+}
+
+class _CommunityTabsScreenState extends ConsumerState<CommunityTabsScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final userID = ref.watch(uidProvider) ?? '';
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: const Color(0xFF113F67),
-          centerTitle: true,
-          iconTheme: const IconThemeData(color: Colors.white),
-          title: const Text(
-            "Your Communities",
-            style: TextStyle(color: Colors.white),
-          ),
-          bottom: const PreferredSize(
-            preferredSize: Size.fromHeight(kToolbarHeight),
-            child: Material(
-              color: Colors.white,
-              child: TabBar(
-                indicator: UnderlineTabIndicator(
-                  borderSide: BorderSide(width: 3.0, color: Color(0xFF113F67)),
-                ),
-                labelColor: Color(0xFF113F67),
-                unselectedLabelColor: Colors.grey,
-                tabs: [
-                  Tab(text: 'Moderating'),
-                  Tab(text: 'Joined'),
-                ],
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF113F67),
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text("Your Communities", style: TextStyle(color: Colors.white)),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: Material(
+            color: Colors.white,
+            child: TabBar(
+              controller: _tabController,
+              indicator: const UnderlineTabIndicator(
+                borderSide: BorderSide(width: 3.0, color: Color(0xFF113F67)),
               ),
+              labelColor: const Color(0xFF113F67),
+              unselectedLabelColor: Colors.grey,
+              tabs: const [
+                Tab(text: 'Moderating'),
+                Tab(text: 'Joined'),
+              ],
             ),
           ),
         ),
-        body: ref.watch(userCommunityProvider(userID)).when(
-              data: (communities) {
-                final joined = communities
-                    .where((c) =>
-                        c.members.contains(userID) && !c.mods.contains(userID))
-                    .toList();
-                final moderating =
-                    communities.where((c) => c.mods.contains(userID)).toList();
+      ),
+      body: ref.watch(userCommunityProvider(userID)).when(
+        data: (communities) {
+          final joined = communities
+              .where((c) => c.members.contains(userID) && !c.mods.contains(userID))
+              .toList();
+          final moderating =
+              communities.where((c) => c.mods.contains(userID)).toList();
 
-                return TabBarView(
-                  children: [
-                    CommunityList(communities: moderating),
-                    CommunityList(communities: joined),
-                  ],
-                );
-              },
-              error: (e, _) => Center(child: Text('Error: $e')),
-              loading: () => const Loader(),
-            ),
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              CommunityList(
+                communities: moderating,
+                emptyMessage: "You are not moderating any communities yet.",
+              ),
+              CommunityList(
+                communities: joined,
+                emptyMessage: "You have not joined any communities yet.",
+              ),
+            ],
+          );
+        },
+        error: (e, _) => Center(child: Text('Error: $e')),
+        loading: () => const Loader(),
       ),
     );
   }
 }
 
+
 class CommunityList extends StatelessWidget {
   final List<Community> communities;
+  final String emptyMessage;
 
-  const CommunityList({super.key, required this.communities});
+  const CommunityList({
+    super.key,
+    required this.communities,
+    required this.emptyMessage,
+  });
 
   @override
   Widget build(BuildContext context) {
     if (communities.isEmpty) {
-      return const Center(child: Text("No communities to show."));
+      return Center(child: Text(emptyMessage));
     }
 
     return ListView.builder(
