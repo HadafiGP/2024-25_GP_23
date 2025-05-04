@@ -738,7 +738,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                 ],
               ),
               child: SingleChildScrollView(
-                controller: _scrollController, // ScrollController
+                controller: _scrollController,
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -747,9 +747,9 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                       Text(
                         'Student Sign Up',
                         style: TextStyle(
-                          fontSize: kFontSizeLarge, // ✅ توحيد الحجم
+                          fontSize: kFontSizeLarge,
                           fontWeight: FontWeight.bold,
-                          color: mainColor, // ✅ لون موحد
+                          color: mainColor,
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -946,10 +946,10 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                       const SizedBox(height: 15),
 
                       Divider(
-                        color: Colors.grey, // Gray color
-                        thickness: 1.5, // Thickness of the line
-                        indent: 20, // Indentation from the left
-                        endIndent: 20, // Indentation from the right
+                        color: Colors.grey,
+                        thickness: 1.5,
+                        indent: 20,
+                        endIndent: 20,
                       ),
                       SizedBox(height: 15),
                       Align(
@@ -1015,10 +1015,10 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
 
                       SizedBox(height: 15),
                       Divider(
-                        color: Colors.grey, // Gray color
-                        thickness: 1.5, // Thickness of the line
-                        indent: 20, // Indentation from the left
-                        endIndent: 20, // Indentation from the right
+                        color: Colors.grey,
+                        thickness: 1.5,
+                        indent: 20,
+                        endIndent: 20,
                       ),
                       SizedBox(height: 15),
 
@@ -1036,22 +1036,20 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                                     fontWeight: FontWeight.bold,
                                     color: _isSkillsSelected
                                         ? Color(0xFF113F67)
-                                        : Colors.red, // Conditional color
+                                        : Colors.red,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-
-                          const SizedBox(
-                              height: 8), // Add some spacing if needed
+                          const SizedBox(height: 8),
                           Text(
                             "Please choose at least one skill from any category",
                             style: TextStyle(
                               fontSize: 14,
                               color: _isSkillsSelected
                                   ? Color(0xFF113F67)
-                                  : Colors.red, // Same conditional color
+                                  : Colors.red,
                             ),
                           ),
                         ],
@@ -1089,7 +1087,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                                   _signUp(); // Proceed if form and skills validation pass
                                 }
                               },
-                              style: kMainButtonStyle, // ✅ استخدام ستايل موحد
+                              style: kMainButtonStyle,
                               child: Text(
                                 'Sign Up',
                                 style: TextStyle(
@@ -1116,20 +1114,20 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     bool isPassword = false,
     bool enabled = true,
     String? Function(String?)? validator,
-    Function(String)? onChanged, // Add onChanged parameter
-    Widget? suffixIcon, // New parameter for suffix icon
+    Function(String)? onChanged,
+    Widget? suffixIcon,
   }) {
     return TextFormField(
       key: key,
       controller: controller,
-      obscureText: isPassword && !_isPasswordVisible, // Toggle visibility
+      obscureText: isPassword && !_isPasswordVisible,
       validator: validator,
       onChanged: onChanged,
       enabled: enabled,
       decoration: InputDecoration(
         labelText: label,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        suffixIcon: suffixIcon, //suffix icon
+        suffixIcon: suffixIcon,
       ),
     );
   }
@@ -1157,14 +1155,14 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     IconData icon;
 
     if (isValid) {
-      color = Colors.green; // Met criteria: Green
-      icon = Icons.check_circle; // Check icon
+      color = Colors.green;
+      icon = Icons.check_circle;
     } else if (_hasAttemptedSubmit) {
-      color = Colors.red; // Unmet criteria after submit attempt: Red
-      icon = Icons.cancel; // Cancel icon
+      color = Colors.red;
+      icon = Icons.cancel;
     } else {
-      color = Colors.grey; // Unmet criteria before submit: Grey
-      icon = Icons.radio_button_unchecked; // Neutral icon
+      color = Colors.grey;
+      icon = Icons.radio_button_unchecked;
     }
 
     return Row(
@@ -1199,7 +1197,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
             suffixIcon: const Icon(Icons.arrow_drop_down),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
-          controller: _majorController, // Use the dedicated controller
+          controller: _majorController,
           validator: (value) {
             if (_selectedMajor == null) {
               return 'Please choose your major';
@@ -1322,7 +1320,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 8), // Space between TextFormField and Chips
+        const SizedBox(height: 8),
 
         // Display selected skills as Chips
         Wrap(
@@ -1377,13 +1375,12 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                     OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
               controller: TextEditingController(
-                text: _selectedManagementSkills
-                    .join(', '), // Display selected skills
+                text: _selectedManagementSkills.join(', '),
               ),
             ),
           ),
         ),
-        const SizedBox(height: 8), // Space between TextFormField and Chips
+        const SizedBox(height: 8),
 
         // Display selected skills as Chips
         Wrap(
@@ -1435,13 +1432,12 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                     OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
               controller: TextEditingController(
-                text: _selectedSoftSkills
-                    .join(', '), // Display selected skills as text
+                text: _selectedSoftSkills.join(', '),
               ),
             ),
           ),
         ),
-        const SizedBox(height: 8), // Space between TextFormField and Chips
+        const SizedBox(height: 8),
 
         // Display selected skills as Chips
         Wrap(
@@ -1464,8 +1460,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
 
   void _showSkillsDialog(
       String title, List<String> skillsList, List<String> selectedSkills) {
-    List<String> filteredSkillsList =
-        List.from(skillsList); // Copy for filtering
+    List<String> filteredSkillsList = List.from(skillsList);
 
     showDialog(
       context: context,
@@ -1562,7 +1557,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 8), // Space between TextFormField and Chips
+        const SizedBox(height: 8),
 
         // Display selected locations as Chips
         Wrap(
@@ -1642,7 +1637,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
               actions: [
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Close dialog
+                    Navigator.of(context).pop();
                     setState(
                         () {}); // Refresh the main widget state to reflect changes
                   },

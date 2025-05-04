@@ -39,7 +39,7 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
   void dispose() {
     titleController.dispose();
     descriptionController.dispose();
-    linkController.dispose(); // ✅ Dispose correctly
+    linkController.dispose();
     super.dispose();
   }
 
@@ -57,7 +57,7 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
   }
 
   void selectBannerImage() async {
-    setState(() => isLoading = true); // Show loader during image processing
+    setState(() => isLoading = true);
 
     try {
       final XFile? res =
@@ -85,13 +85,12 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
     Uint8List imageBytes = await imageFile.readAsBytes();
     img.Image image = img.decodeImage(imageBytes)!;
 
-    // Resize to a max width of 800px (preserving aspect ratio)
     final resized = img.copyResize(image, width: 800);
 
     List<int> compressedBytes = img.encodeJpg(resized, quality: 50);
 
     final compressedFile = File(imageFile.path);
-    await compressedFile.writeAsBytes(compressedBytes); // ✅ Async write
+    await compressedFile.writeAsBytes(compressedBytes);
     return compressedFile;
   }
 
@@ -243,7 +242,6 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
                       maxLength: 30,
                     ),
                     const SizedBox(height: 10),
-                    // Image upload area
                     if (widget.type == 'image')
                       GestureDetector(
                         onTap: selectBannerImage,

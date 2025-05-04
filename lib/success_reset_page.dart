@@ -100,7 +100,6 @@ class ResetSuccessPage extends StatelessWidget {
                       ..onTap = () {
                         onResendEmail();
 
-                        // Show a popup dialog with an OK button
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
@@ -108,16 +107,14 @@ class ResetSuccessPage extends StatelessWidget {
                               title: Text(
                                 'Success',
                                 style: TextStyle(
-                                  fontWeight:
-                                      FontWeight.bold, // Make "Success" bold
-                                  color: Color(0xFF113F67), // New blue color
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF113F67),
                                 ),
                               ),
                               content: Text(
                                 'Reset email sent successfully. Please check your email.',
                                 style: TextStyle(
-                                  color: Color(
-                                      0xFF113F67), // New blue color for content
+                                  color: Color(0xFF113F67),
                                   fontSize: 16,
                                 ),
                               ),
@@ -129,9 +126,7 @@ class ResetSuccessPage extends StatelessWidget {
                                   },
                                   child: Text(
                                     'OK',
-                                    style: TextStyle(
-                                        color: Color(
-                                            0xFF113F67)), // Button text color
+                                    style: TextStyle(color: Color(0xFF113F67)),
                                   ),
                                 ),
                               ],

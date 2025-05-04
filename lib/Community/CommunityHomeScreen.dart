@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hadafi_application/Community/CommunityProfile.dart';
 import 'package:hadafi_application/Community/addCommunity.dart';
@@ -17,6 +18,7 @@ import 'package:hadafi_application/Community/post/screens/feed_screen.dart';
 
 class Communityhomescreen extends ConsumerStatefulWidget {
   final int initialIndex;
+
   Communityhomescreen({super.key, this.initialIndex = 0});
 
   @override
@@ -26,11 +28,26 @@ class Communityhomescreen extends ConsumerStatefulWidget {
 class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
   late int index;
   bool isIconsVisible = false;
+  final ScrollController _scrollController = ScrollController();
+  bool _isFabVisible = true;
 
   @override
   void initState() {
     super.initState();
     index = widget.initialIndex;
+    _scrollController.addListener(() {
+      if (_scrollController.position.userScrollDirection ==
+          ScrollDirection.reverse) {
+        if (_isFabVisible) {
+          setState(() => _isFabVisible = false);
+        }
+      } else if (_scrollController.position.userScrollDirection ==
+          ScrollDirection.forward) {
+        if (!_isFabVisible) {
+          setState(() => _isFabVisible = true);
+        }
+      }
+    });
   }
 
   final List<Widget> screens = [
@@ -46,7 +63,33 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: screens[index],
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () {
+          if (isIconsVisible) {
+            setState(() {
+              isIconsVisible = false;
+            });
+          }
+        },
+        child: index == 0
+            ? NotificationListener<ScrollNotification>(
+                onNotification: (scrollNotification) {
+                  if (scrollNotification is UserScrollNotification) {
+                    final direction = scrollNotification.direction;
+                    if (direction == ScrollDirection.reverse && _isFabVisible) {
+                      setState(() => _isFabVisible = false);
+                    } else if (direction == ScrollDirection.forward &&
+                        !_isFabVisible) {
+                      setState(() => _isFabVisible = true);
+                    }
+                  }
+                  return false;
+                },
+                child: FeedScreen(),
+              )
+            : screens[index],
+      ),
       drawer: index == 2 ? null : const HadafiDrawer(),
       appBar: index == 2
           ? null
@@ -99,16 +142,10 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
               selectedIcon: Icon(Icons.add),
               label: "Create",
             ),
-
-            //    NavigationDestination(
-            //    icon: Icon(Icons.post_add_outlined),
-            //    selectedIcon: Icon(Icons.post_add),
-            //   label: "Post",
-            //       ),
           ],
         ),
       ),
-      floatingActionButton: index == 0 ? buildFABIcon() : null,
+      floatingActionButton: index == 0 && _isFabVisible ? buildFABIcon() : null,
     );
   }
 
@@ -116,14 +153,13 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        // Main floating action button
         Positioned(
           bottom: 5,
           right: 20,
           child: GestureDetector(
             onTap: () {
               setState(() {
-                isIconsVisible = !isIconsVisible; // Toggle visibility of icons
+                isIconsVisible = !isIconsVisible;
               });
             },
             child: AnimatedActionButton(
@@ -136,14 +172,12 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
             ),
           ),
         ),
-        // Floating action icons that appear when the main button is pressed
         if (isIconsVisible)
           Positioned(
             bottom: 90,
             right: 18,
             child: Column(
               children: [
-                // Image icon button
                 GestureDetector(
                   onTap: () {
                     Navigator.push(
@@ -167,15 +201,19 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
                         end: Alignment.bottomRight,
                       ),
                     ),
-                    child: Icon(
-                      Icons.image_outlined,
-                      size: 35,
-                      color: Colors.white,
+                    child: Center(
+                      child: Text(
+                        'Image',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Text icon button
                 GestureDetector(
                   onTap: () {
                     Navigator.push(
@@ -199,15 +237,19 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
                         end: Alignment.bottomRight,
                       ),
                     ),
-                    child: Icon(
-                      Icons.article,
-                      size: 35,
-                      color: Colors.white,
+                    child: Center(
+                      child: Text(
+                        'Text',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Link icon button
                 GestureDetector(
                   onTap: () {
                     Navigator.push(
@@ -231,10 +273,15 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
                         end: Alignment.bottomRight,
                       ),
                     ),
-                    child: Icon(
-                      Icons.link_outlined,
-                      size: 35,
-                      color: Colors.white,
+                    child: Center(
+                      child: Text(
+                        'Link',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -305,10 +352,15 @@ class _AnimatedActionButtonState extends State<AnimatedActionButton> {
               end: Alignment.bottomRight,
             ),
           ),
-          child: Icon(
-            widget.icon,
-            size: 35,
-            color: Colors.white,
+          child: Center(
+            child: Text(
+              'Post',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ),
       ),

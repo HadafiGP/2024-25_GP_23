@@ -362,9 +362,8 @@ class PostController extends StateNotifier<bool> {
           return;
         }
 
-        String username = userData['name'] ?? 'Unknown'; // ✅ Get username
-        String profilePic =
-            userData['profilePic'] ?? ''; // ✅ Get profile picture
+        String username = userData['name'] ?? 'Unknown';
+        String profilePic = userData['profilePic'] ?? '';
         String commentId = const Uuid().v1();
 
         Comment comment = Comment(
@@ -372,8 +371,8 @@ class PostController extends StateNotifier<bool> {
           text: text,
           createdAt: DateTime.now(),
           postId: post.id,
-          username: username, // ✅ Pass username
-          profilePic: profilePic, // ✅ Pass profile picture
+          username: username,
+          profilePic: profilePic,
         );
 
         final res = await _postRepository.addComment(comment);

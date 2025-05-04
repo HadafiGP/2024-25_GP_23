@@ -857,8 +857,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   'Error ',
                                   style: TextStyle(color: Colors.red),
                                 ),
-                                Icon(Icons.cancel,
-                                    color: Colors.red), // "X" icon
+                                Icon(Icons.cancel, color: Colors.red),
                                 SizedBox(width: 10),
                               ],
                             ),
@@ -883,16 +882,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       );
                     }
                   },
-                  // style: ElevatedButton.styleFrom(
-                  //   backgroundColor: Colors.white,
-                  //   elevation: 5,
-                  //   shadowColor: Colors.black26,
-                  //   shape: RoundedRectangleBorder(
-                  //     borderRadius: BorderRadius.circular(40),
-                  //     side: BorderSide(color: Color(0xFF113F67), width: 1.8),
-                  //   ),
-                  //   padding: EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-                  // ),
                   style: kSecondaryButtonStyle,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -914,10 +903,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
               SizedBox(height: 15),
               Divider(
-                color: Colors.grey, // Gray color
-                thickness: 1.5, // Thickness of the line
-                indent: 20, // Indentation from the left
-                endIndent: 20, // Indentation from the right
+                color: Colors.grey,
+                thickness: 1.5,
+                indent: 20,
+                endIndent: 20,
               ),
               SizedBox(height: 15),
               Text(
