@@ -450,6 +450,14 @@ class _TrainingProviderProfilePageState
             borderSide: BorderSide(color: Color(0xFF113F67)),
             borderRadius: BorderRadius.circular(10),
           ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Color(0xFF113F67)),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          disabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Color(0xFF113F67)),
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
         enabled: _isEditing,
         validator: (value) {
@@ -481,9 +489,7 @@ class _TrainingProviderProfilePageState
                   labelText: 'Location',
                   suffixIcon: const Icon(Icons.arrow_drop_down),
                   border: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color:
-                            Color(0xFF113F67)), // Same color as student profile
+                    borderSide: BorderSide(color: Color(0xFF113F67)),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   focusedBorder: OutlineInputBorder(
