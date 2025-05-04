@@ -577,7 +577,7 @@ List<String> getFilteredTechnicalSkills() {
           children: [
             const SizedBox(height: 15),
 
-            _buildTextField('Job Title', jobTitleController),
+            _buildTextField('Opportunitiy Title', jobTitleController),
             if (!isJobTitleValid)
               const Padding(
                 padding: EdgeInsets.only(top: 4),
@@ -586,7 +586,7 @@ List<String> getFilteredTechnicalSkills() {
             const SizedBox(height: 15),
 
 
-            _buildDropdown('Job Type', jobTypeController, jobTypes, (value) {
+            _buildDropdown('Opportunitiy Type', jobTypeController, jobTypes, (value) {
               setState(() => jobTypeController.text = value);
             }),
             if (!isJobTypeValid)

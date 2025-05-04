@@ -213,8 +213,8 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
                                 icon: const Icon(Icons.image_outlined),
                                 label: const Text("Add"),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.grey[200],
-                                  foregroundColor: Colors.black,
+                                  backgroundColor: Color(0xFF113F67),
+                                  foregroundColor: Colors.white,
                                 ),
                               ),
                             ],
@@ -234,8 +234,8 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
                                 icon: const Icon(Icons.image_outlined),
                                 label: const Text("Add"),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.grey[200],
-                                  foregroundColor: Colors.black,
+                                  backgroundColor: Color(0xFF113F67),
+                                  foregroundColor: Colors.white,
                                 ),
                               ),
                             ],

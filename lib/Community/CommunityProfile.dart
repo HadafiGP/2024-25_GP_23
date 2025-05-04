@@ -145,7 +145,7 @@ class Communityprofile extends ConsumerWidget {
                                               label: const Text('Mod Tools'),
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor:
-                                                    Colors.blue[800],
+                                                   Color(0xFF113F67),
                                                 foregroundColor: Colors.white,
                                                 shape: RoundedRectangleBorder(
                                                   borderRadius:
@@ -161,7 +161,7 @@ class Communityprofile extends ConsumerWidget {
                                                         .members
                                                         .contains(user)
                                                     ? Colors.grey
-                                                    : Colors.blue,
+                                                    : Color(0xFF113F67),
                                                 foregroundColor: Colors.white,
                                                 shape: RoundedRectangleBorder(
                                                   borderRadius:

@@ -99,7 +99,7 @@ class FilteredCommunityScreen extends ConsumerWidget {
                     
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isJoined ? Colors.grey : Colors.blue,
+                    backgroundColor: isJoined ? Colors.grey : Color(0xFF113F67),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),

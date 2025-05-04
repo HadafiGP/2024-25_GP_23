@@ -644,9 +644,9 @@ if (majorsList is List) {
             child: Column(
               children: [
                 const SizedBox(height: 15),
-                _buildTextField('Job Title', jobTitleController),
+                _buildTextField('Opportunitiy Title', jobTitleController),
                 const SizedBox(height: 15),
-                _buildDropdown('Job Type', jobTypeController, jobTypes, (value) {
+                _buildDropdown('Opportunitiy Type', jobTypeController, jobTypes, (value) {
                   setState(() => jobTypeController.text = value);
                 }),
                 const SizedBox(height: 15),
