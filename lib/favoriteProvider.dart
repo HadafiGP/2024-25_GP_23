@@ -91,13 +91,10 @@ Future<void> toggleFavorite(Map<String, dynamic> opportunity) async {
       '';
 
 
-
   if (oppId != null) {
- 
     existingIndex = _favoriteOpps.indexWhere((opp) =>
         opp['id'] != null && opp['id'] == oppId);
   } else {
-
     existingIndex = _favoriteOpps.indexWhere((opp) {
       final savedUrl = opp['Job LinkedIn URL'] ??
           opp['Company Apply link'] ??
@@ -105,17 +102,15 @@ Future<void> toggleFavorite(Map<String, dynamic> opportunity) async {
           opp['companyLink'] ??
           '';
       final match = savedUrl == oppUrl;
-
       return match;
     });
   }
 
   if (existingIndex != -1) {
     final docId = _favoriteOpps[existingIndex]['documentId'];
-
     await collectionRef.doc(docId).delete();
     _favoriteOpps.removeAt(existingIndex);
-
+  } else {
     final docRef = await collectionRef.add(opportunity);
     opportunity['documentId'] = docRef.id;
     _favoriteOpps.add(opportunity);
