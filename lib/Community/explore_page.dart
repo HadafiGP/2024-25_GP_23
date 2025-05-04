@@ -55,9 +55,13 @@ class ExplorePage extends StatelessWidget {
       "topics": [
         "Abha",
         "Al Ahsa",
+        'Al-Kharj',
         "Al Khobar",
         "Al Qassim",
+        'Baha',
+        'Bisha',
         "Dammam",
+        'Dhahran',
         "Hail",
         "Jeddah",
         "Jizan",

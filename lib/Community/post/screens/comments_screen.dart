@@ -38,54 +38,67 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF113F67), // Hadafi Theme Color
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          "Comments",
-          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      backgroundColor: const Color(0xFF113F67),
+      iconTheme: const IconThemeData(color: Colors.white),
+      title: const Text(
+        "Comments",
+        style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
       ),
-      body: Column(
+      centerTitle: true,
+    ),
+    body: SafeArea(
+      child: Column(
         children: [
+          // 
           Expanded(
             child: ref.watch(getPostByIdProvider(widget.postId)).when(
-                  data: (post) => Column(
-                    children: [
-                      // 🔹 Post Card
-                      PostCard(post: post),
-                      const Divider(thickness: 1),
-
-                      // 🔹 Comments List
-                      Expanded(
-                        child: ref.watch(getPostCommentsProvider(widget.postId)).when(
-                              data: (comments) => comments.isEmpty
-                                  ? const Center(child: Text("No comments yet", style: TextStyle(fontSize: 16)))
-                                  : ListView.builder(
-                                      itemCount: comments.length,
-                                      itemBuilder: (context, index) => CommentCard(comment: comments[index]),
-                                    ),
-                              loading: () => const Center(child: CircularProgressIndicator()),
-                              error: (error, _) {
-                                print("Error loading comments: $error"); // Debugging
-                                return ErrorText(error: error.toString());
-                              },
-                            ),
-                      ),
-                    ],
+              data: (post) => Column(
+                children: [
+                  // 
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: ListView(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            children: [
+                              PostCard(post: post),
+                              const Divider(thickness: 1),
+                              ref.watch(getPostCommentsProvider(widget.postId)).when(
+                                data: (comments) => comments.isEmpty
+                                    ? const Padding(
+                                        padding: EdgeInsets.all(16.0),
+                                        child: Center(child: Text("No comments yet", style: TextStyle(fontSize: 16))),
+                                      )
+                                    : Column(
+                                        children: comments.map((c) => CommentCard(comment: c)).toList(),
+                                      ),
+                                loading: () => const Center(child: CircularProgressIndicator()),
+                                error: (error, _) {
+                                  print("Error loading comments: $error");
+                                  return ErrorText(error: error.toString());
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  loading: () => const Loader(),
-                  error: (error, _) {
-                    print("Error loading post: $error"); // Debugging
-                    return ErrorText(error: error.toString());
-                  },
-                ),
+                ],
+              ),
+              loading: () => const Loader(),
+              error: (error, _) {
+                print("Error loading post: $error");
+                return ErrorText(error: error.toString());
+              },
+            ),
           ),
 
-          // 🔹 Fixed Comment Input Box at Bottom
+          // 
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
@@ -119,6 +132,7 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

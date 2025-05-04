@@ -28,7 +28,7 @@ class FilteredCommunityScreen extends ConsumerWidget {
             style: const TextStyle(
               color: Colors.white,
               fontSize: 20,
-              fontWeight: FontWeight.bold,
+              // fontWeight: FontWeight.bold,
             )),
         centerTitle: true,
         iconTheme: IconThemeData(
@@ -126,7 +126,8 @@ class FilteredCommunityScreen extends ConsumerWidget {
 
   // 🔹 Helper Widget for "No Communities Found"
   Widget _buildNoCommunitiesFound() {
-    return Center(
+  return SizedBox.expand( // ✅ يملأ كامل الشاشة
+    child: Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -134,10 +135,13 @@ class FilteredCommunityScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           Text(
             "No communities found for $topic",
+            textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 }
