@@ -640,22 +640,34 @@ class _AddCommunityScreenState extends ConsumerState<CreateACommunity> {
       {
         "category": "💼 Training Opportunities Related",
         "topics": [
-          "Summer Internships",
+          "Internships",
           "COOP Training",
-          'Remote training opportunities',
-          'Training search tips'
+          'Remote',
+          'On-site',
+          'Hybrid',
+          'Paid',
+          'Unpaid',
+          "Over The Summer",
+          'Full-time',
+          'Part-time',
+          'Government Sector',
+          'Private Sector',
+          'Training search tips',
         ]
       },
       {
         "category": "📚 Industry-Specific Discussions",
         "topics": [
-          "Technology & IT",
-          "Engineering & Design",
-          "Healthcare",
-          "Finance & Business",
-          "Marketing & Advertising",
-          "Law",
-          "Freelancing",
+          'Business & Management',
+          'Education & Training',
+          'Information Technology & Computer Science',
+          'Engineering & Industrial Technologies',
+          'Healthcare & Medical Fields',
+          'Arts, Design & Creative Media',
+          'Humanities & Social Sciences',
+          'Law, Government & Public Policy',
+          'Science & Mathematics',
+          'Hospitality & Tourism'
         ]
       },
       {
@@ -664,6 +676,9 @@ class _AddCommunityScreenState extends ConsumerState<CreateACommunity> {
           "Communication Skills",
           "Leadership & Teamwork",
           "CV advice",
+          'Workplace Etiquette',
+          'Presentation & Public Speaking Skills',
+          'Interview Preparation'
         ]
       },
       {
@@ -671,16 +686,24 @@ class _AddCommunityScreenState extends ConsumerState<CreateACommunity> {
         "topics": [
           "University Advice",
           "Scholarships & Grants",
-          "Balancing Study & Other Work"
+          "Balancing Study & Other Work",
+          'Clubs, Volunteering & Extracurricular',
+          'COOP Report Templates & Examples'
         ]
       },
       {
         "category": "🌐 Student Networking & Growth",
         "topics": [
-          "Events & Career Fairs",
+          'Hackathons & Competition',
           "Internship Meetups",
-          'Industry Expert Q&A Sessions',
-          'Mentorship & Career Guidance'
+          'Networking for Introverts',
+          'Networking Tips',
+          'Industry Expert Q&A',
+          "Events & Career Fairs",
+          'Mentorship & Career Guidance',
+          'Professional Associations',
+          'Online Networking & Profile Building',
+          'Student Conferences & Summits',
         ]
       },
       {
@@ -688,9 +711,13 @@ class _AddCommunityScreenState extends ConsumerState<CreateACommunity> {
         "topics": [
           'Abha',
           'Al Ahsa',
+          'Al-Kharj',
           'Al Khobar',
           'Al Qassim',
+          'Baha',
+          'Bisha',
           'Dammam',
+          'Dhahran',
           'Hail',
           'Jeddah',
           'Jizan',

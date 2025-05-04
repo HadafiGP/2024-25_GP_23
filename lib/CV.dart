@@ -177,7 +177,7 @@ class _CVPageState extends State<CVPage> {
                       MatchText(
                         pattern: r"/Format",
                         style: const TextStyle(
-                            color: Color(0xFFDDE47A),
+                            color: Color.fromARGB(255, 255, 204, 137),
                             fontWeight: FontWeight.bold),
                         onTap: (matchedText) => _handleOptionClick(matchedText),
                       ),
@@ -191,7 +191,7 @@ class _CVPageState extends State<CVPage> {
                         pattern:
                             r"/CertificateSuggestions|Suggested Correction:|Fix:|Where to Obtain It:",
                         style: const TextStyle(
-                            color: Color(0xFF8CDE7E),
+                            color: Color.fromARGB(255, 103, 255, 77),
                             fontWeight: FontWeight.bold),
                         onTap: (matchedText) => _handleOptionClick(matchedText),
                       ),

@@ -1,36 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:hadafi_application/Community/filtered_community_screens.dart';
 
-
 class ExplorePage extends StatelessWidget {
   final List<Map<String, dynamic>> topics = [
     {
       "category": "💼 Training Opportunities Related",
       "topics": [
-        "Summer Internships",
+        "Internships",
         "COOP Training",
-        "Remote training opportunities",
-        "Training search tips"
+        'Remote',
+        'On-site',
+        'Hybrid',
+        'Paid',
+        'Unpaid',
+        "Over The Summer",
+        'Full-time',
+        'Part-time',
+        'Government Sector',
+        'Private Sector',
+        'Training search tips',
       ]
     },
     {
       "category": "📚 Industry-Specific Discussions",
       "topics": [
-        "Technology & IT",
-        "Engineering & Design",
-        "Healthcare",
-        "Finance & Business",
-        "Marketing & Advertising",
-        "Law",
-        "Freelancing",
+        'Business & Management',
+        'Education & Training',
+        'Information Technology & Computer Science',
+        'Engineering & Industrial Technologies',
+        'Healthcare & Medical Fields',
+        'Arts, Design & Creative Media',
+        'Humanities & Social Sciences',
+        'Law, Government & Public Policy',
+        'Science & Mathematics',
+        'Hospitality & Tourism'
       ]
     },
     {
-      "category": "🌱 Soft Skills & Personal Development",
+      "category": "🌱 Soft Skills  & Personal Development",
       "topics": [
         "Communication Skills",
         "Leadership & Teamwork",
         "CV advice",
+        'Workplace Etiquette',
+        'Presentation & Public Speaking Skills',
+        'Interview Preparation'
       ]
     },
     {
@@ -38,41 +52,49 @@ class ExplorePage extends StatelessWidget {
       "topics": [
         "University Advice",
         "Scholarships & Grants",
-        "Balancing Study & Other Work"
+        "Balancing Study & Other Work",
+        'Clubs, Volunteering & Extracurricular',
+        'COOP Report Templates & Examples'
       ]
     },
     {
       "category": "🌐 Student Networking & Growth",
       "topics": [
-        "Events & Career Fairs",
+        'Hackathons & Competition',
         "Internship Meetups",
-        "Industry Expert Q&A Sessions",
-        "Mentorship & Career Guidance"
+        'Networking for Introverts',
+        'Networking Tips',
+        'Industry Expert Q&A',
+        "Events & Career Fairs",
+        'Mentorship & Career Guidance',
+        'Professional Associations',
+        'Online Networking & Profile Building',
+        'Student Conferences & Summits',
       ]
     },
     {
       "category": "📍 Locations",
       "topics": [
-        "Abha",
-        "Al Ahsa",
+        'Abha',
+        'Al Ahsa',
         'Al-Kharj',
-        "Al Khobar",
-        "Al Qassim",
+        'Al Khobar',
+        'Al Qassim',
         'Baha',
         'Bisha',
-        "Dammam",
+        'Dammam',
         'Dhahran',
-        "Hail",
-        "Jeddah",
-        "Jizan",
-        "Jubail",
-        "Mecca",
-        "Medina",
-        "Najran",
-        "Riyadh",
-        "Tabuk",
-        "Taif",
-        "Other"
+        'Hail',
+        'Jeddah',
+        'Jizan',
+        'Jubail',
+        'Mecca',
+        'Medina',
+        'Najran',
+        'Riyadh',
+        'Tabuk',
+        'Taif',
+        'Other'
       ]
     }
   ];
@@ -102,14 +124,16 @@ class ExplorePage extends StatelessWidget {
             SizedBox(height: 16), // Space before topics
 
             // ✅ List of categories
-            ...topics.map((categoryData) => _buildCategorySection(context, categoryData)),
+            ...topics.map(
+                (categoryData) => _buildCategorySection(context, categoryData)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCategorySection(BuildContext context, Map<String, dynamic> categoryData) {
+  Widget _buildCategorySection(
+      BuildContext context, Map<String, dynamic> categoryData) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
