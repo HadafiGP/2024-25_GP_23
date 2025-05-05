@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "615752050033",
+    "project_id": "hadafi-a7971",
+    "storage_bucket": "hadafi-a7971.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:615752050033:android:665da8a18f78d0781782d0",
+        "android_client_info": {
+          "package_name": "com.example.hadafi_application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCK_tERHhNUWRrw6qcidqqwDqLxa8UcjBw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

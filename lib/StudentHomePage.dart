@@ -187,7 +187,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
   Future<void> _initializeAllData() async {
     setState(() => isLoading = true);
 
-    await fetchCsvOpportunities(); // Ensure CSV loads first
+    await fetchCsvOpportunities(); 
     print("CSV loaded: ${csvOpportunities.length} items");
 
     await Future.wait([
@@ -210,8 +210,8 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
     while (attempts < maxRetries) {
       try {
-        final response =
-            await http.get(Uri.parse("http://10.0.2.2:5000/opportunities"));
+        final response = await http
+            .get(Uri.parse("https://hadafi.pythonanywhere.com/opportunities"));
 
         if (response.statusCode == 200) {
           try {
@@ -241,7 +241,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
 //best match recs
   Future<void> fetchRecommendations() async {
-    final String url = "http://10.0.2.2:5000/recommend";
+    final String url = "https://hadafi.pythonanywhere.com/recommend";
 
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -355,7 +355,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
     }
   }
 
-// in this part i will get the student major to display the other opportunities according to it
+
   String userMajor = '';
 
   Future<void> fetchUserMajor() async {
@@ -399,13 +399,13 @@ class _StudentHomePageState extends State<StudentHomePage> {
         builder: (BuildContext context) {
           final TabController tabController = DefaultTabController.of(context)!;
 
-          // Listen to the tab changes
+          
           tabController.addListener(() {
             if (!tabController.indexIsChanging) {
               setState(() {
                 selectedIndex = tabController.index;
                 _tabNotifier.value =
-                    tabController.index; //innfo navigation only in recommended
+                    tabController.index; 
               });
             }
           });
@@ -906,34 +906,16 @@ class OpportunitiesList extends StatelessWidget {
                   Consumer(
                     builder: (context, ref, child) {
                       final favoriteOpps = ref.watch(favoriteProvider);
-                      final oppUrl = opportunity['Job LinkedIn URL'] ??
-                          opportunity['Company Apply link'] ??
-                          opportunity['Apply url'] ??
-                          opportunity['companyLink'] ??
-                          '';
-                      final isFavorited =
-                          favoriteOpps.favOpportunities.any((opp) {
-                        // Firestore-based match by id
-                        if (opp['id'] != null && opportunity['id'] != null) {
-                          return opp['id'] == opportunity['id'];
-                        }
 
-                        // CSV-based match by URL
-                        final urlA = opp['Job LinkedIn URL'] ??
-                            opp['Company Apply link'] ??
-                            opp['Apply url'] ??
-                            opp['companyLink'] ??
-                            '';
-                        final urlB = opportunity['Job LinkedIn URL'] ??
-                            opportunity['Company Apply link'] ??
-                            opportunity['Apply url'] ??
-                            opportunity['companyLink'] ??
-                            '';
-                        return urlA == urlB;
-                      });
+                      final isFirestoreOpportunity =
+                          opportunity.containsKey('id') &&
+                              opportunity['id'] != null;
+
+                      final isFavorited = favoriteOpps.favOpportunities.any(
+                        (opp) => isSameOpportunity(opp, opportunity),
+                      );
 
                       final favoriteOpp = {
-                        'id': opportunity['id'],
                         'Job Title': oppTitle,
                         'Company Name': companyName,
                         'Description': description,
@@ -946,7 +928,17 @@ class OpportunitiesList extends StatelessWidget {
                         'Skills': opportunity['Skills'] ??
                             opportunity['skills'] ??
                             [],
+                        'duration': opportunity['duration'] ?? "",
+                        'endDate': opportunity['endDate'] ?? "",
+                        'createdAt': opportunity['createdAt'] ?? "",
+                        'startDate': opportunity['startDate'] ?? "",
+                        'jobType': opportunity['jobType'] ?? "",
+                        'major': (opportunity['major'] ?? []).join(', '),
+                        'contactInfo': contactInfo,
                       };
+                      if (isFirestoreOpportunity) {
+                        favoriteOpp['id'] = opportunity['id'];
+                      }
 
                       return GestureDetector(
                         onTap: () {
@@ -979,18 +971,16 @@ class OpportunitiesList extends StatelessWidget {
                             ),
                           );
                         },
-                        child:  Icon(
-                            isFavorited
-                                ? Icons.bookmark_added
-                                : Icons.bookmark_add_outlined,
-                            color:
-                                isFavorited ? Colors.amber[400] : Colors.grey,
-                            size: MediaQuery.of(context).devicePixelRatio < 2.5
-                                ? 20
-                                : 24,
-                            key: ValueKey<bool>(isFavorited),
-                          ),
-                        
+                        child: Icon(
+                          isFavorited
+                              ? Icons.bookmark_added
+                              : Icons.bookmark_add_outlined,
+                          color: isFavorited ? Colors.amber[400] : Colors.grey,
+                          size: MediaQuery.of(context).devicePixelRatio < 2.5
+                              ? 20
+                              : 24,
+                          key: ValueKey<bool>(isFavorited),
+                        ),
                       );
                     },
                   ),

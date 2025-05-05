@@ -90,59 +90,79 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                                       .any((opp) =>
                                           isSameOpportunity(opp, opportunity));
 
-
                                   return GestureDetector(
                                     onTap: () {
-                                      final wasFavorited = isFavorited;
-                                      final removedOpportunity = opportunity;
                                       final favoriteNotifier =
                                           ref.read(favoriteProvider.notifier);
 
+                                      final rebuiltOpportunity = {
+                                        ...opportunity,
+                                        'id': opportunity['id'],
+                                        'Job Title': opportunity['Job Title'],
+                                        'Company Name':
+                                            opportunity['Company Name'],
+                                        'Description':
+                                            opportunity['Description'],
+                                        'Apply url': opportunity['Apply url'],
+                                        'GPA out of 5':
+                                            opportunity['GPA out of 5'],
+                                        'GPA out of 4':
+                                            opportunity['GPA out of 4'],
+                                        'Locations':
+                                            opportunity['Locations'] ?? [],
+                                        'Skills': opportunity['Skills'] ?? [],
+                                        'duration': opportunity['duration'],
+                                        'endDate': opportunity['endDate'],
+                                        'createdAt': opportunity['createdAt'],
+                                        'startDate': opportunity['startDate'],
+                                        'jobType': opportunity['jobType'],
+                                        'major': opportunity['major'],
+                                        'contactInfo':
+                                            opportunity['contactInfo'],
+                                        'documentId': opportunity[
+                                            'documentId'], 
+                                      };
+
+                                      final isCurrentlyFavorited = ref
+                                          .read(favoriteProvider)
+                                          .favOpportunities
+                                          .any((opp) => isSameOpportunity(
+                                              opp, rebuiltOpportunity));
+
                                       favoriteNotifier
-                                          .toggleFavorite(opportunity);
+                                          .toggleFavorite(rebuiltOpportunity);
 
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         SnackBar(
                                           content: Text(
-                                            wasFavorited
-                                                ? "Opportunity removed from Saved Opportunitiest"
+                                            isCurrentlyFavorited
+                                                ? "Opportunity removed from Saved Opportunities"
                                                 : "Opportunity added to Saved Opportunities",
                                             style: const TextStyle(
                                                 color: Colors.white),
-                                                
                                           ),
-                                          
-                                          action: wasFavorited
+                                          action: isCurrentlyFavorited
                                               ? SnackBarAction(
                                                   label: "Undo",
                                                   textColor: Colors.white,
                                                   onPressed: () {
+                                                    final undoOpportunity = Map<
+                                                            String,
+                                                            dynamic>.from(
+                                                        rebuiltOpportunity);
+                                                    undoOpportunity.remove(
+                                                        'documentId'); 
                                                     favoriteNotifier
                                                         .toggleFavorite(
-                                                            removedOpportunity);
+                                                            undoOpportunity);
                                                   },
                                                 )
                                               : null,
-                                           duration: Duration(seconds: 2),
-        backgroundColor: Colors.green,
+                                          duration: const Duration(seconds: 5),
+                                          backgroundColor: Colors.green,
                                         ),
                                       );
-
-                                      if (wasFavorited) {
-                                        Future.delayed(
-                                            const Duration(milliseconds: 100),
-                                            () {
-                                          final stillRemoved = !ref
-                                              .read(favoriteProvider)
-                                              .favOpportunities
-                                              .contains(removedOpportunity);
-                                          if (stillRemoved) {
-                                            favoriteNotifier.toggleFavorite(
-                                                removedOpportunity);
-                                          }
-                                        });
-                                      }
                                     },
                                     child: Icon(
                                       isFavorited
@@ -165,8 +185,11 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                                 ],
                                 onPressed: () {
                                   final bool isPostedInHadafi =
-                                      opportunity.containsKey(
-                                          'duration'); // Posted in Hadafi have 'duration'
+                                      opportunity['jobType'] != null &&
+                                          opportunity['jobType']
+                                              .toString()
+                                              .trim()
+                                              .isNotEmpty;
 
                                   if (isPostedInHadafi) {
                                     Navigator.push(
@@ -212,8 +235,12 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                                           startDate:
                                               opportunity['startDate'] ?? '',
                                           jobType: opportunity['jobType'] ?? '',
-                                          major: (opportunity['major'] ?? [])
-                                              .join(', '),
+                                          major: opportunity['major'] is List
+                                              ? (opportunity['major'] as List)
+                                                  .join(', ')
+                                              : opportunity['major']
+                                                      ?.toString() ??
+                                                  '',
                                           contactInfo:
                                               opportunity['contactInfo'] ?? '',
                                         ),
@@ -283,21 +310,23 @@ bool isSameOpportunity(Map<String, dynamic> a, Map<String, dynamic> b) {
   final idA = a['id'] ?? '';
   final idB = b['id'] ?? '';
 
-  // Firestore-opps: Match by ID only
+  // Firestore Opp
   if (idA.isNotEmpty && idB.isNotEmpty) return idA == idB;
 
-  // CSV/recommendations: match ONLY if title and main URL match
+  // CSV Opp
   final urlA = (a['Apply url'] ??
-      a['Company Apply link'] ??
-      a['Job LinkedIn URL'] ??
-      a['companyLink'] ??
-      '').trim();
+          a['Company Apply link'] ??
+          a['Job LinkedIn URL'] ??
+          a['companyLink'] ??
+          '')
+      .trim();
 
   final urlB = (b['Apply url'] ??
-      b['Company Apply link'] ??
-      b['Job LinkedIn URL'] ??
-      b['companyLink'] ??
-      '').trim();
+          b['Company Apply link'] ??
+          b['Job LinkedIn URL'] ??
+          b['companyLink'] ??
+          '')
+      .trim();
 
   return titleA == titleB && urlA == urlB;
 }
