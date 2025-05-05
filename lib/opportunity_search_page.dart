@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hadafi_application/OpportunityDetailsPage.dart';
 import 'package:hadafi_application/TpOpportunityDetailsPage.dart';
 import 'package:hadafi_application/button.dart';
+import 'package:hadafi_application/favoriteList.dart';
+import 'package:hadafi_application/favoriteProvider.dart';
 
 class OpportunitySearchPage extends StatefulWidget {
   final List<dynamic> opportunities;
@@ -71,7 +74,7 @@ class _OpportunitySearchPageState extends State<OpportunitySearchPage> {
                 gradient: const LinearGradient(
                   colors: [
                     Color(0xFF113F67),
-                    Color.fromARGB(255, 105, 185, 255),
+                    Color.fromRGBO(105, 185, 255, 1),
                   ],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
@@ -212,16 +215,119 @@ class _OpportunitySearchPageState extends State<OpportunitySearchPage> {
                               companyName,
                               style: const TextStyle(fontSize: 13),
                             ),
-                            trailing: GradientButton(
-                              text: "More",
-                              gradientColors: [
-                                const Color(0xFF113F67),
-                                Color.fromARGB(255, 105, 185, 255),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Consumer(
+                                  builder: (context, ref, child) {
+                                    final favoriteOpps =
+                                        ref.watch(favoriteProvider);
+
+                                    final isFirestoreOpportunity =
+                                        opportunity.containsKey('id') &&
+                                            opportunity['id'] != null;
+
+                                    final isFavorited =
+                                        favoriteOpps.favOpportunities.any(
+                                      (opp) =>
+                                          isSameOpportunity(opp, opportunity),
+                                    );
+
+                                    final favoriteOpp = {
+                                      'Job Title': oppTitle,
+                                      'Company Name': companyName,
+                                      'Description': description,
+                                      'Apply url': applyUrl,
+                                      'GPA out of 5': gpa5,
+                                      'GPA out of 4': gpa4,
+                                      'Locations': opportunity['Locations'] ??
+                                          opportunity['locations'] ??
+                                          [],
+                                      'Skills': opportunity['Skills'] ??
+                                          opportunity['skills'] ??
+                                          [],
+                                      'duration': opportunity['duration'] ?? "",
+                                      'endDate': opportunity['endDate'] ?? "",
+                                      'createdAt':
+                                          opportunity['createdAt'] ?? "",
+                                      'startDate':
+                                          opportunity['startDate'] ?? "",
+                                      'jobType': opportunity['jobType'] ?? "",
+                                      'major': (opportunity['major'] ?? [])
+                                          .join(', '),
+                                      'contactInfo':
+                                          opportunity['contactInfo'] ?? "",
+                                    };
+                                    if (isFirestoreOpportunity) {
+                                      favoriteOpp['id'] = opportunity['id'];
+                                    }
+
+                                    return GestureDetector(
+                                      onTap: () {
+                                        final wasFavorited = isFavorited;
+                                        ref
+                                            .read(favoriteProvider.notifier)
+                                            .toggleFavorite(favoriteOpp);
+
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              wasFavorited
+                                                  ? "Opportunity removed from Saved Opportunities"
+                                                  : "Opportunity added to Saved Opportunities",
+                                              style: const TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                            action: wasFavorited
+                                                ? SnackBarAction(
+                                                    label: "Undo",
+                                                    textColor: Colors.white,
+                                                    onPressed: () {
+                                                      ref
+                                                          .read(favoriteProvider
+                                                              .notifier)
+                                                          .toggleFavorite(
+                                                              favoriteOpp);
+                                                    },
+                                                  )
+                                                : null,
+                                            backgroundColor: Colors.green,
+                                            duration:
+                                                const Duration(seconds: 2),
+                                          ),
+                                        );
+                                      },
+                                      child: Icon(
+                                        isFavorited
+                                            ? Icons.bookmark_added
+                                            : Icons.bookmark_add_outlined,
+                                        color: isFavorited
+                                            ? Colors.amber[400]
+                                            : Colors.grey,
+                                        size: MediaQuery.of(context)
+                                                    .devicePixelRatio <
+                                                2.5
+                                            ? 20
+                                            : 24,
+                                        key: ValueKey<bool>(isFavorited),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                const SizedBox(width: 5),
+                                GradientButton(
+                                  text: "More",
+                                  gradientColors: const [
+                                    Color(0xFF113F67),
+                                    Color.fromARGB(255, 105, 185, 255),
+                                  ],
+                                  onPressed: () {
+                                    _navigateToDetails(
+                                        context, opportunity, isPostedInHadafi);
+                                  },
+                                ),
                               ],
-                              onPressed: () {
-                                _navigateToDetails(
-                                    context, opportunity, isPostedInHadafi);
-                              },
                             ),
                             onTap: () {
                               _navigateToDetails(

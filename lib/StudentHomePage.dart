@@ -187,7 +187,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
   Future<void> _initializeAllData() async {
     setState(() => isLoading = true);
 
-    await fetchCsvOpportunities(); 
+    await fetchCsvOpportunities();
     print("CSV loaded: ${csvOpportunities.length} items");
 
     await Future.wait([
@@ -355,7 +355,6 @@ class _StudentHomePageState extends State<StudentHomePage> {
     }
   }
 
-
   String userMajor = '';
 
   Future<void> fetchUserMajor() async {
@@ -399,13 +398,11 @@ class _StudentHomePageState extends State<StudentHomePage> {
         builder: (BuildContext context) {
           final TabController tabController = DefaultTabController.of(context)!;
 
-          
           tabController.addListener(() {
             if (!tabController.indexIsChanging) {
               setState(() {
                 selectedIndex = tabController.index;
-                _tabNotifier.value =
-                    tabController.index; 
+                _tabNotifier.value = tabController.index;
               });
             }
           });
@@ -417,26 +414,6 @@ class _StudentHomePageState extends State<StudentHomePage> {
               backgroundColor: const Color(0xFF113F67),
               iconTheme: const IconThemeData(color: Colors.white),
               title: const Text(''),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () {
-                    final List<dynamic> dataToSearch = [
-                      ...recommendations,
-                      ...filteredProviderOpportunities,
-                    ];
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => OpportunitySearchPage(
-                          opportunities: dataToSearch,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
             ),
             body: isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -444,7 +421,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        _buildSectionTitle('Training Opportunities'),
+                        _buildSectionTitleWithSearch(context),
                         _buildOpportunitiesTab(tabController),
                         _buildSectionTitle('App Feedback'),
                         _buildFeedbackList(),
@@ -453,6 +430,86 @@ class _StudentHomePageState extends State<StudentHomePage> {
                   ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildSectionTitleWithSearch(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+      child: SizedBox(
+        height: 40,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            const Align(
+              alignment: Alignment.center,
+              child: Text(
+                'Training Opportunities',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF113F67),
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ValueListenableBuilder<int>(
+                valueListenable: _tabNotifier,
+                builder: (context, selectedTab, _) {
+                  if (selectedTab == 1) {
+                    // Only show on 'Find Opportunities' tab
+                    return GestureDetector(
+                      onTap: () {
+                        final List<dynamic> dataToSearch = [
+                          ...recommendations,
+                          ...filteredProviderOpportunities,
+                        ];
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => OpportunitySearchPage(
+                              opportunities: dataToSearch,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: [
+                              Color(0xFF113F67),
+                              Color.fromRGBO(105, 185, 255, 1),
+                            ],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 2,
+                            )
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.search,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    );
+                  } else {
+                    return const SizedBox.shrink(); // Hide on other tabs
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -20,31 +20,31 @@ class SearchCommunityDelegate extends SearchDelegate {
       ),
     ];
   }
-@override
-ThemeData appBarTheme(BuildContext context) {
-  final theme = Theme.of(context);
-  return theme.copyWith(
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Color(0xFF113F67),
-      iconTheme: IconThemeData(color: Colors.white),
-      titleTextStyle: TextStyle(
-        color: Colors.white,
-        fontSize: 18,
-        fontWeight: FontWeight.w500,
-      ),
-    ),
-    inputDecorationTheme: const InputDecorationTheme(
-      hintStyle: TextStyle(color: Colors.white70),
-      border: InputBorder.none,         
-      enabledBorder: InputBorder.none,  
-      focusedBorder: InputBorder.none,  
-    ),
-    textTheme: const TextTheme(
-      titleLarge: TextStyle(color: Colors.white),
-    ),
-  );
-}
 
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    final theme = Theme.of(context);
+    return theme.copyWith(
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFF113F67),
+        iconTheme: IconThemeData(color: Colors.white),
+        titleTextStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      inputDecorationTheme: const InputDecorationTheme(
+        hintStyle: TextStyle(color: Colors.white70),
+        border: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        focusedBorder: InputBorder.none,
+      ),
+      textTheme: const TextTheme(
+        titleLarge: TextStyle(color: Colors.white),
+      ),
+    );
+  }
 
   @override
   Widget? buildLeading(BuildContext context) {
@@ -65,9 +65,8 @@ ThemeData appBarTheme(BuildContext context) {
   Widget buildSuggestions(BuildContext context) {
     final searchResults = ref.watch(searchCommunityProvider(query));
 
-  
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      query = query; 
+      query = query;
     });
 
     return searchResults.when(
@@ -92,9 +91,13 @@ ThemeData appBarTheme(BuildContext context) {
               ),
               title: RichText(
                 text: highlightQuery(
-                  text: 'r/${community.name}',
+                  text: '${community.name}',
                   query: query,
-                  style: const TextStyle(fontWeight: FontWeight.bold , color: Colors.grey,  fontSize: 14,),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                    fontSize: 14,
+                  ),
                   highlightColor: Colors.blue, // Highlights matchingGGG IN NAME
                 ),
               ),
