@@ -16,7 +16,7 @@ class ModTools extends StatelessWidget {
         title: const Text(
           'Mod Tools', // ✅ Now perfectly centered
           style: TextStyle(
-            fontWeight: FontWeight.bold,
+            // fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),

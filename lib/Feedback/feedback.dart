@@ -10,6 +10,8 @@ import 'package:hadafi_application/Feedback/allFeedback.dart';
 import 'package:hadafi_application/StudentHomePage.dart';
 import 'dart:async';
 
+import 'package:hadafi_application/style.dart';
+
 
 
 class FeedbackScreen extends StatefulWidget {
@@ -378,13 +380,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                             ? const CircularProgressIndicator()
                             : ElevatedButton(
                                 onPressed: _submitFeedback,
-                                style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  minimumSize: const Size(double.infinity, 50),
-                                  backgroundColor: const Color(0xFF113F67),
-                                ),
+                                // style: ElevatedButton.styleFrom(
+                                //   shape: RoundedRectangleBorder(
+                                //     borderRadius: BorderRadius.circular(8),
+                                //   ),
+                                //   minimumSize: const Size(double.infinity, 50),
+                                //   backgroundColor: const Color(0xFF113F67),
+                                // ),
+                                style: kMainButtonStyle,
                                 child: const Text(
                                   "Submit",
                                   style: TextStyle(

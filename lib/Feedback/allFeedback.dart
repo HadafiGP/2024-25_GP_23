@@ -141,7 +141,7 @@ class _AllFeedbackScreenState extends State<AllFeedbackScreen> {
                 backgroundColor: const Color(0xFF113F67),
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(30),
                 ),
               ),
               child: Stack(

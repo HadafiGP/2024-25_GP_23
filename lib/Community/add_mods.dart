@@ -46,7 +46,7 @@ class _AddModsState extends ConsumerState<AddMods> {
         title: const Text(
           'Manage Moderators',
           style: TextStyle(
-            fontWeight: FontWeight.bold,
+            // fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
@@ -157,7 +157,7 @@ class _AddModsState extends ConsumerState<AddMods> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: hasChanges ? const Color(0xFF113F67) : Colors.grey,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(30),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),

@@ -798,7 +798,7 @@ List<String> getFilteredTechnicalSkills() {
                       );
                     }
                   },
-                  style:  kMainButtonStyle,
+                  style:  smallButtonStyle,
                   child: const Text('Post', style: TextStyle(color: Colors.white)),
                 ),
 

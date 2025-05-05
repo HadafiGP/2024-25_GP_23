@@ -427,7 +427,7 @@ class _AddCommunityScreenState extends ConsumerState<CreateACommunity> {
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
                       color: const Color(0xFF113F67),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(30),
                     ),
                     child: const Center(
                       child: Text(
@@ -612,7 +612,7 @@ class _AddCommunityScreenState extends ConsumerState<CreateACommunity> {
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   decoration: BoxDecoration(
                     color: const Color(0xFF113F67),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(30),
                   ),
                   child: const Center(
                     child: Text(
@@ -860,6 +860,9 @@ class _AddCommunityScreenState extends ConsumerState<CreateACommunity> {
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 50),
                         backgroundColor: const Color(0xFF113F67),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30), // نفس الزوايا
+                        ),
                         textStyle: const TextStyle(
                           fontSize: 18,
                           color: Colors.white,

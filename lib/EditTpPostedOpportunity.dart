@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hadafi_application/TrainingProviderHomePage.dart';
 import 'dart:ui';
 
+import 'package:hadafi_application/style.dart';
+
 class EditTpPostedOpportunity extends StatefulWidget {
   final String opportunityId;
   const EditTpPostedOpportunity({super.key, required this.opportunityId});
@@ -733,11 +735,12 @@ if (majorsList is List) {
                     children: [
                       ElevatedButton(
                         onPressed: _saveData,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF113F67),
-                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                        ),
+                        // style: ElevatedButton.styleFrom(
+                        //   backgroundColor: Color(0xFF113F67),
+                        //   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                        //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        // ),
+                        style: smallButtonStyle,
                         child: const Text('Save', style: TextStyle(color: Colors.white)),
                       ),
                       ElevatedButton(
@@ -746,11 +749,12 @@ if (majorsList is List) {
                             isEditing = false;
                           });
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                        ),
+                        // style: ElevatedButton.styleFrom(
+                        //   backgroundColor: Colors.white,
+                        //   padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+                        //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        // ),
+                        style:kSecondaryButtonStyle,
                         child: const Text('Cancel', style: TextStyle(color: Color(0xFF113F67))),
                       ),
                     ],

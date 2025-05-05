@@ -395,7 +395,7 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
                         decoration: BoxDecoration(
                           color:
                               isLoading ? Colors.grey : const Color(0xFF113F67),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(30),
                         ),
                         child: Center(
                           child: isLoading

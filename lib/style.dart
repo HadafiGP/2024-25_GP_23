@@ -37,11 +37,40 @@ const TextStyle kFieldTextStyle = TextStyle(
 final ButtonStyle kMainButtonStyle = ElevatedButton.styleFrom(
   backgroundColor: mainColor,
   foregroundColor: Colors.white,
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(30),
-  ),
-  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+  // shape: RoundedRectangleBorder(
+  //   borderRadius: BorderRadius.circular(30),
+  // ),
+  // padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+  padding: const EdgeInsets.symmetric(
+                            horizontal: 50, // Padding for smaller button width
+                            vertical: 15, // Slightly smaller vertical padding
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                30), // More rounded corners
+                          ),
 );
+
+// final ButtonStyle smallButtonStyle = ElevatedButton.styleFrom(
+//   backgroundColor: mainColor,
+//   foregroundColor: Colors.white,
+//   shape: RoundedRectangleBorder(
+//     borderRadius: BorderRadius.circular(30),
+//   ),
+//   padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+
+// );
+
+final ButtonStyle smallButtonStyle =ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF113F67),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 35, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        elevation: 5,
+                        shadowColor: Colors.black.withOpacity(0.3),
+                      ); 
 
 // final ButtonStyle Singlebtn =ElevatedButton.styleFrom(
 //     backgroundColor: const Color(0xFF113F67), // نفس لون الزر
@@ -67,12 +96,23 @@ final ButtonStyle kMainButtonStyle = ElevatedButton.styleFrom(
 
 
 
+// final ButtonStyle kSecondaryButtonStyle = ElevatedButton.styleFrom(
+//   backgroundColor: Colors.white,
+//   foregroundColor: mainColor,
+//   shape: RoundedRectangleBorder(
+//     borderRadius: BorderRadius.circular(30),
+//   ),
+//   padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+// );
+
 final ButtonStyle kSecondaryButtonStyle = ElevatedButton.styleFrom(
-  backgroundColor: Colors.white,
-  foregroundColor: mainColor,
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(30),
-  ),
-  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
-);
+                        backgroundColor: const Color(0xFFFFFFFF),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 35, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        elevation: 5,
+                        shadowColor: Colors.black.withOpacity(0.3),
+                      );
 

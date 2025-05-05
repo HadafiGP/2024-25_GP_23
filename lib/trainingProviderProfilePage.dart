@@ -358,7 +358,7 @@ class _TrainingProviderProfilePageState
                   children: [
                     ElevatedButton(
                       onPressed: _saveProfile,
-                      style: kMainButtonStyle,
+                      style: smallButtonStyle,
                       child: Text(
                         'Save',
                         style: TextStyle(

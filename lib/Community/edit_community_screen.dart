@@ -91,9 +91,9 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
                 title: const Text(
                   'Style Your Community',
                   style: TextStyle(
-                    fontWeight: FontWeight.bold,
+                    // fontWeight: FontWeight.bold,
                     color: Colors.white,
-                    fontSize: 18,
+                    // fontSize: 18,
                   ),
                 ),
               ),
@@ -250,7 +250,7 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: hasChanges ? const Color(0xFF113F67) : Colors.grey,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(30),
                                 ),
                                 padding: const EdgeInsets.symmetric(vertical: 14),
                               ),
