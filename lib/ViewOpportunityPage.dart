@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ViewOpportunityPage extends StatelessWidget {
   final String opportunityId;
@@ -239,11 +240,54 @@ class ViewOpportunityPage extends StatelessWidget {
                         content: contactInfo,
                         icon: Icons.contact_mail),
                     const SizedBox(height: 5),
-          if (companyLink.trim().isNotEmpty)
-  _nonExpandableCard(
-    title: 'Company Link',
-    content: companyLink,
-    icon: Icons.link),
+if (companyLink.trim().isNotEmpty)
+  Card(
+    elevation: 4,
+    color: const Color(0xFFF3F9FB),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          const Icon(Icons.link, color: Color(0xFF096499)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: InkWell(
+              onTap: () async {
+                String url = companyLink.trim();
+                if (!url.startsWith('http')) {
+                  url = 'https://$url';
+                }
+                final uri = Uri.parse(url);
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Could not open the link"),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: Text(
+                companyLink,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF096499),
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  ),
+
 
                   ],
                 ),

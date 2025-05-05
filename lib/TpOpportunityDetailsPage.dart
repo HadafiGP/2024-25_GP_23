@@ -272,31 +272,61 @@ class TpOpportunityDetailsPage extends StatelessWidget {
             ),
             const SizedBox(height: 5),
             // Location
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    const Icon(Icons.location_on, color: Color(0xFF096499)),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        locationsList.join(', '),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+// Location
+if (locationsList.length > 1)
+  Card(
+    elevation: 4,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: ExpansionTile(
+      leading: const Icon(Icons.location_on, color: Color(0xFF096499)),
+      title: const Text(
+        "Locations",
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Color(0xFF096499),
+        ),
+      ),
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            locationsList.join(', '),
+            style: const TextStyle(fontSize: 16, height: 1.5),
+          ),
+        ),
+      ],
+    ),
+  )
+else
+  Card(
+    elevation: 4,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          const Icon(Icons.location_pin, color: Color(0xFF096499)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              locationsList.first,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
               ),
             ),
+          ),
+        ],
+      ),
+    ),
+  ),
+
             const SizedBox(height: 5),
             // Major
             Card(

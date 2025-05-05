@@ -746,6 +746,8 @@ if (majorsList is List) {
                       ElevatedButton(
                         onPressed: () {
                           setState(() {
+
+                            
                             isEditing = false;
                           });
                         },
@@ -876,69 +878,83 @@ void _showSelectionDialog(String title, List<String> items, TextEditingControlle
     ),
   );
 }
-
-
 Widget _buildMultiSelectField(
-    String label, List<String> items, List<String> selectedItems) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      GestureDetector(
-        onTap: isEditing
-            ? () {
-                _showMultiSelectDialog(label, items, selectedItems);
-              }
-            : null,
-        child: AbsorbPointer(
-          child: TextFormField(
-            readOnly: true,
-            decoration: InputDecoration(
-              labelText: label,
-              suffixIcon: const Icon(Icons.arrow_drop_down),
-              border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+  String label,
+  List<String> items,
+  List<String> selectedItems,
+) {
+  return FormField<List<String>>(
+    validator: (_) {
+      if (selectedItems.isEmpty) {
+        return 'Please select at least one ';
+      }
+      return null;
+    },
+    builder: (state) {
+      final contentText =
+          selectedItems.isEmpty ? 'No selection' : selectedItems.join(', ');
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GestureDetector(
+            onTap: isEditing
+                ? () async {
+                    await _showMultiSelectDialog(label, items, selectedItems);
+                    setState(() {
+                      state.didChange(selectedItems); // trigger validation
+                    });
+                  }
+                : null,
+            child: InputDecorator(
+              decoration: InputDecoration(
+                labelText: label,
+                suffixIcon: const Icon(Icons.arrow_drop_down),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                enabled: isEditing,
+                errorText: state.errorText,
+              ),
+              child: Text(
+                contentText,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: isEditing ? Colors.black : Colors.black54,
+                ),
+              ),
             ),
-            controller: TextEditingController(text: selectedItems.join(', ')),
-            validator: (_) {
-              if (selectedItems.isEmpty) {
-                return 'This field is required';
-              }
-              return null;
-            },
-            enabled: isEditing, 
           ),
-        ),
-      ),
-      const SizedBox(height: 8),
-      Wrap(
-        spacing: 6.0,
-        runSpacing: 6.0,
-        children: selectedItems
-            .map((item) => Chip(
-                  backgroundColor: Colors.white,
-                  label: Text(
-                    item,
-                    style: const TextStyle(color: Colors.black),
-                  ),
-                  deleteIconColor: const Color(0xFF113F67),
-                  onDeleted: isEditing
-                      ? () {
-                          setState(() {
-                            selectedItems.remove(item);
-                          });
-                        }
-                      : null,
-                ))
-            .toList(),
-      )
-    ],
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6.0,
+            runSpacing: 6.0,
+            children: selectedItems
+                .map((item) => Chip(
+                      backgroundColor: Colors.white,
+                      label: Text(item),
+                      deleteIconColor: const Color(0xFF113F67),
+                      onDeleted: isEditing
+                          ? () {
+                              setState(() {
+                                selectedItems.remove(item);
+                                state.didChange(selectedItems); // Revalidate
+                              });
+                            }
+                          : null,
+                    ))
+                .toList(),
+          ),
+        ],
+      );
+    },
   );
 }
-void _showMultiSelectDialog(
-    String title, List<String> items, List<String> selectedItems) {
-  List<String> filteredItems = List.from(items);  
 
-  showDialog(
+
+Future<void> _showMultiSelectDialog(
+  String title, List<String> items, List<String> selectedItems) async {
+  List<String> filteredItems = List.from(items);
+
+  await showDialog(
     context: context,
     builder: (context) => StatefulBuilder(
       builder: (context, setState) => AlertDialog(
@@ -951,12 +967,10 @@ void _showMultiSelectDialog(
               style: TextStyle(color: mainColor, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-        
             TextField(
               decoration: const InputDecoration(labelText: 'Search'),
               onChanged: (value) {
                 setState(() {
-              
                   filteredItems = items
                       .where((item) => item.toLowerCase().contains(value.toLowerCase()))
                       .toList();
@@ -967,25 +981,36 @@ void _showMultiSelectDialog(
         ),
         content: SingleChildScrollView(
           child: Column(
-            children: filteredItems.map((item) => CheckboxListTile(
-              value: selectedItems.contains(item),
-              title: Text(item),
-              activeColor: mainColor,
-              onChanged: (checked) {
-                setState(() {
-                  if (checked == true) {
-                    selectedItems.add(item);
-                  } else {
-                    selectedItems.remove(item);
-                  }
-                });
-              },
-            )).toList(),
+            children: filteredItems
+                .map((item) => CheckboxListTile(
+                      value: selectedItems.contains(item),
+                      title: Text(item),
+                      activeColor: mainColor,
+     onChanged: (checked) {
+  setState(() {
+    if (checked == true) {
+      if (!selectedItems.contains(item)) {
+        selectedItems.add(item); // ✅ Prevent duplicates
+      }
+    } else {
+      selectedItems.remove(item);
+    }
+  });
+},
+
+                    ))
+                .toList(),
           ),
         ),
         actions: [
           ElevatedButton(
-            onPressed: () => Navigator.pop(context),  
+            onPressed: () {
+  setState(() {
+    selectedItems = selectedItems.toSet().toList();
+  });
+  Navigator.pop(context);
+},
+
             style: ElevatedButton.styleFrom(
               backgroundColor: mainColor,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -997,6 +1022,7 @@ void _showMultiSelectDialog(
     ),
   );
 }
+
 
 
 
@@ -1133,48 +1159,82 @@ Widget _buildDatePicker(
     );
   }
 
-
 Widget _buildSkillSelector(
-      String label, List<String> allSkills, List<String> selectedSkills) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        GestureDetector(
-          onTap: isEditing 
-              ? () => _showMultiSelectDialog(label, allSkills, selectedSkills)
-              : null,
-          child: AbsorbPointer(
-            child: TextFormField(
+  String label,
+  List<String> allSkills,
+  List<String> selectedSkills,
+) {
+  return FormField<List<String>>(
+    validator: (_) {
+      if (selectedSoftSkills.isEmpty &&
+          selectedTechnicalSkills.isEmpty &&
+          selectedManagementSkills.isEmpty) {
+        return 'Please choose at least one skill';
+      }
+      return null;
+    },
+    builder: (state) {
+      final contentText =
+          selectedSkills.isEmpty ? 'No skills selected' : selectedSkills.join(', ');
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GestureDetector(
+            onTap: isEditing
+                ? () async {
+                    await _showMultiSelectDialog(label, allSkills, selectedSkills);
+                    setState(() {
+                      state.didChange(selectedSkills); // Trigger validation
+                    });
+                  }
+                : null,
+            child: InputDecorator(
               decoration: InputDecoration(
                 labelText: label,
                 suffixIcon: const Icon(Icons.arrow_drop_down),
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                enabled: isEditing,
+                errorText: state.errorText,
               ),
-              controller:
-                  TextEditingController(text: selectedSkills.join(', ')),
-              enabled: isEditing, 
+              child: Text(
+                contentText,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: isEditing ? Colors.black : Colors.black54,
+                ),
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: selectedSkills
-              .map((skill) => Chip(
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: selectedSkills
+                .map(
+                  (skill) => Chip(
                     label: Text(skill),
                     backgroundColor: Colors.white,
                     deleteIconColor: const Color(0xFF113F67),
                     onDeleted: isEditing
-                        ? () => setState(() => selectedSkills.remove(skill))
-                        : null, 
-                  ))
-              .toList(),
-        ),
-      ],
-    );
-  }
+                        ? () {
+                            setState(() {
+                              selectedSkills.remove(skill);
+                              state.didChange(selectedSkills); // Revalidate
+                            });
+                          }
+                        : null,
+                  ),
+                )
+                .toList(),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
 
 
 void _saveData() async {
@@ -1225,11 +1285,12 @@ void _saveData() async {
         'gpaOutOf5': gpa5Controller.text.trim(),
         'companyLink': companyLinkController.text.trim(),
         'contactInfo': contactInfoController.text.trim(),
-        'skills': [
-          ...selectedTechnicalSkills,
-          ...selectedSoftSkills,
-          ...selectedManagementSkills,
-        ],
+  'skills': [
+  ...{...selectedTechnicalSkills},
+  ...{...selectedSoftSkills},
+  ...{...selectedManagementSkills},
+],
+
         'providerUid': FirebaseAuth.instance.currentUser!.uid,
         'createdAt': FieldValue.serverTimestamp(),
       };
