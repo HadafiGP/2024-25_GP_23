@@ -1154,7 +1154,7 @@ class CVHistoryPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF113F67),
         title: const Text(
-          'CV Enhancement History',
+          'CV Checker History',
           style: TextStyle(
             color: Colors.white,
           ),
