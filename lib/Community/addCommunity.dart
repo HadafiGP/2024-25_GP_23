@@ -341,7 +341,7 @@ class _AddCommunityScreenState extends ConsumerState<CreateACommunity> {
 
   // Page 1:
   Widget _buildCommunityInfoPage() {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(10.0),
       child: Column(
         children: [
@@ -861,7 +861,8 @@ class _AddCommunityScreenState extends ConsumerState<CreateACommunity> {
                         minimumSize: const Size(double.infinity, 50),
                         backgroundColor: const Color(0xFF113F67),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30), // نفس الزوايا
+                          borderRadius:
+                              BorderRadius.circular(30), // نفس الزوايا
                         ),
                         textStyle: const TextStyle(
                           fontSize: 18,

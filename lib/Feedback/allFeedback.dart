@@ -30,8 +30,7 @@ class _AllFeedbackScreenState extends State<AllFeedbackScreen> {
         children: [
           // Fetch Ratings
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-                12, 12, 12, 80), 
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 80),
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('Feedback')
@@ -47,7 +46,7 @@ class _AllFeedbackScreenState extends State<AllFeedbackScreen> {
                 }
 
                 final feedbacks = snapshot.data!.docs;
-              //DIsplay Ratings
+                //DIsplay Ratings
                 return ListView.builder(
                   itemCount: feedbacks.length,
                   itemBuilder: (context, index) {
@@ -144,24 +143,22 @@ class _AllFeedbackScreenState extends State<AllFeedbackScreen> {
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              child: Stack(
-                alignment: Alignment.center,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                 
-                  const Align(
+                  Transform(
                     alignment: Alignment.center,
-                    child: Text(
-                      "Write Feedback",
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
+                    transform: Matrix4.rotationY(3.1416),
+                    child: const Icon(Icons.chat_bubble,
+                        color: Colors.white, size: 22),
                   ),
-
-              
-                  Positioned(
-                    left: 65,
-                    bottom: 3,
-                    child:Transform(alignment: Alignment.center, transform: Matrix4.rotationY(3.1416),child:Icon(Icons.chat_bubble, color: Colors.white, size: 22),), 
+                  const SizedBox(width: 6),
+                  const Text(
+                    "Write Feedback",
+                    style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
+                  const SizedBox(width: 8),
                 ],
               ),
             ),
