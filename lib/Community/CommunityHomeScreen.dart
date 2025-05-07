@@ -7,7 +7,6 @@ import 'package:hadafi_application/Community/createCommunity.dart';
 import 'package:hadafi_application/Community/delegates/search_community_delegate.dart';
 import 'package:hadafi_application/Community/explore_page.dart';
 import 'package:hadafi_application/Community/model/community_model.dart';
-import 'package:hadafi_application/Community/post/screens/add_post_type_screen.dart';
 import 'package:hadafi_application/Community/post/screens/communityHeader.dart';
 import 'package:hadafi_application/StudentHomePage.dart';
 import 'package:hadafi_application/Community/CommunityProfile.dart';

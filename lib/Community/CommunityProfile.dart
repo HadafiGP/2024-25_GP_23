@@ -6,7 +6,6 @@ import 'package:hadafi_application/Community/common/post_card.dart';
 import 'package:hadafi_application/Community/controller/community_controller.dart';
 import 'package:hadafi_application/Community/mod_screens_tools.dart';
 import 'package:hadafi_application/Community/model/community_model.dart';
-import 'package:hadafi_application/Community/post/screens/add_post_type_screen.dart';
 import 'package:hadafi_application/Community/provider.dart';
 
 class Communityprofile extends ConsumerWidget {
@@ -145,7 +144,7 @@ class Communityprofile extends ConsumerWidget {
                                               label: const Text('Mod Tools'),
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor:
-                                                   Color(0xFF113F67),
+                                                    Color(0xFF113F67),
                                                 foregroundColor: Colors.white,
                                                 shape: RoundedRectangleBorder(
                                                   borderRadius:

@@ -5,7 +5,6 @@ import 'package:hadafi_application/Community/model/comment_model.dart';
 import 'package:hadafi_application/Community/model/post_model.dart';
 import 'package:hadafi_application/Community/post/repository/post_repository.dart';
 import 'package:hadafi_application/Community/model/community_model.dart';
-import 'package:hadafi_application/Community/post/screens/add_post_type_screen.dart';
 import 'package:hadafi_application/Community/provider.dart';
 import '../../model/community_model.dart';
 import 'dart:io';

@@ -8,7 +8,6 @@ import 'package:hadafi_application/Community/common/loader.dart';
 import 'package:hadafi_application/Community/common/post_card.dart';
 import 'package:hadafi_application/Community/model/community_model.dart';
 import 'package:hadafi_application/Community/post/controller/post_controller.dart';
-import 'package:hadafi_application/Community/post/screens/add_post_type_screen.dart';
 import 'package:hadafi_application/Community/controller/community_controller.dart';
 import 'package:hadafi_application/Community/post/screens/communityHeader.dart';
 import 'package:hadafi_application/Community/provider.dart';
@@ -54,8 +53,7 @@ class FeedScreen extends ConsumerWidget {
                               Divider(
                                 color: Colors.grey,
                                 thickness: 0.7,
-                                height:
-                                    24, 
+                                height: 24,
                                 indent: 12,
                                 endIndent: 12,
                               ),
