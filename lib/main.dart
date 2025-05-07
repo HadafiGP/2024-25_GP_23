@@ -37,41 +37,44 @@ class MyApp extends ConsumerWidget {
     final authState = ref.watch(authStateProvider);
     ref.read(favoriteProvider).loadFavorites();
 
-  //    // تسجيل خروج مؤقت بعد أول تشغيل
-  // Future.microtask(() async {
-  //   await FirebaseAuth.instance.signOut();
-  // });
+    //    // تسجيل خروج مؤقت بعد أول تشغيل
+    // Future.microtask(() async {
+    //   await FirebaseAuth.instance.signOut();
+    // });
 
     return authState.when(
       data: (user) {
         if (user != null) {
           return ref.watch(userDataProvider(user.uid)).when(
-            data: (userData) {
-              if (userData != null) {
-                return MaterialApp(
+                data: (userData) {
+                  if (userData != null) {
+                    return MaterialApp(
+                      debugShowCheckedModeBanner: false,
+                      title: 'Hadafi',
+                      theme: ThemeData(
+                        colorScheme:
+                            ColorScheme.fromSeed(seedColor: Color(0xFF113F67)),
+                        useMaterial3: true,
+                      ),
+                      home: WelcomeScreen(),
+                    );
+                  }
+                  return MaterialApp(
+                    debugShowCheckedModeBanner: false,
+                    home: Scaffold(
+                        body: Center(child: Text("User data loading..."))),
+                  );
+                },
+                loading: () => MaterialApp(
                   debugShowCheckedModeBanner: false,
-                  title: 'Hadafi',
-                  theme: ThemeData(
-                    colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF113F67)),
-                    useMaterial3: true,
-                  ),
-                  home: WelcomeScreen(),
-                );
-              }
-              return MaterialApp(
-                debugShowCheckedModeBanner: false,
-                home: Scaffold(body: Center(child: Text("User data loading..."))),
+                  home: Scaffold(
+                      body: Center(child: CircularProgressIndicator())),
+                ),
+                error: (err, stack) => MaterialApp(
+                  debugShowCheckedModeBanner: false,
+                  home: Scaffold(body: Center(child: Text("Error: $err"))),
+                ),
               );
-            },
-            loading: () => MaterialApp(
-              debugShowCheckedModeBanner: false,
-              home: Scaffold(body: Center(child: CircularProgressIndicator())),
-            ),
-            error: (err, stack) => MaterialApp(
-              debugShowCheckedModeBanner: false,
-              home: Scaffold(body: Center(child: Text("Error: $err"))),
-            ),
-          );
         } else {
           return MaterialApp(
             debugShowCheckedModeBanner: false,

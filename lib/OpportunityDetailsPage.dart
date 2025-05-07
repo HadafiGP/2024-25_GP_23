@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:android_intent_plus/android_intent.dart';
+import 'package:android_intent_plus/flag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hadafi_application/style.dart';
@@ -29,6 +33,51 @@ class OpportunityDetailsPage extends StatelessWidget {
     required this.gpa4,
     required opportunityId,
   });
+
+  Future<void> openUrlWithChromeFallback(
+      String url, BuildContext context) async {
+    final cleanedUrl = url.trim();
+    final finalUrl =
+        cleanedUrl.startsWith("http") ? cleanedUrl : "https://$cleanedUrl";
+
+    try {
+      final uri = Uri.parse(finalUrl);
+
+      // Try launching Chrome first (only works if installed)
+      if (Platform.isAndroid) {
+        final intent = AndroidIntent(
+          action: 'action_view',
+          data: finalUrl,
+          package: 'com.android.chrome',
+          flags: [Flag.FLAG_ACTIVITY_NEW_TASK],
+        );
+        await intent.launch();
+        return;
+      }
+
+      // Fallback to default browser if Chrome not available or on iOS
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Could not open the URL"),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      print("Failed to open URL: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Invalid or unsupported URL"),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -157,8 +206,8 @@ class OpportunityDetailsPage extends StatelessWidget {
                                             },
                                           )
                                         : null,
-                                               duration: Duration(seconds: 2),
-        backgroundColor: Colors.green,
+                                    duration: Duration(seconds: 2),
+                                    backgroundColor: Colors.green,
                                   ),
                                 );
                               },
@@ -274,70 +323,72 @@ class OpportunityDetailsPage extends StatelessWidget {
             ),
             if (hasGpa) const SizedBox(height: 5),
             // GPA
-if (hasGpa)
-  Card(
-    elevation: 4,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: ExpansionTile(
-      title: Row(
-        children: const [
-          Icon(Icons.school, color: Color(0xFF096499), size: 24),
-          SizedBox(width: 8),
-          Text(
-            "GPA Requirements",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF096499),
-            ),
-          ),
-        ],
-      ),
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (gpa5 > 0)
-                Row(
+            if (hasGpa)
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ExpansionTile(
+                  title: Row(
+                    children: const [
+                      Icon(Icons.school, color: Color(0xFF096499), size: 24),
+                      SizedBox(width: 8),
+                      Text(
+                        "GPA Requirements",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF096499),
+                        ),
+                      ),
+                    ],
+                  ),
                   children: [
-                    const Icon(Icons.star, color: Colors.orange, size: 16),
-                    const SizedBox(width: 8),
-                    Text(
-                      "GPA out of 5: ${gpa5.toStringAsFixed(2)}",
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black87,
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (gpa5 > 0)
+                            Row(
+                              children: [
+                                const Icon(Icons.star,
+                                    color: Colors.orange, size: 16),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "GPA out of 5: ${gpa5.toStringAsFixed(2)}",
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          if (gpa5 > 0 && gpa4 > 0) const SizedBox(height: 8),
+                          if (gpa4 > 0)
+                            Row(
+                              children: [
+                                const Icon(Icons.star,
+                                    color: Colors.blue, size: 16),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "GPA out of 4: ${gpa4.toStringAsFixed(2)}",
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              if (gpa5 > 0 && gpa4 > 0) const SizedBox(height: 8),
-              if (gpa4 > 0)
-                Row(
-                  children: [
-                    const Icon(Icons.star, color: Colors.blue, size: 16),
-                    const SizedBox(width: 8),
-                    Text(
-                      "GPA out of 4: ${gpa4.toStringAsFixed(2)}",
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  ),
+              ),
 
             // Skills
             if (!hasGpa) const SizedBox(height: 5),
@@ -397,20 +448,10 @@ if (hasGpa)
             Center(
               child: ElevatedButton(
                 onPressed: () async {
-                  if (applyUrl.isNotEmpty &&
-                      await canLaunchUrl(Uri.parse(applyUrl))) {
-                    await launchUrl(Uri.parse(applyUrl));
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Could not open the URL"),
-                                                 duration: Duration(seconds: 2),
-        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
+                  await openUrlWithChromeFallback(applyUrl, context);
                 },
-                style: kMainButtonStyle, 
+
+                style: kMainButtonStyle,
                 // style: ElevatedButton.styleFrom(
                 //   backgroundColor: const Color(0xFF096499),
                 //   padding:

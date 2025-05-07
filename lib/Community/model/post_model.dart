@@ -1,13 +1,11 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 class Post {
   final String id;
   final String title;
-  final String? link;
   final String? description;
+  final List<String>? imageUrls;
   final String communityName;
   final String communityProfilePic;
   final List<String> upvotes;
@@ -15,14 +13,14 @@ class Post {
   final int commentCount;
   final String username;
   final String uid;
-  final String type;
   final DateTime createdAt;
   final List<String> awards;
+
   Post({
     required this.id,
     required this.title,
-    this.link,
     this.description,
+    this.imageUrls,
     required this.communityName,
     required this.communityProfilePic,
     required this.upvotes,
@@ -30,16 +28,21 @@ class Post {
     required this.commentCount,
     required this.username,
     required this.uid,
-    required this.type,
     required this.createdAt,
     required this.awards,
   });
+
+  // ... keep existing copyWith, toMap, fromMap methods ...
+
+  bool get hasImage => imageUrls != null && imageUrls!.isNotEmpty;
+  bool get hasDescription => description != null && description!.isNotEmpty;
 
   Post copyWith({
     String? id,
     String? title,
     String? link,
     String? description,
+    List<String>? imageUrls,
     String? communityName,
     String? communityProfilePic,
     List<String>? upvotes,
@@ -54,16 +57,15 @@ class Post {
     return Post(
       id: id ?? this.id,
       title: title ?? this.title,
-      link: link ?? this.link,
       description: description ?? this.description,
       communityName: communityName ?? this.communityName,
+      imageUrls: imageUrls ?? this.imageUrls,
       communityProfilePic: communityProfilePic ?? this.communityProfilePic,
       upvotes: upvotes ?? this.upvotes,
       downvotes: downvotes ?? this.downvotes,
       commentCount: commentCount ?? this.commentCount,
       username: username ?? this.username,
       uid: uid ?? this.uid,
-      type: type ?? this.type,
       createdAt: createdAt ?? this.createdAt,
       awards: awards ?? this.awards,
     );
@@ -73,8 +75,8 @@ class Post {
     return {
       'id': id,
       'title': title,
-      'link': link,
       'description': description,
+      'imageUrls': imageUrls != null ? List<dynamic>.from(imageUrls!) : null,
       'communityName': communityName,
       'communityProfilePic': communityProfilePic,
       'upvotes': List<dynamic>.from(upvotes), // ✅ Fix for List<String>
@@ -82,7 +84,6 @@ class Post {
       'commentCount': commentCount,
       'username': username,
       'uid': uid,
-      'type': type,
       'createdAt':
           Timestamp.fromDate(createdAt), // ✅ Fix Firestore DateTime issue
       'awards': List<dynamic>.from(awards), // ✅ Fix for List<String>
@@ -93,8 +94,9 @@ class Post {
     return Post(
       id: map['id'] ?? '',
       title: map['title'] ?? '',
-      link: map['link'],
       description: map['description'],
+      imageUrls:
+          map['imageUrls'] != null ? List<String>.from(map['imageUrls']) : null,
       communityName: map['communityName'] ?? '',
       communityProfilePic: map['communityProfilePic'] ?? '',
       upvotes: List<String>.from(
@@ -104,14 +106,13 @@ class Post {
       commentCount: map['commentCount'] ?? 0,
       username: map['username'] ?? '',
       uid: map['uid'] ?? '',
-      type: map['type'] ?? '',
       createdAt: map['createdAt'] is Timestamp
-    ? (map['createdAt'] as Timestamp).toDate()
-    : map['createdAt'] is String
-        ? DateTime.parse(map['createdAt'])
-        : map['createdAt'] is DateTime
-            ? map['createdAt']
-            : DateTime.now(),// ✅ Convert Firestore Timestamp to DateTime
+          ? (map['createdAt'] as Timestamp).toDate()
+          : map['createdAt'] is String
+              ? DateTime.parse(map['createdAt'])
+              : map['createdAt'] is DateTime
+                  ? map['createdAt']
+                  : DateTime.now(), // ✅ Convert Firestore Timestamp to DateTime
       awards: List<String>.from(
           map['awards'] ?? []), // ✅ Convert List<dynamic> to List<String>
     );
@@ -119,7 +120,7 @@ class Post {
 
   @override
   String toString() {
-    return 'Post(id: $id, title: $title, link: $link, description: $description, communityName: $communityName, communityProfilePic: $communityProfilePic, upvotes: $upvotes, downvotes: $downvotes, commentCount: $commentCount, username: $username, uid: $uid, type: $type, createdAt: $createdAt, awards: $awards)';
+    return 'Post(id: $id, title: $title, description: $description, communityName: $communityName, communityProfilePic: $communityProfilePic, upvotes: $upvotes, downvotes: $downvotes, commentCount: $commentCount, username: $username, uid: $uid, createdAt: $createdAt, awards: $awards)';
   }
 
   @override
@@ -128,7 +129,6 @@ class Post {
 
     return other.id == id &&
         other.title == title &&
-        other.link == link &&
         other.description == description &&
         other.communityName == communityName &&
         other.communityProfilePic == communityProfilePic &&
@@ -137,7 +137,6 @@ class Post {
         other.commentCount == commentCount &&
         other.username == username &&
         other.uid == uid &&
-        other.type == type &&
         other.createdAt == createdAt &&
         listEquals(other.awards, awards);
   }
@@ -146,7 +145,6 @@ class Post {
   int get hashCode {
     return id.hashCode ^
         title.hashCode ^
-        link.hashCode ^
         description.hashCode ^
         communityName.hashCode ^
         communityProfilePic.hashCode ^
@@ -155,7 +153,6 @@ class Post {
         commentCount.hashCode ^
         username.hashCode ^
         uid.hashCode ^
-        type.hashCode ^
         createdAt.hashCode ^
         awards.hashCode;
   }

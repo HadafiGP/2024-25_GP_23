@@ -207,36 +207,93 @@ class _PostCardState extends ConsumerState<PostCard>
 
             const SizedBox(height: 8),
 
-            // Image Post
-            if (post.type == 'image')
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  post.link!,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  height: 250,
-                ),
-              ),
+// Post Content
 
-            // Link Preview
-            if (post.type == 'link' &&
-                post.link != null &&
-                post.link!.isNotEmpty)
-              GestureDetector(
-                onTap: () => _launchURL(post.link!),
-                child: Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  child: ListTile(
-                    leading: const Icon(Icons.link, color: Colors.blue),
-                    title: Text(post.link!,
-                        style: const TextStyle(
-                            color: Colors.blue,
-                            decoration: TextDecoration.underline),
-                        overflow: TextOverflow.ellipsis),
-                  ),
+            // Replace your image display section with this:
+            if (post.hasImage)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Column(
+                  children: [
+                    if (post.imageUrls!.length == 1)
+                      GestureDetector(
+                        onTap: () =>
+                            _showExpandedImage(context, post.imageUrls![0]),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            post.imageUrls!.first,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: 250,
+                          ),
+                        ),
+                      ),
+                    if (post.imageUrls!.length == 2)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => _showExpandedImage(
+                                  context, post.imageUrls![0]),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: AspectRatio(
+                                  aspectRatio: 1,
+                                  child: Image.network(
+                                    post.imageUrls![0],
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => _showExpandedImage(
+                                  context, post.imageUrls![1]),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: AspectRatio(
+                                  aspectRatio: 1,
+                                  child: Image.network(
+                                    post.imageUrls![1],
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    if (post.imageUrls!.length > 2)
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                          childAspectRatio: 1,
+                        ),
+                        itemCount: post.imageUrls!.length,
+                        itemBuilder: (context, index) {
+                          return GestureDetector(
+                            onTap: () => _showExpandedImage(
+                                context, post.imageUrls![index]),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                post.imageUrls![index],
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                  ],
                 ),
               ),
 
@@ -353,6 +410,15 @@ class _PostCardState extends ConsumerState<PostCard>
       }
     });
   }
+
+  // Add this helper method to extract links from text
+  List<String> _extractLinks(String text) {
+    final urlRegExp = RegExp(
+      r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+',
+      caseSensitive: false,
+    );
+    return urlRegExp.allMatches(text).map((match) => match.group(0)!).toList();
+  }
 }
 
 String timeAgo(DateTime date) {
@@ -376,4 +442,38 @@ String timeAgo(DateTime date) {
 DateTime getCreatedAtDateTime(dynamic timestamp) {
   if (timestamp is DateTime) return timestamp;
   return (timestamp as dynamic).toDate();
+}
+
+void _showExpandedImage(BuildContext context, String imageUrl) {
+  showDialog(
+    context: context,
+    builder: (context) => Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(10),
+      child: Stack(
+        children: [
+          InteractiveViewer(
+            panEnabled: true,
+            minScale: 0.5,
+            maxScale: 4.0,
+            child: Image.network(imageUrl),
+          ),
+          Positioned(
+            top: 10,
+            right: 10,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.5),
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.close, color: Colors.white),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }

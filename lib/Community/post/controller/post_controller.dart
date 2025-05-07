@@ -80,61 +80,6 @@ class PostController extends StateNotifier<bool> {
         _storageRepository = storageRepository,
         super(false);
 
-  Future<void> sharedTextPost({
-    required BuildContext context,
-    required String title,
-    required Community selectedCommunity,
-    required String description,
-  }) async {
-    state = true;
-    String postId = const Uuid().v1();
-
-    final userId = _ref.read(userProvider);
-    final userDataAsync = _ref.read(userDataProvider(userId ?? ''));
-
-    userDataAsync.when(
-      data: (userData) async {
-        if (userData == null) {
-          showSnackBar(context, 'User data not found');
-          state = false;
-          return;
-        }
-
-        String userName = userData['name'] ?? 'Unknown';
-        String userUid = userData['uid'] ?? '';
-
-        final Post post = Post(
-          id: postId,
-          title: title,
-          communityName: selectedCommunity.name,
-          communityProfilePic: selectedCommunity.avatar,
-          upvotes: [],
-          downvotes: [],
-          commentCount: 0,
-          username: userName,
-          uid: userUid,
-          type: 'text',
-          createdAt: DateTime.now(),
-          awards: [],
-          description: description,
-        );
-        final res = await _postRepository.addPost(post);
-        state = false;
-        res.fold((l) => showSnackBar(context, l.message), (r) {
-          showSnackBar(context, 'Post shared successfully!', success: true);
-          Navigator.pop(context);
-        });
-      },
-      error: (error, stackTrace) {
-        showSnackBar(context, 'Error retrieving user data: $error');
-        state = false;
-      },
-      loading: () {
-        print('Loading user data...');
-      },
-    );
-  }
-
   Future<void> sharedLinkPost({
     required BuildContext context,
     required String title,
@@ -169,10 +114,8 @@ class PostController extends StateNotifier<bool> {
           commentCount: 0,
           username: userName,
           uid: userUid,
-          type: 'link',
           createdAt: DateTime.now(),
           awards: [],
-          link: link,
           description: description,
         );
 
@@ -234,10 +177,8 @@ class PostController extends StateNotifier<bool> {
             commentCount: 0,
             username: userName,
             uid: userUid,
-            type: 'image',
             createdAt: DateTime.now(),
             awards: [],
-            link: r,
             description: description,
           );
 
@@ -394,5 +335,89 @@ class PostController extends StateNotifier<bool> {
 
   Stream<List<Comment>> fetchPostComments(String postId) {
     return _postRepository.getCommentsOfPost(postId);
+  }
+
+  // Add this method to PostController class
+  Future<void> sharedPost({
+    required BuildContext context,
+    required String title,
+    required Community selectedCommunity,
+    required String description,
+    List<File>? imageFiles, // Changed from single File to List<File>
+  }) async {
+    state = true;
+    String postId = const Uuid().v1();
+
+    final userId = _ref.read(userProvider);
+    if (userId == null) {
+      showSnackBar(context, 'User not logged in');
+      state = false;
+      return;
+    }
+
+    final userDataAsync = _ref.read(userDataProvider(userId));
+
+    await userDataAsync.when(
+      data: (userData) async {
+        if (userData == null) {
+          showSnackBar(context, 'User data not found');
+          state = false;
+          return;
+        }
+
+        String userName = userData['name'] ?? 'Unknown';
+        String userUid = userData['uid'] ?? '';
+
+        List<String>? imageUrls;
+        if (imageFiles != null && imageFiles.isNotEmpty) {
+          imageUrls = [];
+          for (var imageFile in imageFiles) {
+            final imageRes = await _storageRepository.storeFile(
+              path: 'post/${selectedCommunity.name}/$postId',
+              id: '${postId}_${imageFiles.indexOf(imageFile)}',
+              file: imageFile,
+            );
+            imageRes.fold(
+              (l) =>
+                  showSnackBar(context, 'Error uploading image: ${l.message}'),
+              (r) => imageUrls!.add(r),
+            );
+          }
+        }
+
+        final Post post = Post(
+          id: postId,
+          title: title,
+          description: description.isNotEmpty ? description : null,
+          imageUrls: imageUrls,
+          communityName: selectedCommunity.name,
+          communityProfilePic: selectedCommunity.avatar,
+          upvotes: [],
+          downvotes: [],
+          commentCount: 0,
+          username: userName,
+          uid: userUid,
+          createdAt: DateTime.now(),
+          awards: [],
+        );
+
+        final res = await _postRepository.addPost(post);
+        state = false;
+        res.fold(
+          (l) => showSnackBar(context, l.message),
+          (r) {
+            showSnackBar(context, 'Post shared successfully!', success: true);
+            if (context.mounted) Navigator.pop(context);
+          },
+        );
+      },
+      error: (error, stackTrace) {
+        showSnackBar(context, 'Error retrieving user data: $error');
+        state = false;
+      },
+      loading: () {
+        state = true;
+      },
+    );
   }
 }

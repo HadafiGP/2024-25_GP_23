@@ -15,6 +15,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../constants/constants.dart';
 import '../../core/utils.dart';
 import 'package:image/image.dart' as img;
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AddPostTypeScreen extends ConsumerStatefulWidget {
   final String type;
@@ -133,11 +135,11 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
         showSnackBar(context, 'Please select an image to upload.');
       } else if (widget.type == 'text') {
         if (titleController.text.isNotEmpty) {
-          await ref.read(PostControllerProvider.notifier).sharedTextPost(
-              context: context,
-              title: titleController.text.trim(),
-              selectedCommunity: selectedCommunity ?? communities[0],
-              description: descriptionController.text.trim());
+          ////    await ref.read(PostControllerProvider.notifier).sharedTextPost(
+          //  context: context,
+          //    title: titleController.text.trim(),
+          //selectedCommunity: selectedCommunity ?? communities[0],
+          // description: descriptionController.text.trim());
         }
       }
       if (widget.type == 'link') {
@@ -207,219 +209,222 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: ref.watch(userCommunityProvider(userID)).when(
-            data: (data) {
-              communities = data;
-              if (data.isEmpty) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Text(
-                      "You haven't joined any community yet.\nJoin a community first to share posts.",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black54,
+      body: SafeArea(
+        child: ref.watch(userCommunityProvider(userID)).when(
+              data: (data) {
+                communities = data;
+                if (data.isEmpty) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(20),
+                      child: Text(
+                        "You haven't joined any community yet.\nJoin a community first to share posts.",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black54,
+                        ),
                       ),
                     ),
-                  ),
-                );
-              }
+                  );
+                }
 
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    TextField(
-                      controller: titleController,
-                      decoration: const InputDecoration(
-                        filled: true,
-                        hintText: 'Enter Title Here',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.all(18),
-                      ),
-                      maxLength: 30,
-                    ),
-                    const SizedBox(height: 10),
-                    if (widget.type == 'image')
-                      GestureDetector(
-                        onTap: selectBannerImage,
-                        child: DottedBorder(
-                          borderType: BorderType.RRect,
-                          radius: const Radius.circular(10),
-                          dashPattern: const [10, 4],
-                          strokeCap: StrokeCap.round,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Container(
-                              width: double.infinity,
-                              height: 150,
-                              color: Colors.grey[200],
-                              child: bannerFile != null
-                                  ? Image.file(bannerFile!, fit: BoxFit.cover)
-                                  : const Center(
-                                      child: Icon(
-                                        Icons.camera_alt_outlined,
-                                        size: 40,
-                                        color: Colors.grey,
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ConstrainedBox(
+                        constraints:
+                            BoxConstraints(minHeight: constraints.maxHeight),
+                        child: IntrinsicHeight(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              TextField(
+                                controller: titleController,
+                                decoration: const InputDecoration(
+                                  filled: true,
+                                  hintText: 'Enter Title Here',
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.all(18),
+                                ),
+                                maxLength: 30,
+                              ),
+                              const SizedBox(height: 10),
+                              if (widget.type == 'image')
+                                GestureDetector(
+                                  onTap: selectBannerImage,
+                                  child: DottedBorder(
+                                    borderType: BorderType.RRect,
+                                    radius: const Radius.circular(10),
+                                    dashPattern: const [10, 4],
+                                    strokeCap: StrokeCap.round,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Container(
+                                        width: double.infinity,
+                                        height: 150,
+                                        color: Colors.grey[200],
+                                        child: bannerFile != null
+                                            ? Image.file(bannerFile!,
+                                                fit: BoxFit.cover)
+                                            : const Center(
+                                                child: Icon(
+                                                  Icons.camera_alt_outlined,
+                                                  size: 40,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
                                       ),
                                     ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (widget.type == 'link' || widget.type == 'image')
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 8),
-                          TextField(
-                            controller: descriptionController,
-                            decoration: const InputDecoration(
-                              filled: true,
-                              hintText: 'Enter Description Here',
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.all(18),
-                            ),
-                            minLines: 3,
-                            maxLines: 5,
-                            maxLength: 300,
-                          ),
-                          const SizedBox(height: 10),
-                        ],
-                      ),
-                    if (widget.type == 'text')
-                      TextField(
-                        controller: descriptionController,
-                        decoration: const InputDecoration(
-                          filled: true,
-                          hintText: 'Enter Description Here',
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.all(18),
-                        ),
-                        minLines: 3,
-                        maxLines: 5,
-                        maxLength: 300,
-                      ),
-                    if (widget.type == 'link')
-                      TextField(
-                        controller: linkController,
-                        decoration: const InputDecoration(
-                          filled: true,
-                          hintText: 'Enter Link Here',
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.all(18),
-                        ),
-                      ),
-                    const SizedBox(height: 20),
-                    const Align(
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        'Select Community:',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF113F67),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    ref.watch(userCommunityProvider(userID)).when(
-                          data: (data) {
-                            communities = data;
-                            if (data.isEmpty) {
-                              return const SizedBox();
-                            }
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0, vertical: 12.0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  gradient: const LinearGradient(
-                                    colors: [
-                                      Color(0xFF113F67),
-                                      Color.fromARGB(255, 105, 185, 255),
-                                    ],
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight,
                                   ),
                                 ),
-                                child: Container(
-                                  margin: const EdgeInsets.all(1.8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16),
-                                  child: DropdownButtonHideUnderline(
-                                    child: DropdownButton<Community>(
-                                      value: selectedCommunity ?? data[0],
-                                      isExpanded: true,
-                                      icon: const Icon(Icons.arrow_drop_down,
-                                          color: Color(0xFF113F67)),
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF113F67),
+                              if (widget.type == 'link' ||
+                                  widget.type == 'image')
+                                Column(
+                                  children: [
+                                    const SizedBox(height: 8),
+                                    TextField(
+                                      controller: descriptionController,
+                                      decoration: const InputDecoration(
+                                        filled: true,
+                                        hintText: 'Enter Description Here',
+                                        border: InputBorder.none,
+                                        contentPadding: EdgeInsets.all(18),
                                       ),
-                                      items: data.map((e) {
-                                        return DropdownMenuItem(
-                                          value: e,
-                                          child: Text(e.name),
-                                        );
-                                      }).toList(),
-                                      onChanged: (val) {
-                                        setState(() {
-                                          selectedCommunity = val;
-                                        });
-                                      },
+                                      minLines: 3,
+                                      maxLines: 5,
+                                      maxLength: 300,
+                                    ),
+                                    const SizedBox(height: 10),
+                                  ],
+                                ),
+                              if (widget.type == 'text')
+                                TextField(
+                                  controller: descriptionController,
+                                  decoration: const InputDecoration(
+                                    filled: true,
+                                    hintText: 'Enter Description Here',
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.all(18),
+                                  ),
+                                  minLines: 3,
+                                  maxLines: 5,
+                                  maxLength: 300,
+                                ),
+                              if (widget.type == 'link')
+                                TextField(
+                                  controller: linkController,
+                                  decoration: const InputDecoration(
+                                    filled: true,
+                                    hintText: 'Enter Link Here',
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.all(18),
+                                  ),
+                                ),
+                              const SizedBox(height: 20),
+                              const Text(
+                                'Select Community:',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF113F67),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0, vertical: 12.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    gradient: const LinearGradient(
+                                      colors: [
+                                        Color(0xFF113F67),
+                                        Color.fromARGB(255, 105, 185, 255),
+                                      ],
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
+                                    ),
+                                  ),
+                                  child: Container(
+                                    margin: const EdgeInsets.all(1.8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16),
+                                    child: DropdownButtonHideUnderline(
+                                      child: DropdownButton<Community>(
+                                        value: selectedCommunity ?? data[0],
+                                        isExpanded: true,
+                                        icon: const Icon(Icons.arrow_drop_down,
+                                            color: Color(0xFF113F67)),
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF113F67),
+                                        ),
+                                        items: data.map((e) {
+                                          return DropdownMenuItem(
+                                            value: e,
+                                            child: Text(e.name),
+                                          );
+                                        }).toList(),
+                                        onChanged: (val) {
+                                          setState(() {
+                                            selectedCommunity = val;
+                                          });
+                                        },
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            );
-                          },
-                          error: (error, StackTrace) =>
-                              ErrorText(error: error.toString()),
-                          loading: () => const Loader(),
-                        ),
-                    const Spacer(),
-                    GestureDetector(
-                      onTap: isLoading ? null : sharePost,
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        decoration: BoxDecoration(
-                          color:
-                              isLoading ? Colors.grey : const Color(0xFF113F67),
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Center(
-                          child: isLoading
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white)
-                              : const Text(
-                                  "Share",
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold),
+                              const SizedBox(height: 20),
+                              GestureDetector(
+                                onTap: isLoading ? null : sharePost,
+                                child: Container(
+                                  width: double.infinity,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
+                                  decoration: BoxDecoration(
+                                    color: isLoading
+                                        ? Colors.grey
+                                        : const Color(0xFF113F67),
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  child: Center(
+                                    child: isLoading
+                                        ? const CircularProgressIndicator(
+                                            color: Colors.white,
+                                          )
+                                        : const Text(
+                                            "Share",
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                  ),
                                 ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            },
-            error: (error, stackTrace) {
-              return ErrorText(error: error.toString());
-            },
-            loading: () => const Loader(),
-          ),
+                    );
+                  },
+                );
+              },
+              error: (error, stackTrace) {
+                return ErrorText(error: error.toString());
+              },
+              loading: () => const Loader(),
+            ),
+      ),
     );
   }
 }

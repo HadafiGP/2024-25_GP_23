@@ -59,6 +59,7 @@ dependencies:
   any_link_preview: ^3.0.3
   intl: ^0.19.0
   dropdown_search: ^6.0.2
+  android_intent_plus: ^5.3.0
 
 dev_dependencies:
   flutter_test:

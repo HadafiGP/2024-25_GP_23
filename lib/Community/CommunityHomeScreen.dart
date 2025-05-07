@@ -150,217 +150,44 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
   }
 
   Widget buildFABIcon() {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Positioned(
-          bottom: 5,
-          right: 20,
-          child: GestureDetector(
-            onTap: () {
-              setState(() {
-                isIconsVisible = !isIconsVisible;
-              });
-            },
-            child: AnimatedActionButton(
-              icon: Icons.add,
-              onPressed: () {
-                setState(() {
-                  isIconsVisible = !isIconsVisible;
-                });
-              },
-            ),
-          ),
-        ),
-        if (isIconsVisible)
-          Positioned(
-            bottom: 90,
-            right: 18,
-            child: Column(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AddPostTypeScreen(type: 'image'),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    width: 65,
-                    height: 65,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: const [
-                          Color(0xFF113F67),
-                          Color.fromARGB(255, 105, 185, 255),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Image',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AddPostTypeScreen(type: 'text'),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    width: 65,
-                    height: 65,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: const [
-                          Color(0xFF113F67),
-                          Color.fromARGB(255, 105, 185, 255),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Text',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AddPostTypeScreen(type: 'link'),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    width: 65,
-                    height: 65,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: const [
-                          Color(0xFF113F67),
-                          Color.fromARGB(255, 105, 185, 255),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Link',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-}
+    double _scale = 1.0;
 
-class AnimatedActionButton extends StatefulWidget {
-  final VoidCallback onPressed;
-  final IconData icon;
-
-  const AnimatedActionButton({
-    Key? key,
-    required this.onPressed,
-    required this.icon,
-  }) : super(key: key);
-
-  @override
-  _AnimatedActionButtonState createState() => _AnimatedActionButtonState();
-}
-
-class _AnimatedActionButtonState extends State<AnimatedActionButton> {
-  double _scale = 1.0;
-
-  void _onTapDown(TapDownDetails details) {
-    setState(() {
-      _scale = 0.9;
-    });
-  }
-
-  void _onTapUp(TapUpDetails details) {
-    setState(() {
-      _scale = 1.0;
-    });
-    widget.onPressed();
-  }
-
-  void _onTapCancel() {
-    setState(() {
-      _scale = 1.0;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: _onTapDown,
-      onTapUp: _onTapUp,
-      onTapCancel: _onTapCancel,
+      onTapDown: (details) => setState(() => _scale = 0.9),
+      onTapUp: (details) {
+        setState(() => _scale = 1.0);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => AddPostScreen()),
+        );
+      },
+      onTapCancel: () => setState(() => _scale = 1.0),
       child: AnimatedScale(
         scale: _scale,
-        duration: Duration(milliseconds: 100),
+        duration: const Duration(milliseconds: 100),
         child: Container(
           width: 65,
           height: 65,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(
-              colors: const [
+              colors: [
                 Color(0xFF113F67),
                 Color.fromARGB(255, 105, 185, 255),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-          ),
-          child: Center(
-            child: Text(
-              'Post',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 6,
+                offset: Offset(0, 3),
               ),
-            ),
+            ],
+          ),
+          child: const Center(
+            child: Icon(Icons.add, color: Colors.white, size: 28),
           ),
         ),
       ),
