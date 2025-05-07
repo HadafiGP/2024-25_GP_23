@@ -20,7 +20,7 @@ class AddPostScreen extends ConsumerStatefulWidget {
 class _AddPostScreenState extends ConsumerState<AddPostScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  List<File> _imageFiles = []; // Changed to List<File>
+  List<File> _imageFiles = [];
   bool _isLoading = false;
   Community? _selectedCommunity;
   PageController _pageController = PageController();
@@ -36,7 +36,6 @@ class _AddPostScreenState extends ConsumerState<AddPostScreen> {
 
     if (pickedFiles != null) {
       setState(() {
-        // Keep only up to 4 images
         final newImages = pickedFiles.map((file) => File(file.path)).toList();
         final remainingSlots = 4 - _imageFiles.length;
         if (remainingSlots > 0) {
@@ -52,11 +51,10 @@ class _AddPostScreenState extends ConsumerState<AddPostScreen> {
     });
   }
 
-  // Add this method to check Firestore connection
   Future<bool> hasFirestoreConnection() async {
     try {
       await FirebaseFirestore.instance
-          .collection('posts') // Changed to posts collection
+          .collection('posts')
           .limit(1)
           .get(const GetOptions(source: Source.server))
           .timeout(const Duration(seconds: 10));
@@ -73,18 +71,23 @@ class _AddPostScreenState extends ConsumerState<AddPostScreen> {
     });
   }
 
-  // Modify the submitPost method to check connection
   Future<void> _submitPost() async {
-    if (_titleController.text.isEmpty) {
+    if (_selectedCommunity == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a title')),
+        const SnackBar(
+          content: Text('Please select a community'),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
 
-    if (_selectedCommunity == null) {
+    if (_titleController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a community')),
+        const SnackBar(
+          content: Text('Please enter a title'),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
@@ -117,7 +120,6 @@ class _AddPostScreenState extends ConsumerState<AddPostScreen> {
     }
   }
 
-  // Add this widget to show network errors
   Widget buildNetworkErrorBanner(String message) {
     return Container(
       width: double.infinity,
@@ -161,8 +163,7 @@ class _AddPostScreenState extends ConsumerState<AddPostScreen> {
         iconTheme: const IconThemeData(color: Colors.white),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed:
-              previousPage, // Replace with Navigator.pop(context) if needed
+          onPressed: previousPage,
         ),
       ),
       drawer: _currentPage == 0 ? const HadafiDrawer() : null,
@@ -190,11 +191,6 @@ class _AddPostScreenState extends ConsumerState<AddPostScreen> {
                       ),
                     ),
                   );
-                }
-
-                // Set default selected community if not set
-                if (_selectedCommunity == null && communities.isNotEmpty) {
-                  _selectedCommunity = communities.first;
                 }
 
                 return SingleChildScrollView(
@@ -273,7 +269,6 @@ class _AddPostScreenState extends ConsumerState<AddPostScreen> {
                       ),
 
                       const SizedBox(height: 20),
-                      // Title Label
                       const Align(
                         alignment: Alignment.topLeft,
                         child: Text(
@@ -287,7 +282,6 @@ class _AddPostScreenState extends ConsumerState<AddPostScreen> {
                       ),
                       const SizedBox(height: 10),
 
-// Title TextField
                       TextField(
                         controller: _titleController,
                         decoration: InputDecoration(
@@ -305,7 +299,6 @@ class _AddPostScreenState extends ConsumerState<AddPostScreen> {
                       ),
                       const SizedBox(height: 20),
 
-// Description Label
                       const Align(
                         alignment: Alignment.topLeft,
                         child: Text(
@@ -317,9 +310,9 @@ class _AddPostScreenState extends ConsumerState<AddPostScreen> {
                           ),
                         ),
                       ),
+
                       const SizedBox(height: 10),
 
-// Description TextField
                       TextField(
                         controller: _descriptionController,
                         decoration: InputDecoration(
@@ -336,9 +329,45 @@ class _AddPostScreenState extends ConsumerState<AddPostScreen> {
                         maxLines: 5,
                         maxLength: 300,
                       ),
-
                       const SizedBox(height: 16),
 
+                      Center(
+                        child: ElevatedButton.icon(
+                          onPressed:
+                              _imageFiles.length >= 4 ? null : _pickImages,
+                          icon: const Icon(Icons.image_outlined),
+                          label: const Text(
+                            "Add Image",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF113F67),
+                            foregroundColor: Colors.white,
+                            disabledBackgroundColor: Colors.grey,
+                            disabledForegroundColor: Colors.white70,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      Center(
+                        child: Text(
+                          'Remaining: ${4 - _imageFiles.length} images',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: _imageFiles.length >= 4
+                                ? Colors.red
+                                : const Color.fromARGB(255, 152, 161, 168),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 25),
                       if (_imageFiles.isNotEmpty)
                         Column(
                           children: [
@@ -384,12 +413,9 @@ class _AddPostScreenState extends ConsumerState<AddPostScreen> {
                                               size: 20,
                                               color: Colors.white,
                                             ),
-                                            padding: EdgeInsets
-                                                .zero, // Remove default padding
-                                            constraints:
-                                                BoxConstraints(), // Remove minimum size constraints
-                                            splashRadius:
-                                                18, // Control the splash effect size
+                                            padding: EdgeInsets.zero,
+                                            constraints: BoxConstraints(),
+                                            splashRadius: 18,
                                           )),
                                         )),
                                   ],
@@ -397,30 +423,6 @@ class _AddPostScreenState extends ConsumerState<AddPostScreen> {
                               },
                             ),
                           ],
-                        ),
-                      const SizedBox(height: 16),
-                      // Update the Add Image button to show remaining slots
-                      if (_imageFiles.length < 4)
-                        Center(
-                          child: ElevatedButton(
-                            onPressed: _pickImages,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF113F67),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 24, vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                            ),
-                            child: Text(
-                              'Add Image (${4 - _imageFiles.length} remaining)',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
                         ),
 
                       const SizedBox(height: 16),
