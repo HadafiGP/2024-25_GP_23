@@ -162,15 +162,16 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
         );
       },
       onTapCancel: () => setState(() => _scale = 1.0),
-      child: AnimatedScale(
+      child: // Replace your current button with this:
+          AnimatedScale(
         scale: _scale,
         duration: const Duration(milliseconds: 100),
         child: Container(
           width: 65,
           height: 65,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             shape: BoxShape.circle,
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               colors: [
                 Color(0xFF113F67),
                 Color.fromARGB(255, 105, 185, 255),
@@ -180,14 +181,21 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black26,
+                color: Colors.black.withOpacity(0.2),
                 blurRadius: 6,
-                offset: Offset(0, 3),
+                offset: const Offset(0, 3),
               ),
             ],
           ),
           child: const Center(
-            child: Icon(Icons.add, color: Colors.white, size: 28),
+            child: Text(
+              'Post',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ),
       ),
