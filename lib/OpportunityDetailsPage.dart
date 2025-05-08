@@ -43,7 +43,7 @@ class OpportunityDetailsPage extends StatelessWidget {
     try {
       final uri = Uri.parse(finalUrl);
 
-      // Try launching Chrome first (only works if installed)
+     
       if (Platform.isAndroid) {
         final intent = AndroidIntent(
           action: 'action_view',
@@ -55,7 +55,7 @@ class OpportunityDetailsPage extends StatelessWidget {
         return;
       }
 
-      // Fallback to default browser if Chrome not available or on iOS
+      
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {

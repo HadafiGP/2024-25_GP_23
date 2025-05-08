@@ -172,6 +172,9 @@ class _StudentHomePageState extends State<StudentHomePage> {
   bool isLoadingProviderOpportunities = true;
   List<dynamic> providerOpportunities = [];
   int selectedIndex = 0;
+  bool hasCompletedLoading = false;
+  String _networkError = '';
+  DateTime? _initStartTime;
 
   final ValueNotifier<int> _tabNotifier = ValueNotifier<int>(0);
   TabController? _tabController;
@@ -180,16 +183,68 @@ class _StudentHomePageState extends State<StudentHomePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initStartTime = DateTime.now();
       _initializeAllData();
+      _delayedTimeoutBannerCheck();
     });
+  }
+
+  Widget _buildNetworkErrorBanner() {
+    if (_networkError.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      width: double.infinity,
+      color: Colors.red,
+      padding: const EdgeInsets.all(12),
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.wifi_off, color: Colors.white),
+            const SizedBox(width: 10),
+            Flexible(
+              child: Text(
+                _networkError,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _delayedTimeoutBannerCheck() async {
+    await Future.delayed(const Duration(seconds: 10));
+
+    final duration = DateTime.now().difference(_initStartTime!);
+    print("Checking banner at ${duration.inMilliseconds} ms");
+
+    if (!hasCompletedLoading && mounted && _networkError.isEmpty) {
+      setState(() {
+        _networkError =
+            'Internet is slow or offline. Please wait or check your connection.';
+      });
+      print("Banner appeared at exactly ${duration.inMilliseconds} ms");
+
+     
+      await Future.delayed(const Duration(seconds: 5));
+      if (mounted && _networkError.isNotEmpty) {
+        setState(() => _networkError = '');
+      }
+    } else {
+      print("Skipping banner. Data finished in time.");
+    }
   }
 
   Future<void> _initializeAllData() async {
     setState(() => isLoading = true);
 
     await fetchCsvOpportunities();
-    print("CSV loaded: ${csvOpportunities.length} items");
-
     await Future.wait([
       fetchRecommendations(),
       fetchUserMajor().then((_) async {
@@ -199,7 +254,10 @@ class _StudentHomePageState extends State<StudentHomePage> {
     ]);
 
     if (mounted) {
-      setState(() => isLoading = false);
+      setState(() {
+        hasCompletedLoading = true;
+        isLoading = false;
+      });
     }
   }
 
@@ -223,7 +281,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
             print("CSV loaded: ${csvOpportunities.length} items");
             return;
           } catch (e) {
-            print("⚠️ JSON decoding error: $e (retrying...)");
+            print(" JSON decoding error: $e (retrying...)");
           }
         } else {
           print("CSV error: ${response.body}");
@@ -415,19 +473,26 @@ class _StudentHomePageState extends State<StudentHomePage> {
               iconTheme: const IconThemeData(color: Colors.white),
               title: const Text(''),
             ),
-            body: isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        _buildSectionTitleWithSearch(context),
-                        _buildOpportunitiesTab(tabController),
-                        _buildSectionTitle('App Feedback'),
-                        _buildFeedbackList(),
-                      ],
-                    ),
-                  ),
+            body: Column(
+              children: [
+                _buildNetworkErrorBanner(),
+                Expanded(
+                  child: isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              _buildSectionTitleWithSearch(context),
+                              _buildOpportunitiesTab(tabController),
+                              _buildSectionTitle('App Feedback'),
+                              _buildFeedbackList(),
+                            ],
+                          ),
+                        ),
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -447,7 +512,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
               child: Text(
                 'Training Opportunities',
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF113F67),
                 ),
@@ -521,7 +586,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
         child: Text(
           title,
           style: const TextStyle(
-            fontSize: 24,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Color(0xFF113F67),
           ),
