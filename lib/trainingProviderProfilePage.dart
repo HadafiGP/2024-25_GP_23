@@ -82,6 +82,7 @@ class _TrainingProviderProfilePageState
     'jejetp@gmail.com',
     'lamatp@gmail.com',
     'riderise.sa@gmail.com',
+    'alanazilama01@gmail.com'
   ];
 
   Future<bool> checkEmailInUse(String email) async {
@@ -123,7 +124,7 @@ class _TrainingProviderProfilePageState
     final email = _emailController.text.trim();
     final currentEmail = _auth.currentUser?.email;
 
-    // Email format validation
+    // 1. Check email format with regex
     final emailRegex =
         RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
     if (!emailRegex.hasMatch(email)) {
@@ -133,7 +134,17 @@ class _TrainingProviderProfilePageState
       return;
     }
 
-    // Check if the email has changed and already exists
+    // 2. Check if email is in exception list or has trusted domain
+    String domain = email.split('@').last;
+    if (!exceptionEmails.contains(email) && !trustedDomains.contains(domain)) {
+      setState(() {
+        _emailError =
+            'Only emails from trusted domains or exception list are allowed';
+      });
+      return;
+    }
+
+    // 3. Check if email has changed and is already in use
     if (email != currentEmail) {
       bool isEmailInUse = await checkEmailInUse(email);
       if (isEmailInUse) {
@@ -463,6 +474,20 @@ class _TrainingProviderProfilePageState
         validator: (value) {
           if (value == null || value.isEmpty) {
             return '$label cannot be empty';
+          }
+
+          if (label == 'Email') {
+            // Basic email format check
+            if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+              return 'Invalid email format';
+            }
+
+            // Check if email is in exception list or has trusted domain
+            String domain = value.split('@').last;
+            if (!exceptionEmails.contains(value) &&
+                !trustedDomains.contains(domain)) {
+              return 'Email not from trusted domain';
+            }
           }
           return null;
         },

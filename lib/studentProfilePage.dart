@@ -1225,97 +1225,109 @@ class _ProfilePageState extends State<ProfilePage> {
   }) {
     List<String> availableSkills = [];
 
-    // Retrieve the major from the profile
-    String major = _majorController.text;
-
-    // Assign the skills based on the major
     final healthMajors = [
+      'Biomedical Engineering',
       'Clinical Laboratory Sciences',
+      'Clinical Nutrition',
+      'Dentistry',
+      "Forensic Science",
+      'Health Informatics',
+      'Healthcare',
+      'Medicine (MBBS)',
+      'Medical Laboratory Sciences',
+      'Nursing',
+      'Nutrition',
+      'Oral and Maxillofacial Surgery',
+      'Orthodontics',
       'Occupational Therapy',
+      'Pharmacy',
+      'Public Health',
       'Physical Therapy',
       'Prosthetics and Orthotics',
       'Radiology',
-      'Dentistry',
-      'Oral and Maxillofacial Surgery',
-      'Orthodontics',
-      'Biomedical Engineering',
-      'Clinical Nutrition',
-      'Health Informatics',
-      'Medical Laboratory Sciences',
-      'Nursing',
-      'Public Health',
-      'Radiologic Technology',
       'Respiratory Therapy',
-      'Medicine (MBBS)',
       'Clinical Pharmacy',
-      'Pharmacy'
     ];
 
     final humanitiesMajors = [
-      'Architecture',
-      'Graphic Design',
-      'Industrial Design',
-      'Interior Design',
-      'Urban Planning',
-      'Accounting',
-      'Business Administration',
-      'Finance',
-      'Human Resources Management',
-      'International Business',
-      'Marketing',
-      'Supply Chain Management',
-      'Law',
-      'Islamic Law (Sharia)',
-      'Economics'
+      'Biomedical Engineering',
+      'Clinical Laboratory Sciences',
+      'Clinical Nutrition',
+      'Dentistry',
+      "Forensic Science",
+      'Health Informatics',
+      'Healthcare',
+      'Medicine (MBBS)',
+      'Medical Laboratory Sciences',
+      'Nursing',
+      'Nutrition',
+      'Oral and Maxillofacial Surgery',
+      'Orthodontics',
+      'Occupational Therapy',
+      'Pharmacy',
+      'Public Health',
+      'Physical Therapy',
+      'Prosthetics and Orthotics',
+      'Radiology',
+      'Respiratory Therapy',
+      'Clinical Pharmacy',
     ];
-
-    // Assign skills based on the major
+    // Determine the skills list based on major and title
+    String major = _majorController.text;
     if (healthMajors.contains(major)) {
-      if (title.contains('Technical')) {
-        availableSkills =
-            healthTechnicalSkills; // Use health-related technical skills
-      } else if (title.contains('Management')) {
-        availableSkills =
-            healthManagementSkills; // Use health-related management skills
-      } else {
-        availableSkills = healthSoftSkills; // Use health-related soft skills
-      }
+      availableSkills = title.contains('Technical')
+          ? healthTechnicalSkills
+          : title.contains('Management')
+              ? healthManagementSkills
+              : healthSoftSkills;
     } else if (humanitiesMajors.contains(major)) {
-      if (title.contains('Technical')) {
-        availableSkills =
-            humanitiesTechnicalSkills; // Use humanities-related technical skills
-      } else if (title.contains('Management')) {
-        availableSkills =
-            humanitiesManagementSkills; // Use humanities-related management skills
-      } else {
-        availableSkills =
-            humanitiesSoftSkills; // Use humanities-related soft skills
-      }
+      availableSkills = title.contains('Technical')
+          ? humanitiesTechnicalSkills
+          : title.contains('Management')
+              ? humanitiesManagementSkills
+              : humanitiesSoftSkills;
     } else {
-      // Default to scientific majors
-      if (title.contains('Technical')) {
-        availableSkills =
-            scientificTechnicalSkills; // Use scientific-related technical skills
-      } else if (title.contains('Management')) {
-        availableSkills =
-            scientificManagementSkills; // Use scientific-related management skills
-      } else {
-        availableSkills =
-            scientificSoftSkills; // Use scientific-related soft skills
-      }
+      availableSkills = title.contains('Technical')
+          ? scientificTechnicalSkills
+          : title.contains('Management')
+              ? scientificManagementSkills
+              : scientificSoftSkills;
     }
+
+    List<String> filteredSkills = List.from(availableSkills);
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        List<String> dialogSelectedSkills = List<String>.from(selectedSkills);
+        List<String> dialogSelectedSkills = List.from(selectedSkills);
+
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text(title),
+              title: Column(
+                children: [
+                  Text(title),
+                  SizedBox(height: 10),
+                  TextField(
+                    decoration: InputDecoration(
+                      labelText: 'Search $title',
+                      prefixIcon: Icon(Icons.search),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        filteredSkills = availableSkills
+                            .where((skill) => skill
+                                .toLowerCase()
+                                .contains(value.toLowerCase()))
+                            .toList();
+                      });
+                    },
+                  ),
+                ],
+              ),
               content: SingleChildScrollView(
                 child: Column(
-                  children: availableSkills.map((skill) {
+                  children: filteredSkills.map((skill) {
                     return CheckboxListTile(
                       title: Text(skill),
                       value: dialogSelectedSkills.contains(skill),
