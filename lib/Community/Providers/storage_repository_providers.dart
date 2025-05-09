@@ -64,7 +64,7 @@ class StorageRepository {
       return fileUrl;
     } catch (e) {
       print('Error uploading file: $e');
-      return ''; // Return empty string or a fallback URL if upload fails
+      return ''; 
     }
   }
 }

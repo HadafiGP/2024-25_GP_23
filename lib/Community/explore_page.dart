@@ -176,19 +176,19 @@ class ExplorePage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            // ✅ "Explore communities by topic" Title
+        
             Text(
               "Explore communities by topic",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF113F67), // ✅ Hadafi theme color
+                color: Color(0xFF113F67), 
               ),
               textAlign: TextAlign.left,
             ),
-            SizedBox(height: 16), // Space before topics
+            SizedBox(height: 16), 
 
-            // ✅ List of categories
+    
             ...topics.map(
                 (categoryData) => _buildCategorySection(context, categoryData)),
           ],
@@ -232,7 +232,7 @@ class ExplorePage extends StatelessWidget {
             );
           }).toList(),
         ),
-        SizedBox(height: 16), // Space between categories
+        SizedBox(height: 16), 
       ],
     );
   }

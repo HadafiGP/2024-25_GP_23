@@ -34,15 +34,16 @@ class FilteredCommunityScreen extends ConsumerWidget {
         iconTheme: IconThemeData(
           color: Colors.white,
         ),
-        backgroundColor: const Color(0xFF113F67), // ✅ Hadafi theme color
+        backgroundColor: const Color(0xFF113F67), 
+        
       ),
       body: communitiesAsync.when(
         data: (communityList) {
-          // 🛠 DEBUG: Print fetched communities
+       
           print(
               "Fetched communities: ${communityList.map((c) => c.name).toList()}");
 
-          // ✅ Fix: Use `.any()` to check if `topics` contain the selected topic
+     
           final filteredCommunities = communityList
               .where((community) =>
                   community.topics != null &&
@@ -64,7 +65,7 @@ class FilteredCommunityScreen extends ConsumerWidget {
               return ListTile(
                 leading: GestureDetector(
                   onTap: () {
-                    // ✅ Navigate to Community Profile
+             
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -80,7 +81,7 @@ class FilteredCommunityScreen extends ConsumerWidget {
                 ),
                 title: GestureDetector(
                   onTap: () {
-                    // ✅ Navigate to Community Profile
+           
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -124,9 +125,8 @@ class FilteredCommunityScreen extends ConsumerWidget {
     );
   }
 
-  // 🔹 Helper Widget for "No Communities Found"
   Widget _buildNoCommunitiesFound() {
-  return SizedBox.expand( // ✅ يملأ كامل الشاشة
+  return SizedBox.expand( 
     child: Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

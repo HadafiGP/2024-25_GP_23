@@ -279,17 +279,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   .collection('Student')
                                   .doc(widget.uid)
                                   .update({
-                                'name': updatedName, // Update the name field
+                                'name': updatedName, 
                               });
 
-                              // Show success SnackBar
+                            
                               showSnackBar(
                                   context, 'Profile updated successfully!',
                                   success: true);
                               Navigator.of(context)
-                                  .pop(); // Optionally navigate back to previous screen
+                                  .pop(); 
                             } catch (e) {
-                              // Show error SnackBar
+                      
                               showSnackBar(
                                   context, 'Error updating profile: $e',
                                   success: false);

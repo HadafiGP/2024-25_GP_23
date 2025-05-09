@@ -19,10 +19,10 @@ class Comment {
     required this.profilePic,
   });
 
-  /// ✅ Convert Firestore Data (Map) to Comment Object
+
   factory Comment.fromMap(Map<String, dynamic> map) {
-      print("DEBUG: createdAt raw value -> ${map['createdAt']}"); // Print raw value
-      print("DEBUG: createdAt type -> ${map['createdAt'].runtimeType}"); // Print type
+      print("DEBUG: createdAt raw value -> ${map['createdAt']}"); 
+      print("DEBUG: createdAt type -> ${map['createdAt'].runtimeType}"); 
 
     return Comment(
       id: map['id'] ?? '',
@@ -40,19 +40,19 @@ class Comment {
     );
   }
 
-  /// ✅ Convert Comment Object to Firestore Data (Map)
+ 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'text': text,
-      'createdAt': Timestamp.fromDate(createdAt), // ✅ Convert DateTime to Firestore Timestamp
+      'createdAt': Timestamp.fromDate(createdAt), 
       'postId': postId,
       'username': username,
       'profilePic': profilePic,
     };
   }
 
-  /// ✅ Create a Copy with Updated Values
+
   Comment copyWith({
     String? id,
     String? text,

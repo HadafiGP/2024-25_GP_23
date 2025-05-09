@@ -17,13 +17,13 @@ class CommentCard extends ConsumerWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 🔹 Profile Picture
+          //  Profile Picture
           CircleAvatar(
             backgroundImage: NetworkImage(comment.profilePic),
             radius: 18,
           ),
 
-          // 🔹 Comment Content
+          //  Content
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(left: 12.0),

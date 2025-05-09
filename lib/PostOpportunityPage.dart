@@ -1167,14 +1167,14 @@ class _PostOpportunityPageState extends State<PostOpportunityPage> {
             return Theme(
               data: ThemeData.light().copyWith(
                 colorScheme: ColorScheme.light(
-                  primary: mainColor, // اللون الأساسي (header و الزر)
-                  onPrimary: Colors.white, // النص في الهيدر
+                  primary: mainColor, 
+                  onPrimary: Colors.white, 
                   surface: backgroundColor, // خلفية الحوارات
                   onSurface: Colors.black, // النص داخل البودي
                 ),
                 textButtonTheme: TextButtonThemeData(
                   style: TextButton.styleFrom(
-                    foregroundColor: mainColor, // لون أزرار Cancel و OK
+                    foregroundColor: mainColor, 
                   ),
                 ),
               ),

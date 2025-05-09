@@ -11,10 +11,10 @@ class ModTools extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF113F67), // Matches profile page
-        centerTitle: true, // ✅ Ensures the title is perfectly centered
+        backgroundColor: const Color(0xFF113F67), 
+        centerTitle: true, 
         title: const Text(
-          'Mod Tools', // ✅ Now perfectly centered
+          'Mod Tools', 
           style: TextStyle(
             // fontWeight: FontWeight.bold,
             color: Colors.white,

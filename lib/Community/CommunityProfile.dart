@@ -74,7 +74,7 @@ class Communityprofile extends ConsumerWidget {
                                 right: 16,
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment
-                                      .end, // Aligns buttons lower
+                                      .end, 
                                   children: [
                                     // Profile Avatar
                                     CircleAvatar(

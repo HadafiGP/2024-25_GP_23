@@ -51,7 +51,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
     required this.opportunityId,
   });
 
-  // put the date in a 2 apr,2025 format
+
   String formatDate(String date) {
     final DateFormat formatter = DateFormat('dd MMM, yyyy');
     final DateTime parsedDate = DateTime.parse(date);
@@ -271,7 +271,7 @@ class TpOpportunityDetailsPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 5),
-            // Location
+      
 // Location
 if (locationsList.length > 1)
   Card(
@@ -336,7 +336,7 @@ else
               ),
               child: ExpansionTile(
                 leading: const Icon(Icons.school,
-                    color: Color(0xFF096499)), // Icon for Major
+                    color: Color(0xFF096499)), 
                 title: const Text(
                   "Major",
                   style: TextStyle(

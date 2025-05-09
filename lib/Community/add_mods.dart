@@ -153,7 +153,7 @@ class _AddModsState extends ConsumerState<AddMods> {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: hasChanges ? saveMods : null, // Disable if no changes
+                onPressed: hasChanges ? saveMods : null, 
                 style: ElevatedButton.styleFrom(
                   backgroundColor: hasChanges ? const Color(0xFF113F67) : Colors.grey,
                   shape: RoundedRectangleBorder(

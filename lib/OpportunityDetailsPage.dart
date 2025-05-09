@@ -84,7 +84,7 @@ class OpportunityDetailsPage extends StatelessWidget {
     // Split locations
     final locationsList = location.split(',').map((loc) => loc.trim()).toList();
 
-    // Check GPA if 0 the gpa requriments will not be displayed
+   
     final bool hasGpa = gpa5 > 0 || gpa4 > 0;
 
     return Scaffold(

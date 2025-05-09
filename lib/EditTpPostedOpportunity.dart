@@ -75,16 +75,16 @@ List<String> selectedMajors = [];
   }
 
 List<String> getFilteredTechnicalSkills() {
-  // If all selected majors are in one category, return its respective skills
+
   if (selectedMajors.every((major) => healthMajors.contains(major))) {
     return healthTechnicalSkills;
   } else if (selectedMajors.every((major) => humanitiesMajors.contains(major))) {
     return humanitiesTechnicalSkills;
   } else if (selectedMajors.every((major) => !healthMajors.contains(major) && !humanitiesMajors.contains(major))) {
-    // Assuming the rest are scientific majors
+  
     return scientificTechnicalSkills;
   } else {
-    // If mixed majors or unclear, return general technicalSkills as fallback
+ 
     return technicalSkills;
   }
 }
@@ -902,7 +902,7 @@ Widget _buildMultiSelectField(
                 ? () async {
                     await _showMultiSelectDialog(label, items, selectedItems);
                     setState(() {
-                      state.didChange(selectedItems); // trigger validation
+                      state.didChange(selectedItems); 
                     });
                   }
                 : null,
@@ -936,7 +936,7 @@ Widget _buildMultiSelectField(
                           ? () {
                               setState(() {
                                 selectedItems.remove(item);
-                                state.didChange(selectedItems); // Revalidate
+                                state.didChange(selectedItems); 
                               });
                             }
                           : null,
@@ -990,7 +990,7 @@ Future<void> _showMultiSelectDialog(
   setState(() {
     if (checked == true) {
       if (!selectedItems.contains(item)) {
-        selectedItems.add(item); // ✅ Prevent duplicates
+        selectedItems.add(item); 
       }
     } else {
       selectedItems.remove(item);
@@ -1185,7 +1185,7 @@ Widget _buildSkillSelector(
                 ? () async {
                     await _showMultiSelectDialog(label, allSkills, selectedSkills);
                     setState(() {
-                      state.didChange(selectedSkills); // Trigger validation
+                      state.didChange(selectedSkills); 
                     });
                   }
                 : null,
@@ -1220,7 +1220,7 @@ Widget _buildSkillSelector(
                         ? () {
                             setState(() {
                               selectedSkills.remove(skill);
-                              state.didChange(selectedSkills); // Revalidate
+                              state.didChange(selectedSkills);
                             });
                           }
                         : null,

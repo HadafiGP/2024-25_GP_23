@@ -95,7 +95,7 @@ class CommunityController extends StateNotifier<bool> {
       state = true;
       final uid = _ref.read(uidProvider) ?? '';
 
-      // Helper function to upload images
+
       Future<String> uploadFile(
           String? path, String type, String defaultUrl) async {
         if (path == null || path.isEmpty) return defaultUrl;

@@ -110,7 +110,7 @@ class SearchCommunityDelegate extends SearchDelegate {
                         style:
                             const TextStyle(fontSize: 14, color: Colors.grey),
                         highlightColor: Colors
-                            .blue, //Highlights matching text in description
+                            .blue, 
                       ),
                     )
                   : null,
@@ -128,7 +128,7 @@ class SearchCommunityDelegate extends SearchDelegate {
         );
       },
       loading: () => const Center(
-          child: CircularProgressIndicator()), // STOP LOADER when there is data
+          child: CircularProgressIndicator()), 
       error: (error, stackTrace) => Center(
         child: Text(
           "Error: $error",
@@ -138,7 +138,7 @@ class SearchCommunityDelegate extends SearchDelegate {
     );
   }
 
-  /// **Helper Function: Highlight Matching Text in Results**
+
   TextSpan highlightQuery({
     required String text,
     required String query,
