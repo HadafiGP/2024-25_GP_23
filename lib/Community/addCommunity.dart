@@ -51,7 +51,6 @@ class _AddCommunityScreenState extends ConsumerState<CreateACommunity> {
 
       final fileSize = await file.length();
       if (fileSize > 5 * 1024 * 1024) {
-        // 5 MB limit
         _showError("File too large. Please select an image under 5MB.");
         return;
       }
@@ -131,7 +130,7 @@ class _AddCommunityScreenState extends ConsumerState<CreateACommunity> {
     }
   }
 
-  //Coomunity creation pages
+  //Pages
   Future<void> nextPage() async {
     if (_currentPage == 0) {
       final name = communityNameController.text.trim();
@@ -682,7 +681,72 @@ class _AddCommunityScreenState extends ConsumerState<CreateACommunity> {
         ]
       },
       {
-        "category": "🏫 University Life & Support",
+        "category": "🏫 Universities & Colleges",
+        "topics": [
+          "Qassim University",
+          "Taibah University",
+          "Taif University",
+          "University of Ha’il",
+          "Jazan University",
+          "Aljouf University",
+          "Albaha University",
+          "Vision Colleges",
+          "Effat University",
+          "Alfaisal University",
+          "Gulf Colleges",
+          "Najran University",
+          "Shaqra University",
+          "University of Tabuk",
+          "Alasala Colleges",
+          "Majmaah University",
+          "Al-Rayan Colleges",
+          "University of Jeddah",
+          "University of Bisha",
+          "King Saud University",
+          "Jubail Industrial College",
+          "Jubail College",
+          "Yanbu Industrial College",
+          "Yanbu College",
+          "Umm Al-Qura University",
+          "King Abdulaziz University",
+          "King Faisal University",
+          "King Khalid University",
+          "Batterjee Medical College",
+          "AlMaarefa University",
+          "Riyadh Elm University",
+          "Dar Al-Hekma University",
+          "Prince Sultan University",
+          "Arab Open University",
+          "Islamic University of Madinah",
+          "Imam Mohammad Ibn Saud Islamic University",
+          "King Fahd University of Petroleum & Minerals",
+          "Naif Arab University for Security Sciences",
+          "Northern Border University",
+          "Princess Nourah Bint Abdulrahman University",
+          "King Saud bin Abdulaziz University for Health Sciences",
+          "Imam Abdulrahman bin Faisal University",
+          "King Abdullah University of Science & Technology",
+          "Prince Sattam bin Abdulaziz University",
+          "Saudi Electronic University",
+          "Technical Trainers College",
+          "University of Hafr Al Batin",
+          "Prince Mohammad Bin Salman University",
+          "University of Al-Mustaqbal",
+          "Sulaiman Al Rajhi University",
+          "Ibn Sina National College for Medical Studies",
+          "Dr. Soliman Fakeeh College",
+          "Prince Mugrin University",
+          "Dar Al Uloom University",
+          "Al Yamamah University",
+          "Fahad Bin Sultan University",
+          "Prince Mohammad Bin Fahd University",
+          "University of Business and Technology",
+          "Jeddah International College",
+          "Lincoln College of Technology",
+        ]
+      },
+      {
+        "category": "🏫❤️️ University Life & Support",
         "topics": [
           "University Advice",
           "Scholarships & Grants",
@@ -861,8 +925,7 @@ class _AddCommunityScreenState extends ConsumerState<CreateACommunity> {
                         minimumSize: const Size(double.infinity, 50),
                         backgroundColor: const Color(0xFF113F67),
                         shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(30), // نفس الزوايا
+                          borderRadius: BorderRadius.circular(30),
                         ),
                         textStyle: const TextStyle(
                           fontSize: 18,

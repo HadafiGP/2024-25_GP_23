@@ -44,7 +44,7 @@ class WelcomeScreen extends StatelessWidget {
                               color: Color(0xFF113F67),
                             ),
                           ),
-                          const SizedBox(height: 8), // Reduced space here
+                          const SizedBox(height: 8), 
                           Text(
                             'Start up by choosing your role!',
                             style: TextStyle(
@@ -74,25 +74,25 @@ class WelcomeScreen extends StatelessWidget {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(
-                              0xFFF3F9FB), // Button background color
+                              0xFFF3F9FB), 
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 50, // Padding for smaller button width
-                            vertical: 15, // Slightly smaller vertical padding
+                            horizontal: 50, 
+                            vertical: 15, 
                           ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
-                                30), // More rounded corners
+                                30), 
                           ),
                         ),
                         child: Text(
                           'Student',
                           style: TextStyle(
                             fontSize: 18,
-                            color: Color(0xFF113F67), // Text color
+                            color: Color(0xFF113F67), 
                           ),
                         ),
                       ),
-                      const SizedBox(height: 10), // Space between buttons
+                      const SizedBox(height: 10),
                       // Training Provider Sign-Up Button
                       ElevatedButton(
                         onPressed: () {
@@ -106,26 +106,26 @@ class WelcomeScreen extends StatelessWidget {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(
-                              0xFFF3F9FB), // Button background color
+                              0xFFF3F9FB), 
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 50, // Padding for smaller button width
-                            vertical: 15, // Slightly smaller vertical padding
+                            horizontal: 50, 
+                            vertical: 15, 
                           ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
-                                30), // More rounded corners
+                                30), 
                           ),
                         ),
                         child: Text(
                           'Training Provider',
                           style: TextStyle(
                             fontSize: 18,
-                            color: Color(0xFF113F67), // Text color
+                            color: Color(0xFF113F67), 
                           ),
                         ),
                       ),
                       const SizedBox(
-                          height: 20), // Space between buttons and text
+                          height: 20), 
                       // Already have an account? Log in link
                       Text.rich(
                         TextSpan(

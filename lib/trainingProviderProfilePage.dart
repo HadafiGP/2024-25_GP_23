@@ -319,7 +319,7 @@ class _TrainingProviderProfilePageState
                                   style: TextStyle(color: Colors.red),
                                 ),
                                 Icon(Icons.cancel,
-                                    color: Colors.red), // "X" icon
+                                    color: Colors.red), 
                                 SizedBox(width: 10),
                               ],
                             ),
@@ -335,7 +335,7 @@ class _TrainingProviderProfilePageState
                                 ),
                                 onPressed: () {
                                   Navigator.of(context)
-                                      .pop(); // Close the dialog
+                                      .pop(); 
                                 },
                               ),
                             ],
@@ -374,7 +374,7 @@ class _TrainingProviderProfilePageState
                         'Save',
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.white, // Text color for the Save button
+                          color: Colors.white, 
                         ),
                       ),
                     ),
@@ -386,7 +386,7 @@ class _TrainingProviderProfilePageState
                         style: TextStyle(
                           fontSize: 16,
                           color: Color(
-                              0xFF113F67), // Text color for the Cancel button
+                              0xFF113F67), 
                         ),
                       ),
                     ),
@@ -408,17 +408,17 @@ class _TrainingProviderProfilePageState
           labelText: 'Company Email (required)',
           border: OutlineInputBorder(
             borderSide: BorderSide(
-                color: Color(0xFF113F67)), // Same color as student profile
+                color: Color(0xFF113F67)), 
             borderRadius: BorderRadius.circular(10),
           ),
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(
-                color: Color(0xFF113F67)), // Border color when focused
+                color: Color(0xFF113F67)), 
             borderRadius: BorderRadius.circular(10),
           ),
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(
-                color: Color(0xFF113F67)), // Border color when enabled
+                color: Color(0xFF113F67)), 
             borderRadius: BorderRadius.circular(10),
           ),
         ),
@@ -477,7 +477,7 @@ class _TrainingProviderProfilePageState
           }
 
           if (label == 'Email') {
-            // Basic email format check
+            
             if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
               return 'Invalid email format';
             }
@@ -641,7 +641,7 @@ class _TrainingProviderProfilePageState
               leading: Icon(Icons.home, color: Color(0xFF113F67)),
               title: Text('Home'),
               onTap: () {
-                Navigator.pop(context); // Close the drawer
+                Navigator.pop(context); 
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -661,8 +661,8 @@ class _TrainingProviderProfilePageState
               leading: Icon(Icons.logout, color: Color(0xFF113F67)),
               title: Text('Log Out'),
               onTap: () {
-                Navigator.pop(context); // Close the drawer
-                _logout(context); // Call the logout function
+                Navigator.pop(context); 
+                _logout(context); 
               },
             ),
           ],
@@ -673,11 +673,11 @@ class _TrainingProviderProfilePageState
 
   Future<void> _logout(BuildContext context) async {
     try {
-      await FirebaseAuth.instance.signOut(); // Sign out from Firebase
+      await FirebaseAuth.instance.signOut(); 
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const WelcomeScreen()),
-        (route) => false, // Remove all previous routes
+        (route) => false, 
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

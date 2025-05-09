@@ -70,7 +70,7 @@ class _CVPageState extends State<CVPage> {
     _loadHistory();
   }
 
-  /// Check for internet connection
+  // Check for internet connection
   Future<void> _checkInternetConnection() async {
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult == ConnectivityResult.none) {
@@ -137,7 +137,7 @@ class _CVPageState extends State<CVPage> {
         ),
       );
     }
-    return const SizedBox.shrink(); // Empty widget if no error
+    return const SizedBox.shrink(); 
   }
 
   @override
@@ -156,7 +156,7 @@ class _CVPageState extends State<CVPage> {
       drawer: HadafiDrawer(),
       body: Column(
         children: [
-          _showConnectionError(), // Show internet error if any
+          _showConnectionError(), 
           Expanded(
             child: Stack(
               children: [
@@ -305,7 +305,7 @@ class _CVPageState extends State<CVPage> {
         ],
       ),
       floatingActionButton: Container(
-        margin: const EdgeInsets.only(bottom: 590.0), // Adjust if needed
+        margin: const EdgeInsets.only(bottom: 590.0), 
         child: FloatingActionButton(
           onPressed: () {
             Navigator.push(
@@ -317,7 +317,7 @@ class _CVPageState extends State<CVPage> {
           },
           mini: true,
           backgroundColor: const Color.fromARGB(
-              200, 194, 215, 240), // Match your app's theme
+              200, 194, 215, 240), 
           child: const Icon(Icons.history, color: const Color(0xFF113F67)),
         ),
       ),
@@ -325,7 +325,7 @@ class _CVPageState extends State<CVPage> {
     );
   }
 
-  /// Reusable method to check internet connection before actions
+  
   Future<bool> _checkInternetBeforeAction() async {
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult == ConnectivityResult.none) {
@@ -1110,7 +1110,7 @@ class CVHistoryPage extends StatelessWidget {
       textColor: Colors.white,
       parsePatterns: [
         MatchText(
-          pattern: r'(?<!\w)(https:\/\/[^\s\)]+)', // Match URLs
+          pattern: r'(?<!\w)(https:\/\/[^\s\)]+)', 
           style: const TextStyle(
             color: Colors.blue,
             decoration: TextDecoration.underline,
@@ -1167,12 +1167,12 @@ class CVHistoryPage extends StatelessWidget {
       body: DashChat(
         currentUser: _currentUser,
         messages:
-            messages.reversed.toList(), // Display messages chronologically
-        readOnly: true, // Makes the chat read-only
+            messages.reversed.toList(), 
+        readOnly: true, 
         inputOptions: const InputOptions(
-          inputDisabled: true, // Disables the input field
+          inputDisabled: true, 
         ),
-        onSend: (ChatMessage message) {}, // No send action
+        onSend: (ChatMessage message) {}, 
         messageOptions: messageOptions,
       ),
     );

@@ -61,7 +61,7 @@ final storageRepositoryProvider = Provider<StorageRepository>((ref) {
 });
 
 
-// ✅ Fetch all communities
+//  Fetch all communities
 final communityProvider = StreamProvider<List<Community>>((ref) {
   final communityRepo = ref.watch(communityRepositoryProvider);
   return communityRepo.getAllCommunities();

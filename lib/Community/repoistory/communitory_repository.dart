@@ -22,7 +22,7 @@ class CommunitntyRepository {
       : _firestore = firestore;
 
   Stream<List<Community>> getAllCommunities() {
-  return _firestore.collection('Community') // 🛠 Ensure it's 'Community' not 'Communities'
+  return _firestore.collection('Community') 
       .snapshots()
       .map((snapshot) {
     return snapshot.docs.map((doc) {
@@ -46,7 +46,7 @@ class CommunitntyRepository {
     }
   }
 
-  ///Join community
+  //Join community
 
   Future<Either<Failure, void>> joinCommunity(
       String communityName, String userID) async {
@@ -54,7 +54,7 @@ class CommunitntyRepository {
       await _communities.doc(communityName).update({
         'members': FieldValue.arrayUnion([userID])
       });
-      return right(null); // right() expects a value, so use null
+      return right(null); 
     } on FirebaseException catch (e) {
       return left(Failure(e.message ?? 'An unexpected error occurred.'));
     } catch (e) {
@@ -62,14 +62,14 @@ class CommunitntyRepository {
     }
   }
 
-  ///Leave community
+  //Leave community
   Future<Either<Failure, void>> leaveCommunity(
       String communityName, String userID) async {
     try {
       await _communities.doc(communityName).update({
         'members': FieldValue.arrayRemove([userID])
       });
-      return right(null); // right() expects a value, so use null
+      return right(null); 
     } on FirebaseException catch (e) {
       return left(Failure(e.message ?? 'An unexpected error occurred.'));
     } catch (e) {

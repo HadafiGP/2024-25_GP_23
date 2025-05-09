@@ -161,7 +161,7 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
         );
       },
       onTapCancel: () => setState(() => _scale = 1.0),
-      child: // Replace your current button with this:
+      child: 
           AnimatedScale(
         scale: _scale,
         duration: const Duration(milliseconds: 100),
