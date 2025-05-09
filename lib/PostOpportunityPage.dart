@@ -12,21 +12,18 @@ class PostOpportunityPage extends StatefulWidget {
 }
 
 class _PostOpportunityPageState extends State<PostOpportunityPage> {
-
   final _formKey = GlobalKey<FormState>();
-    final ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   final TextEditingController jobTitleController = TextEditingController();
   final TextEditingController companyLinkController = TextEditingController();
   final TextEditingController durationController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
-  
+
   final TextEditingController gpa4Controller = TextEditingController();
   final TextEditingController gpa5Controller = TextEditingController();
-   final TextEditingController jobTypeController = TextEditingController();
-   final TextEditingController contactInfoController = TextEditingController();
-
-
+  final TextEditingController jobTypeController = TextEditingController();
+  final TextEditingController contactInfoController = TextEditingController();
 
   List<String> selectedMajors = [];
   String? selectedJobType;
@@ -36,8 +33,8 @@ class _PostOpportunityPageState extends State<PostOpportunityPage> {
   DateTime? endDate;
 
   List<String> selectedSoftSkills = [];
-List<String> selectedTechnicalSkills = [];
-List<String> selectedManagementSkills = [];
+  List<String> selectedTechnicalSkills = [];
+  List<String> selectedManagementSkills = [];
 
   bool isSkillsValid = true;
   bool isJobTitleValid = true;
@@ -52,11 +49,7 @@ List<String> selectedManagementSkills = [];
   bool isGpa5Valid = true;
   bool isContactInfoValid = true;
 
-
-
-  
-
-final List<String> majors = [
+  final List<String> majors = [
     'Clinical Laboratory Sciences',
     'Occupational Therapy',
     'Physical Therapy',
@@ -109,89 +102,87 @@ final List<String> majors = [
   ];
 
   final List<String> humanitiesMajors = [
-        'Accounting',
-        'Administrative',
-        'Anthropology',
-        'Arts',
-        'Arabic',
-        'Advertising',
-        'Business',
-        'Business Administration',
-        'Business Informatics',
-        'Commerce',
-        'Communication',
-        'Comparative Literature',
-        'Design',
-        'Drafting',
-        'Economics',
-        'Education',
-        'English',
-        'Film',
-        'Fine Arts',
-        'Foreign Language',
-        'Forestry',
-        'Graphic Design',
-        'General Studies',
-        'Geography',
-        'Geology',
-        'Government',
-        'Hospitality Management',
-        'Human Resources Management',
-        'History',
-        'Human Computer Interaction',
-        'Islamic Law (Sharia)',
-        'International Business',
-        'Interior Design',
-        'Journalism',
-        'Law',
-        'Liberal Arts',
-        'Linguistics',
-        'Literature',
-        'Marketing',
-        'Management',
-        'Media',
-        'Music',
-        'Organization Development',
-        'Public Policy',
-        'Public Administration',
-        'Public Relations',
-        'Philosophy',
-        'Political Science',
-        'Psychology',
-        'Religion',
-        'Risk Management',
-        'Supply Chain Management',
-        'Sociology',
-        'Theatre',
-        'Translation',
-        'Visual Arts'
-      ];
+    'Accounting',
+    'Administrative',
+    'Anthropology',
+    'Arts',
+    'Arabic',
+    'Advertising',
+    'Business',
+    'Business Administration',
+    'Business Informatics',
+    'Commerce',
+    'Communication',
+    'Comparative Literature',
+    'Design',
+    'Drafting',
+    'Economics',
+    'Education',
+    'English',
+    'Film',
+    'Fine Arts',
+    'Foreign Language',
+    'Forestry',
+    'Graphic Design',
+    'General Studies',
+    'Geography',
+    'Geology',
+    'Government',
+    'Hospitality Management',
+    'Human Resources Management',
+    'History',
+    'Human Computer Interaction',
+    'Islamic Law (Sharia)',
+    'International Business',
+    'Interior Design',
+    'Journalism',
+    'Law',
+    'Liberal Arts',
+    'Linguistics',
+    'Literature',
+    'Marketing',
+    'Management',
+    'Media',
+    'Music',
+    'Organization Development',
+    'Public Policy',
+    'Public Administration',
+    'Public Relations',
+    'Philosophy',
+    'Political Science',
+    'Psychology',
+    'Religion',
+    'Risk Management',
+    'Supply Chain Management',
+    'Sociology',
+    'Theatre',
+    'Translation',
+    'Visual Arts'
+  ];
 
-      final healthMajors = [
-        'Biomedical Engineering',
-        'Clinical Laboratory Sciences',
-        'Clinical Nutrition',
-        'Dentistry',
-        "Forensic Science",
-        'Health Informatics',
-        'Healthcare',
-        'Medicine (MBBS)',
-        'Medical Laboratory Sciences',
-        'Nursing',
-        'Nutrition',
-        'Oral and Maxillofacial Surgery',
-        'Orthodontics',
-        'Occupational Therapy',
-        'Pharmacy',
-        'Public Health',
-        'Physical Therapy',
-        'Prosthetics and Orthotics',
-        'Radiology',
-        'Respiratory Therapy',
-        'Clinical Pharmacy',
-      ];
-
-
+  final healthMajors = [
+    'Biomedical Engineering',
+    'Clinical Laboratory Sciences',
+    'Clinical Nutrition',
+    'Dentistry',
+    "Forensic Science",
+    'Health Informatics',
+    'Healthcare',
+    'Medicine (MBBS)',
+    'Medical Laboratory Sciences',
+    'Nursing',
+    'Nutrition',
+    'Oral and Maxillofacial Surgery',
+    'Orthodontics',
+    'Occupational Therapy',
+    'Pharmacy',
+    'Public Health',
+    'Physical Therapy',
+    'Prosthetics and Orthotics',
+    'Radiology',
+    'Respiratory Therapy',
+    'Clinical Pharmacy',
+  ];
 
   final List<String> jobTypes = ['Internship', 'COOP'];
 
@@ -203,7 +194,7 @@ final List<String> majors = [
     '6 Months',
     '9 Months',
     '1 Year',
-];
+  ];
 
   final List<String> cities = [
     'Abha',
@@ -275,7 +266,6 @@ final List<String> majors = [
     "Thoroughness",
     "Time Management",
     "Verbal and Written Clarity",
-    "Verbal and Written Clarity",
     "Workplace Etiquette",
     "Working Effectively Within Teams",
     "Networking",
@@ -285,8 +275,8 @@ final List<String> majors = [
     "Willingness to learn"
   ];
 
-final List<String> technicalSkills = [
-  "Adobe XD",
+  final List<String> technicalSkills = [
+    "Adobe XD",
     "Agile",
     "Angular",
     "API integration (REST)",
@@ -512,8 +502,8 @@ final List<String> technicalSkills = [
     "Engineering software packages"
   ];
 
-final List<String> managementSkills = [
-  "Adapting to Organizational Changes",
+  final List<String> managementSkills = [
+    "Adapting to Organizational Changes",
     "Change Management",
     "Conflict Resolution",
     "Crisis Management",
@@ -535,26 +525,24 @@ final List<String> managementSkills = [
     "Task Prioritization",
     "Team Building",
     "Timeline Setting"
-];
+  ];
 
-List<String> getFilteredTechnicalSkills() {
-  if (selectedMajors.every((major) => healthMajors.contains(major))) {
-    return healthTechnicalSkills;
-  } else if (selectedMajors.every((major) => humanitiesMajors.contains(major))) {
-    return humanitiesTechnicalSkills;
-  } else if (selectedMajors.every((major) => !healthMajors.contains(major) && !humanitiesMajors.contains(major))) {
-    return scientificTechnicalSkills;
-  } else {
-    return technicalSkills;
+  List<String> getFilteredTechnicalSkills() {
+    if (selectedMajors.every((major) => healthMajors.contains(major))) {
+      return healthTechnicalSkills;
+    } else if (selectedMajors
+        .every((major) => humanitiesMajors.contains(major))) {
+      return humanitiesTechnicalSkills;
+    } else if (selectedMajors.every((major) =>
+        !healthMajors.contains(major) && !humanitiesMajors.contains(major))) {
+      return scientificTechnicalSkills;
+    } else {
+      return technicalSkills;
+    }
   }
-}
-
-
-
 
   static const Color mainColor = Color(0xFF113F67);
   static const Color backgroundColor = Color(0xFFF3F9FB);
-
 
   @override
   Widget build(BuildContext context) {
@@ -564,7 +552,8 @@ List<String> getFilteredTechnicalSkills() {
         backgroundColor: mainColor,
         iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
-        title: const Text('Post Opportunity', style: TextStyle(color: Colors.white)),
+        title: const Text('Post Opportunity',
+            style: TextStyle(color: Colors.white)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -572,254 +561,292 @@ List<String> getFilteredTechnicalSkills() {
           key: _formKey,
           child: ListView(
             controller: _scrollController,
-            
+            children: [
+              const SizedBox(height: 15),
 
-          children: [
-            const SizedBox(height: 15),
+              _buildTextField('Opportunitiy Title', jobTitleController),
+              if (!isJobTitleValid)
+                const Padding(
+                  padding: EdgeInsets.only(top: 4),
+                  child: Text("This field is required",
+                      style: TextStyle(color: Colors.red)),
+                ),
+              const SizedBox(height: 15),
 
-            _buildTextField('Opportunitiy Title', jobTitleController),
-            if (!isJobTitleValid)
-              const Padding(
-                padding: EdgeInsets.only(top: 4),
-                child: Text("This field is required", style: TextStyle(color: Colors.red)),
-              ),
-            const SizedBox(height: 15),
+              _buildDropdown('Opportunitiy Type', jobTypeController, jobTypes,
+                  (value) {
+                setState(() => jobTypeController.text = value);
+              }),
+              if (!isJobTypeValid)
+                const Padding(
+                  padding: EdgeInsets.only(top: 4),
+                  child: Text("This field is required",
+                      style: TextStyle(color: Colors.red)),
+                ),
+              const SizedBox(height: 15),
 
+              _buildTextField('Description', descriptionController,
+                  maxLines: 3),
+              if (!isDescriptionValid)
+                const Padding(
+                  padding: EdgeInsets.only(top: 4),
+                  child: Text("This field is required",
+                      style: TextStyle(color: Colors.red)),
+                ),
+              const SizedBox(height: 15),
 
-            _buildDropdown('Opportunitiy Type', jobTypeController, jobTypes, (value) {
-              setState(() => jobTypeController.text = value);
-            }),
-            if (!isJobTypeValid)
-              const Padding(
-                padding: EdgeInsets.only(top: 4),
-                child: Text("This field is required", style: TextStyle(color: Colors.red)),
-              ),
-            const SizedBox(height: 15),
+              _buildMultiSelectField(
+                  'Select Locations', cities, selectedLocations),
+              if (!isLocationValid)
+                const Padding(
+                  padding: EdgeInsets.only(top: 4),
+                  child: Text("This field is required",
+                      style: TextStyle(color: Colors.red)),
+                ),
+              const SizedBox(height: 15),
 
-            _buildTextField('Description', descriptionController, maxLines: 3),
-            if (!isDescriptionValid)
-              const Padding(
-                padding: EdgeInsets.only(top: 4),
-                child: Text("This field is required", style: TextStyle(color: Colors.red)),
-              ),
-            const SizedBox(height: 15),
+              _buildDatePicker('Start Date', startDate, (picked) {
+                setState(() {
+                  startDate = picked;
+                });
+              }),
+              if (!isStartDateValid)
+                const Padding(
+                  padding: EdgeInsets.only(top: 4),
+                  child: Text("This field is required",
+                      style: TextStyle(color: Colors.red)),
+                ),
+              const SizedBox(height: 15),
 
-            _buildMultiSelectField('Select Locations', cities, selectedLocations),
-            if (!isLocationValid)
-              const Padding(
-                padding: EdgeInsets.only(top: 4),
-                child: Text("This field is required", style: TextStyle(color: Colors.red)),
-              ),
-            const SizedBox(height: 15),
+              _buildDatePicker('End Date', endDate, (picked) {
+                setState(() {
+                  endDate = picked;
+                });
+              }),
+              if (!isEndDateValid)
+                const Padding(
+                  padding: EdgeInsets.only(top: 4),
+                  child: Text("This field is required",
+                      style: TextStyle(color: Colors.red)),
+                ),
+              const SizedBox(height: 15),
 
-            _buildDatePicker('Start Date', startDate, (picked) {
-              setState(() {
-                startDate = picked;
-              });
-            }),
-            if (!isStartDateValid)
-              const Padding(
-                padding: EdgeInsets.only(top: 4),
-                child: Text("This field is required", style: TextStyle(color: Colors.red)),
-              ),
-            const SizedBox(height: 15),
+              _buildDropdown('Duration', durationController, durations,
+                  (value) {
+                setState(() {
+                  durationController.text = value;
+                });
+              }),
+              if (!isDurationValid)
+                const Padding(
+                  padding: EdgeInsets.only(top: 4),
+                  child: Text("This field is required",
+                      style: TextStyle(color: Colors.red)),
+                ),
+              const SizedBox(height: 15),
 
-            _buildDatePicker('End Date', endDate, (picked) {
-              setState(() {
-                endDate = picked;
-              });
-            }),
-            if (!isEndDateValid)
-              const Padding(
-                padding: EdgeInsets.only(top: 4),
-                child: Text("This field is required", style: TextStyle(color: Colors.red)),
-              ),
-            const SizedBox(height: 15),
+              _buildMultiSelectField('Select Majors', majors, selectedMajors),
+              if (!isMajorsValid)
+                const Padding(
+                  padding: EdgeInsets.only(top: 4),
+                  child: Text("Please select at least one major",
+                      style: TextStyle(color: Colors.red)),
+                ),
 
-            _buildDropdown('Duration', durationController, durations, (value) {
-              setState(() {
-                durationController.text = value;
-              });
-            }),
-            if (!isDurationValid)
-              const Padding(
-                padding: EdgeInsets.only(top: 4),
-                child: Text("This field is required", style: TextStyle(color: Colors.red)),
-              ),
-            const SizedBox(height: 15),
+              const SizedBox(height: 15),
 
-            _buildMultiSelectField('Select Majors', majors, selectedMajors),
-            if (!isMajorsValid)
-              const Padding(
-                padding: EdgeInsets.only(top: 4),
-                child: Text("Please select at least one major", style: TextStyle(color: Colors.red)),
-              ),
+              Text("GPA:",
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF113F67))),
+              const SizedBox(height: 5),
+              _buildGpaInputs(),
+              const SizedBox(height: 15),
 
-            const SizedBox(height: 15),
+              // _buildMultiSelectField('Select Skills', skills, selectedSkills),
+              // const SizedBox(height: 15),
 
-            Text("GPA:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF113F67))),
-            const SizedBox(height: 5),
-            _buildGpaInputs(),
-            const SizedBox(height: 15),
-
-            // _buildMultiSelectField('Select Skills', skills, selectedSkills),
-            // const SizedBox(height: 15),
-
-             /// Skills Section
-              Text("Skills:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: isSkillsValid ? Color(0xFF113F67) : Colors.red)),
+              /// Skills Section
+              Text("Skills:",
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: isSkillsValid ? Color(0xFF113F67) : Colors.red)),
               Text(
                 "Please choose at least one skill from any category",
-                style: TextStyle(fontSize: 14, color: isSkillsValid ? Color(0xFF113F67) : Colors.red),
+                style: TextStyle(
+                    fontSize: 14,
+                    color: isSkillsValid ? Color(0xFF113F67) : Colors.red),
               ),
               const SizedBox(height: 15),
-              _buildSkillSelector("Select Management Skills", managementSkills, selectedManagementSkills),
+              _buildSkillSelector("Select Management Skills", managementSkills,
+                  selectedManagementSkills),
               const SizedBox(height: 15),
-              _buildSkillSelector("Select Soft Skills", softSkills, selectedSoftSkills),
+              _buildSkillSelector(
+                  "Select Soft Skills", softSkills, selectedSoftSkills),
               const SizedBox(height: 15),
               // _buildSkillSelector("Select Technical Skills", technicalSkills, selectedTechnicalSkills),
-              _buildSkillSelector("Select Technical Skills", getFilteredTechnicalSkills(), selectedTechnicalSkills),
+              _buildSkillSelector("Select Technical Skills",
+                  getFilteredTechnicalSkills(), selectedTechnicalSkills),
               const SizedBox(height: 30),
-
 
               _buildTextField('Contact Info', contactInfoController),
               if (!isContactInfoValid)
                 const Padding(
                   padding: EdgeInsets.only(top: 4),
-                  child: Text("This field is required", style: TextStyle(color: Colors.red)),
+                  child: Text("This field is required",
+                      style: TextStyle(color: Colors.red)),
                 ),
               const SizedBox(height: 15),
 
+              _buildTextField(
+                  'Company Apply Link(Optional)', companyLinkController,
+                  isRequired: false),
+              const SizedBox(height: 30),
 
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  //post button
 
-            _buildTextField('Company Apply Link(Optional)', companyLinkController, isRequired: false),
-            const SizedBox(height: 30),
+                  ElevatedButton(
+                    onPressed: () async {
+                      setState(() {
+                        isJobTitleValid =
+                            jobTitleController.text.trim().isNotEmpty;
+                        isJobTypeValid =
+                            jobTypeController.text.trim().isNotEmpty;
+                        isDescriptionValid =
+                            descriptionController.text.trim().isNotEmpty;
+                        isLocationValid = selectedLocations.isNotEmpty;
+                        isStartDateValid = startDate != null;
+                        isEndDateValid = endDate != null;
+                        isDurationValid =
+                            durationController.text.trim().isNotEmpty;
+                        isMajorsValid = selectedMajors.isNotEmpty;
+                        isGpa4Valid = gpa4Controller.text.trim().isNotEmpty;
+                        isGpa5Valid = gpa5Controller.text.trim().isNotEmpty;
+                        isContactInfoValid =
+                            contactInfoController.text.trim().isNotEmpty;
+                        isSkillsValid = selectedTechnicalSkills.isNotEmpty ||
+                            selectedSoftSkills.isNotEmpty ||
+                            selectedManagementSkills.isNotEmpty;
+                      });
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
+                      bool isValid = isJobTitleValid &&
+                          isJobTypeValid &&
+                          isDescriptionValid &&
+                          isLocationValid &&
+                          isStartDateValid &&
+                          isEndDateValid &&
+                          isDurationValid &&
+                          isMajorsValid &&
+                          isGpa4Valid &&
+                          isGpa5Valid &&
+                          isContactInfoValid &&
+                          isSkillsValid;
 
-                //post button 
+                      if (_formKey.currentState!.validate() && isValid) {
+                        print("✅ Valid and ready to post");
 
-               ElevatedButton(
-                  onPressed: () async {
-                    setState(() {
-                      isJobTitleValid = jobTitleController.text.trim().isNotEmpty;
-                      isJobTypeValid = jobTypeController.text.trim().isNotEmpty;
-                      isDescriptionValid = descriptionController.text.trim().isNotEmpty;
-                      isLocationValid = selectedLocations.isNotEmpty;
-                      isStartDateValid = startDate != null;
-                      isEndDateValid = endDate != null;
-                      isDurationValid = durationController.text.trim().isNotEmpty;
-                      isMajorsValid = selectedMajors.isNotEmpty;
-                      isGpa4Valid = gpa4Controller.text.trim().isNotEmpty;
-                      isGpa5Valid = gpa5Controller.text.trim().isNotEmpty;
-                      isContactInfoValid = contactInfoController.text.trim().isNotEmpty;
-                      isSkillsValid = selectedTechnicalSkills.isNotEmpty ||
-                          selectedSoftSkills.isNotEmpty ||
-                          selectedManagementSkills.isNotEmpty;
-                    });
-
-                    bool isValid = isJobTitleValid &&
-                        isJobTypeValid &&
-                        isDescriptionValid &&
-                        isLocationValid &&
-                        isStartDateValid &&
-                        isEndDateValid &&
-                        isDurationValid && 
-                        isMajorsValid&&
-                        isGpa4Valid &&
-                        isGpa5Valid && 
-                        isContactInfoValid &&
-                        isSkillsValid;
-
-                    if (_formKey.currentState!.validate() && isValid) {
-                      print("✅ Valid and ready to post");
-
-                      // ✅ Show loading dialog
-                      showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (context) => const Center(child: CircularProgressIndicator()),
-                      );
-
-                      try {
-                        final opportunityData = {
-                          'jobTitle': jobTitleController.text.trim(),
-                          'jobType': jobTypeController.text.trim(),
-                          'description': descriptionController.text.trim(),
-                          'locations': selectedLocations,
-                          'startDate': startDate?.toIso8601String(),
-                          'endDate': endDate?.toIso8601String(),
-                          'duration': durationController.text.trim(),
-                          'majors': selectedMajors,
-                          'gpaOutOf4': gpa4Controller.text.trim(),
-                          'gpaOutOf5': gpa5Controller.text.trim(),
-                          'companyLink': companyLinkController.text.trim(),
-                          'contactInfo': contactInfoController.text.trim(),
-                          'skills': [
-                            ...selectedTechnicalSkills,
-                            ...selectedSoftSkills,
-                            ...selectedManagementSkills,
-                          ],
-                          'providerUid': FirebaseAuth.instance.currentUser!.uid,
-                          'createdAt': FieldValue.serverTimestamp(),
-                        };
-
-                        await FirebaseFirestore.instance
-                            .collection('opportunity')
-                            .add(opportunityData);
-
-                        Navigator.pop(context); // Close loading
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Opportunity posted successfully")                      , duration: Duration(seconds: 2),
-        backgroundColor: Colors.green,),
+                        // ✅ Show loading dialog
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) =>
+                              const Center(child: CircularProgressIndicator()),
                         );
 
-                        // ✅ Navigate to provider homepage
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => TrainingProviderHomePage()),
-                        );
-                      } catch (e) {
-                        Navigator.pop(context); // Close loading
-                        print("❌ Error posting opportunity: $e");
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Failed to post opportunity: $e")                      , duration: Duration(seconds: 2),
-        backgroundColor: Colors.red,),
-                          
+                        try {
+                          final opportunityData = {
+                            'jobTitle': jobTitleController.text.trim(),
+                            'jobType': jobTypeController.text.trim(),
+                            'description': descriptionController.text.trim(),
+                            'locations': selectedLocations,
+                            'startDate': startDate?.toIso8601String(),
+                            'endDate': endDate?.toIso8601String(),
+                            'duration': durationController.text.trim(),
+                            'majors': selectedMajors,
+                            'gpaOutOf4': gpa4Controller.text.trim(),
+                            'gpaOutOf5': gpa5Controller.text.trim(),
+                            'companyLink': companyLinkController.text.trim(),
+                            'contactInfo': contactInfoController.text.trim(),
+                            'skills': [
+                              ...selectedTechnicalSkills,
+                              ...selectedSoftSkills,
+                              ...selectedManagementSkills,
+                            ],
+                            'providerUid':
+                                FirebaseAuth.instance.currentUser!.uid,
+                            'createdAt': FieldValue.serverTimestamp(),
+                          };
+
+                          await FirebaseFirestore.instance
+                              .collection('opportunity')
+                              .add(opportunityData);
+
+                          Navigator.pop(context); // Close loading
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Opportunity posted successfully"),
+                              duration: Duration(seconds: 2),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+
+                          // ✅ Navigate to provider homepage
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    TrainingProviderHomePage()),
+                          );
+                        } catch (e) {
+                          Navigator.pop(context); // Close loading
+                          print("❌ Error posting opportunity: $e");
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Failed to post opportunity: $e"),
+                              duration: Duration(seconds: 2),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      } else {
+                        print("❌ Fill all required fields including skills");
+                        _scrollController.animateTo(
+                          0,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
                         );
                       }
-                    } else {
-                      print("❌ Fill all required fields including skills");
-                      _scrollController.animateTo(
-                        0,
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
-                    }
-                  },
-                  style:  smallButtonStyle,
-                  child: const Text('Post', style: TextStyle(color: Colors.white)),
-                ),
+                    },
+                    style: smallButtonStyle,
+                    child: const Text('Post',
+                        style: TextStyle(color: Colors.white)),
+                  ),
 
-
-
-                //cancel button
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: kSecondaryButtonStyle,
-                  child: const Text('Cancel', style: TextStyle(color: mainColor)),
-                ),
-              ],
-            )
-          ],
-        ),
+                  //cancel button
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: kSecondaryButtonStyle,
+                    child: const Text('Cancel',
+                        style: TextStyle(color: mainColor)),
+                  ),
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );
   }
 
-   Widget _buildTextField(String label, TextEditingController controller, {int maxLines = 1, bool isRequired = true, String? Function(String?)? validator}) {
+  Widget _buildTextField(String label, TextEditingController controller,
+      {int maxLines = 1,
+      bool isRequired = true,
+      String? Function(String?)? validator}) {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
@@ -829,17 +856,20 @@ List<String> getFilteredTechnicalSkills() {
         labelText: label,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      validator: validator ?? (isRequired ? (value) {
-        if (value == null || value.trim().isEmpty) {
-          return 'This field is required';
-        }
-        return null;
-      } : null),
+      validator: validator ??
+          (isRequired
+              ? (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'This field is required';
+                  }
+                  return null;
+                }
+              : null),
     );
   }
 
-
-    Widget _buildDropdown(String label, TextEditingController controller, List<String> items, Function(String) onSelected) {
+  Widget _buildDropdown(String label, TextEditingController controller,
+      List<String> items, Function(String) onSelected) {
     return GestureDetector(
       onTap: () => _showSelectionDialog(label, items, controller, onSelected),
       child: AbsorbPointer(
@@ -850,29 +880,38 @@ List<String> getFilteredTechnicalSkills() {
             suffixIcon: const Icon(Icons.arrow_drop_down),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
-          validator: (value) => value == null || value.trim().isEmpty ? 'This field is required' : null,
+          validator: (value) => value == null || value.trim().isEmpty
+              ? 'This field is required'
+              : null,
         ),
       ),
     );
   }
 
-  void _showSelectionDialog(String title, List<String> items, TextEditingController controller, Function(String) onSelected) {
+  void _showSelectionDialog(String title, List<String> items,
+      TextEditingController controller, Function(String) onSelected) {
     List<String> filteredItems = List.from(items);
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
           backgroundColor: backgroundColor,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Column(
             children: [
-              Text(title, style: TextStyle(color: mainColor, fontWeight: FontWeight.bold)),
+              Text(title,
+                  style:
+                      TextStyle(color: mainColor, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               TextField(
                 decoration: const InputDecoration(labelText: 'Search'),
                 onChanged: (value) {
                   setState(() {
-                    filteredItems = items.where((item) => item.toLowerCase().contains(value.toLowerCase())).toList();
+                    filteredItems = items
+                        .where((item) =>
+                            item.toLowerCase().contains(value.toLowerCase()))
+                        .toList();
                   });
                 },
               ),
@@ -882,17 +921,19 @@ List<String> getFilteredTechnicalSkills() {
             width: double.maxFinite,
             child: ListView(
               shrinkWrap: true,
-              children: filteredItems.map((item) => RadioListTile<String>(
-                title: Text(item),
-                value: item,
-                groupValue: controller.text,
-                activeColor: mainColor,
-                onChanged: (value) {
-                  controller.text = value!;
-                  onSelected(value);
-                  Navigator.of(context).pop();
-                },
-              )).toList(),
+              children: filteredItems
+                  .map((item) => RadioListTile<String>(
+                        title: Text(item),
+                        value: item,
+                        groupValue: controller.text,
+                        activeColor: mainColor,
+                        onChanged: (value) {
+                          controller.text = value!;
+                          onSelected(value);
+                          Navigator.of(context).pop();
+                        },
+                      ))
+                  .toList(),
             ),
           ),
         ),
@@ -900,7 +941,8 @@ List<String> getFilteredTechnicalSkills() {
     );
   }
 
-  Widget _buildMultiSelectField(String label, List<String> items, List<String> selectedItems) {
+  Widget _buildMultiSelectField(
+      String label, List<String> items, List<String> selectedItems) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -915,12 +957,14 @@ List<String> getFilteredTechnicalSkills() {
               decoration: InputDecoration(
                 labelText: label,
                 suffixIcon: const Icon(Icons.arrow_drop_down),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
               controller: TextEditingController(text: selectedItems.join(', ')),
               validator: (_) {
                 if ((label.contains('Location') && selectedLocations.isEmpty) ||
-                    (label.contains('Skill') && selectedTechnicalSkills.isEmpty)) {
+                    (label.contains('Skill') &&
+                        selectedTechnicalSkills.isEmpty)) {
                   return 'This field is required';
                 }
                 return null;
@@ -930,45 +974,53 @@ List<String> getFilteredTechnicalSkills() {
         ),
         const SizedBox(height: 8),
         Wrap(
-  spacing: 6.0,
-  runSpacing: 6.0,
-  children: selectedItems.map((item) => Chip(
-  backgroundColor: Colors.white, // الخلفية بيضاء بدال البنفسجي
-  label: Text(
-    item,
-    style: const TextStyle(color: Colors.black), // النص أسود
-  ),
-  deleteIconColor: mainColor, // لون أيقونة الحذف
-  onDeleted: () {
-    setState(() {
-      selectedItems.remove(item);
-    });
-  },
-)
-).toList(),
-)
-
+          spacing: 6.0,
+          runSpacing: 6.0,
+          children: selectedItems
+              .map((item) => Chip(
+                    backgroundColor:
+                        Colors.white, // الخلفية بيضاء بدال البنفسجي
+                    label: Text(
+                      item,
+                      style: const TextStyle(color: Colors.black), // النص أسود
+                    ),
+                    deleteIconColor: mainColor, // لون أيقونة الحذف
+                    onDeleted: () {
+                      setState(() {
+                        selectedItems.remove(item);
+                      });
+                    },
+                  ))
+              .toList(),
+        )
       ],
     );
   }
 
-  void _showMultiSelectDialog(String title, List<String> items, List<String> selectedItems) {
+  void _showMultiSelectDialog(
+      String title, List<String> items, List<String> selectedItems) {
     List<String> filteredItems = List.from(items);
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
           backgroundColor: backgroundColor,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Column(
             children: [
-              Text(title, style: TextStyle(color: mainColor, fontWeight: FontWeight.bold)),
+              Text(title,
+                  style:
+                      TextStyle(color: mainColor, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               TextField(
                 decoration: const InputDecoration(labelText: 'Search'),
                 onChanged: (value) {
                   setState(() {
-                    filteredItems = items.where((item) => item.toLowerCase().contains(value.toLowerCase())).toList();
+                    filteredItems = items
+                        .where((item) =>
+                            item.toLowerCase().contains(value.toLowerCase()))
+                        .toList();
                   });
                 },
               ),
@@ -976,24 +1028,27 @@ List<String> getFilteredTechnicalSkills() {
           ),
           content: SingleChildScrollView(
             child: Column(
-              children: filteredItems.map((item) => CheckboxListTile(
-                value: selectedItems.contains(item),
-                title: Text(item),
-                activeColor: mainColor,
-                onChanged: (checked) {
-                  setState(() {
-                    if (checked == true) {
-                      selectedItems.add(item);
-                    } else {
-                      selectedItems.remove(item);
-                    }
+              children: filteredItems
+                  .map((item) => CheckboxListTile(
+                        value: selectedItems.contains(item),
+                        title: Text(item),
+                        activeColor: mainColor,
+                        onChanged: (checked) {
+                          setState(() {
+                            if (checked == true) {
+                              selectedItems.add(item);
+                            } else {
+                              selectedItems.remove(item);
+                            }
 
-                    if (title == 'Select Majors') {
-                      selectedTechnicalSkills.clear(); // إعادة تعيين المهارات التقنية
-                    }
-                  });
-                },
-              )).toList(),
+                            if (title == 'Select Majors') {
+                              selectedTechnicalSkills
+                                  .clear(); // إعادة تعيين المهارات التقنية
+                            }
+                          });
+                        },
+                      ))
+                  .toList(),
             ),
           ),
           actions: [
@@ -1001,7 +1056,8 @@ List<String> getFilteredTechnicalSkills() {
               onPressed: () => Navigator.pop(context),
               style: ElevatedButton.styleFrom(
                 backgroundColor: mainColor,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
               ),
               child: const Text('OK', style: TextStyle(color: Colors.white)),
             )
@@ -1015,11 +1071,10 @@ List<String> getFilteredTechnicalSkills() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        
         Text(
-                'Minimum GPA Requirement (out of 4)',
-                style: TextStyle(fontSize: 14, color: Color(0xFF113F67) ),
-              ),
+          'Minimum GPA Requirement (out of 4)',
+          style: TextStyle(fontSize: 14, color: Color(0xFF113F67)),
+        ),
         const SizedBox(height: 5),
         _buildTextField(
           'GPA (out of 4)',
@@ -1052,17 +1107,15 @@ List<String> getFilteredTechnicalSkills() {
         if (!isGpa4Valid)
           const Padding(
             padding: EdgeInsets.only(top: 4),
-            child: Text("This field is required", style: TextStyle(color: Colors.red)),
+            child: Text("This field is required",
+                style: TextStyle(color: Colors.red)),
           ),
-
-
         const SizedBox(height: 15),
-
         Text(
-                'Minimum GPA Requirement (out of 5)',
-                style: TextStyle(fontSize: 14, color: Color(0xFF113F67) ),
-              ),
-        const SizedBox(height:5),
+          'Minimum GPA Requirement (out of 5)',
+          style: TextStyle(fontSize: 14, color: Color(0xFF113F67)),
+        ),
+        const SizedBox(height: 5),
         _buildTextField(
           'GPA (out of 5)',
           gpa5Controller,
@@ -1091,70 +1144,70 @@ List<String> getFilteredTechnicalSkills() {
             return null;
           },
         ),
-
         if (!isGpa5Valid)
           const Padding(
             padding: EdgeInsets.only(top: 4),
-            child: Text("This field is required", style: TextStyle(color: Colors.red)),
+            child: Text("This field is required",
+                style: TextStyle(color: Colors.red)),
           ),
-
-
       ],
     );
   }
 
-  Widget _buildDatePicker(String label, DateTime? selectedDate, Function(DateTime) onPicked) {
-  return GestureDetector(
-    onTap: () async {
-      DateTime? picked = await showDatePicker(
-        context: context,
-        initialDate: selectedDate ?? DateTime.now(),
-        firstDate: DateTime(2023),
-        lastDate: DateTime(2030),
-        builder: (context, child) {
-          return Theme(
-            data: ThemeData.light().copyWith(
-              colorScheme: ColorScheme.light(
-                primary: mainColor, // اللون الأساسي (header و الزر)
-                onPrimary: Colors.white, // النص في الهيدر
-                surface: backgroundColor, // خلفية الحوارات
-                onSurface: Colors.black, // النص داخل البودي
-              ),
-              textButtonTheme: TextButtonThemeData(
-                style: TextButton.styleFrom(
-                  foregroundColor: mainColor, // لون أزرار Cancel و OK
+  Widget _buildDatePicker(
+      String label, DateTime? selectedDate, Function(DateTime) onPicked) {
+    return GestureDetector(
+      onTap: () async {
+        DateTime? picked = await showDatePicker(
+          context: context,
+          initialDate: selectedDate ?? DateTime.now(),
+          firstDate: DateTime(2023),
+          lastDate: DateTime(2030),
+          builder: (context, child) {
+            return Theme(
+              data: ThemeData.light().copyWith(
+                colorScheme: ColorScheme.light(
+                  primary: mainColor, // اللون الأساسي (header و الزر)
+                  onPrimary: Colors.white, // النص في الهيدر
+                  surface: backgroundColor, // خلفية الحوارات
+                  onSurface: Colors.black, // النص داخل البودي
+                ),
+                textButtonTheme: TextButtonThemeData(
+                  style: TextButton.styleFrom(
+                    foregroundColor: mainColor, // لون أزرار Cancel و OK
+                  ),
                 ),
               ),
-            ),
-            child: child!,
-          );
-        },
-      );
-      if (picked != null) {
-        onPicked(picked);
-      }
-    },
-    child: AbsorbPointer(
-      child: TextFormField(
-        controller: TextEditingController(
-          text: selectedDate != null
-              ? '${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}'
-              : '',
+              child: child!,
+            );
+          },
+        );
+        if (picked != null) {
+          onPicked(picked);
+        }
+      },
+      child: AbsorbPointer(
+        child: TextFormField(
+          controller: TextEditingController(
+            text: selectedDate != null
+                ? '${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}'
+                : '',
+          ),
+          decoration: InputDecoration(
+            labelText: label,
+            suffixIcon: const Icon(Icons.calendar_today),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+          validator: (value) => (value == null || value.trim().isEmpty)
+              ? 'This field is required'
+              : null,
         ),
-        decoration: InputDecoration(
-          labelText: label,
-          suffixIcon: const Icon(Icons.calendar_today),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-        validator: (value) =>
-            (value == null || value.trim().isEmpty) ? 'This field is required' : null,
       ),
-    ),
-  );
-}
+    );
+  }
 
-
-  Widget _buildSkillSelector(String label, List<String> allSkills, List<String> selectedSkills) {
+  Widget _buildSkillSelector(
+      String label, List<String> allSkills, List<String> selectedSkills) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1165,9 +1218,11 @@ List<String> getFilteredTechnicalSkills() {
               decoration: InputDecoration(
                 labelText: label,
                 suffixIcon: const Icon(Icons.arrow_drop_down),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              controller: TextEditingController(text: selectedSkills.join(', ')),
+              controller:
+                  TextEditingController(text: selectedSkills.join(', ')),
             ),
           ),
         ),
@@ -1180,15 +1235,12 @@ List<String> getFilteredTechnicalSkills() {
                     label: Text(skill),
                     backgroundColor: Colors.white,
                     deleteIconColor: const Color(0xFF113F67),
-                    onDeleted: () => setState(() => selectedSkills.remove(skill)),
+                    onDeleted: () =>
+                        setState(() => selectedSkills.remove(skill)),
                   ))
               .toList(),
         ),
       ],
     );
   }
-
-
 }
-
-

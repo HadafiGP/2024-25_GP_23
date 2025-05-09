@@ -128,7 +128,6 @@ class _ProfilePageState extends State<ProfilePage> {
     "Thoroughness",
     "Time Management",
     "Verbal and Written Clarity",
-    "Verbal and Written Clarity",
     "Workplace Etiquette",
     "Working Effectively Within Teams",
     "Networking",
@@ -147,7 +146,6 @@ class _ProfilePageState extends State<ProfilePage> {
     "Expense Tracking",
     "Facilitating Transitions Smoothly",
     "Forecasting",
-    "Leadership",
     "Mentorship",
     "Operational Planning",
     "Performance Evaluation",
@@ -219,7 +217,6 @@ class _ProfilePageState extends State<ProfilePage> {
     "Thoroughness",
     "Time Management",
     "Verbal and Written Clarity",
-    "Verbal and Written Clarity",
     "Workplace Etiquette",
     "Working Effectively Within Teams",
     "Networking",
@@ -237,7 +234,6 @@ class _ProfilePageState extends State<ProfilePage> {
     "Crisis Management",
     "Delegation",
     "Facilitating Transitions Smoothly",
-    "Leadership",
     "Mentorship",
     "Operational Planning",
     "Performance Evaluation",
@@ -288,7 +284,6 @@ class _ProfilePageState extends State<ProfilePage> {
     "Thoroughness",
     "Time Management",
     "Verbal and Written Clarity",
-    "Verbal and Written Clarity",
     "Workplace Etiquette",
     "Working Effectively Within Teams",
     "Networking",
@@ -307,7 +302,6 @@ class _ProfilePageState extends State<ProfilePage> {
     "Facilitating Transitions Smoothly",
     "Forecasting",
     "Innovation Management",
-    "Leadership",
     "Mentorship",
     "Operational Planning",
     "Performance Evaluation",
@@ -435,7 +429,6 @@ class _ProfilePageState extends State<ProfilePage> {
     'Syrian',
     'Tunisian',
     'Yemeni',
-    'Other',
   ];
 
   final List<String> _cities = [
@@ -458,7 +451,6 @@ class _ProfilePageState extends State<ProfilePage> {
     'Riyadh',
     'Tabuk',
     'Taif',
-    'Other'
   ];
   @override
   void initState() {

@@ -94,7 +94,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     'Riyadh',
     'Tabuk',
     'Taif',
-    'Other'
   ];
 
   final List<String> _nationalities = [
@@ -114,7 +113,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     'Syrian',
     'Tunisian',
     'Yemeni',
-    'Other',
   ];
 
 // List of all available majors
@@ -205,7 +203,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     'Orthodontics',
     'Occupational Therapy',
     'Organization Development',
-    'Other',
     'Pharmacy',
     'Petroleum Engineering',
     'Public Health',
@@ -270,7 +267,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     "Expense Tracking",
     "Facilitating Transitions Smoothly",
     "Forecasting",
-    "Leadership",
     "Mentorship",
     "Operational Planning",
     "Performance Evaluation",
@@ -342,7 +338,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     "Thoroughness",
     "Time Management",
     "Verbal and Written Clarity",
-    "Verbal and Written Clarity",
     "Workplace Etiquette",
     "Working Effectively Within Teams",
     "Networking",
@@ -360,7 +355,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     "Crisis Management",
     "Delegation",
     "Facilitating Transitions Smoothly",
-    "Leadership",
     "Mentorship",
     "Operational Planning",
     "Performance Evaluation",
@@ -386,7 +380,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     "Facilitating Transitions Smoothly",
     "Forecasting",
     "Innovation Management",
-    "Leadership",
     "Mentorship",
     "Operational Planning",
     "Performance Evaluation",
