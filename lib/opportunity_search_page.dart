@@ -64,7 +64,7 @@ class _OpportunitySearchPageState extends State<OpportunitySearchPage> {
       ),
       body: Column(
         children: [
-          // Search Bar here
+          // Search Bar
           Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -104,16 +104,13 @@ class _OpportunitySearchPageState extends State<OpportunitySearchPage> {
               ),
             ),
           ),
-          // Info Box
           Container(
             padding:
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            margin: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0), // To add margin and avoid it touching edges
+            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             decoration: BoxDecoration(
               color: const Color(0xFFE3F2FD),
-              borderRadius: BorderRadius.circular(8), // Rounded corners
+              borderRadius: BorderRadius.circular(8),
               boxShadow: const [
                 BoxShadow(
                   color: Colors.black12,
@@ -143,7 +140,7 @@ class _OpportunitySearchPageState extends State<OpportunitySearchPage> {
             ),
           ),
 
-          // Results
+          //results
           Expanded(
             child: filteredResults.isEmpty
                 ? const Center(

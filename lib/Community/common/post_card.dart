@@ -9,7 +9,6 @@ import 'package:hadafi_application/Community/model/post_model.dart';
 import 'package:hadafi_application/Community/post/controller/post_controller.dart';
 import 'package:hadafi_application/Community/provider.dart';
 import 'package:hadafi_application/Community/post/screens/comments_screen.dart';
-import 'package:hadafi_application/Community/user_profile/screens/user_profile_screen.dart';
 import 'package:hadafi_application/Community/CommunityProfile.dart';
 import 'package:hadafi_application/Community/controller/community_controller.dart';
 
@@ -101,7 +100,6 @@ class _PostCardState extends ConsumerState<PostCard>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Section
             Row(
               children: [
                 CircleAvatar(
@@ -167,13 +165,13 @@ class _PostCardState extends ConsumerState<PostCard>
             ),
             const SizedBox(height: 10),
 
-            // Post Title
+            //Post Title
             Text(
               post.title,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
 
-            // Description
+            //Description
             if (post.description != null && post.description!.isNotEmpty)
               AnimatedSize(
                 duration: const Duration(milliseconds: 300),
@@ -207,9 +205,7 @@ class _PostCardState extends ConsumerState<PostCard>
 
             const SizedBox(height: 8),
 
-// Post Content
-
-            // Replace your image display section with this:
+//image
             if (post.hasImage)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
@@ -411,7 +407,7 @@ class _PostCardState extends ConsumerState<PostCard>
     });
   }
 
-  // Add this helper method to extract links from text
+  //extract links from text
   List<String> _extractLinks(String text) {
     final urlRegExp = RegExp(
       r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+',
@@ -432,7 +428,6 @@ String timeAgo(DateTime date) {
   final days = diff.inDays;
   if (days <= 7) return '${days}d';
 
-  // More than 7 days: format as dd/mm/yyyy
   final day = date.day.toString().padLeft(2, '0');
   final month = date.month.toString().padLeft(2, '0');
   final year = date.year.toString();

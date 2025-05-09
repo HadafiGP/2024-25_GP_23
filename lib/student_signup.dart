@@ -496,9 +496,9 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
         _currentTechnicalSkills.clear();
         _currentSoftSkills.clear();
         _currentManagementSkills.clear();
-        _selectedTechnicalSkills.clear(); // Clear selected technical skills
-        _selectedSoftSkills.clear(); // Clear selected soft skills
-        _selectedManagementSkills.clear(); // Clear selected management skills
+        _selectedTechnicalSkills.clear();
+        _selectedSoftSkills.clear();
+        _selectedManagementSkills.clear();
       });
       return;
     }
@@ -602,7 +602,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
         _currentManagementSkills = List.from(scientificManagementSkills);
       }
 
-      // Clear previously selected skills when the major changes
       _selectedTechnicalSkills.clear();
       _selectedManagementSkills.clear();
       _selectedSoftSkills.clear();
@@ -681,7 +680,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
     _filteredCities = _cities;
     _isMajorSelected = false;
     _filteredMajors.addAll(_majors);
-    // Add a listener to clear email error when the user changes the email input
     _emailController.addListener(() {
       if (_emailError != null) {
         setState(() {
@@ -689,7 +687,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
         });
       }
     });
-    _filteredMajors.addAll(_majors); // Initialize with all majors
+    _filteredMajors.addAll(_majors);
   }
 
   Future pickImage2(ImageSource source) async {
@@ -761,7 +759,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                         key: _emailKey,
                         validator: (value) {
                           if (_emailError != null) {
-                            return _emailError; // Display the email aleardy in use error
+                            return _emailError;
                           }
                           if (value == null || value.isEmpty) {
                             return 'Please enter your email';
@@ -777,8 +775,8 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                       const SizedBox(height: 15),
                       _buildTextField(
                         'Password (required)',
-                        _passwordController, key: _passwordKey,
-
+                        _passwordController,
+                        key: _passwordKey,
                         isPassword: true,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -798,8 +796,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
 
                           return null;
                         },
-                        onChanged: (value) =>
-                            _validatePassword(value), // Call validation method
+                        onChanged: (value) => _validatePassword(value),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _isPasswordVisible
@@ -814,7 +811,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      _buildPasswordGuidance(), //password guidance here
+                      _buildPasswordGuidance(),
 
                       const SizedBox(height: 15),
 
@@ -825,10 +822,9 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                       _buildNationalitySelector(key: _nationalityKey),
                       const SizedBox(height: 15),
 
-// GPA Scale and GPA Field Placement
+// GPA Scale and GPA Field
                       Column(
-                        crossAxisAlignment: CrossAxisAlignment
-                            .start, // Align buttons to the left
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // GPA Scale Buttons
                           Row(
@@ -837,8 +833,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                                 onPressed: () {
                                   setState(() {
                                     _selectedGpaScale = 4.0;
-                                    _gpaController
-                                        .clear(); // Clear the GPA field if scale changes
+                                    _gpaController.clear();
                                   });
                                 },
                                 key: _gpaKey,
@@ -863,8 +858,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                                 onPressed: () {
                                   setState(() {
                                     _selectedGpaScale = 5.0;
-                                    _gpaController
-                                        .clear(); // Clear the GPA field if scale changes
+                                    _gpaController.clear();
                                   });
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -1049,23 +1043,21 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                       ),
 
                       const SizedBox(height: 15),
-                      _buildManagementSkillsSelector(), // Management Skills Dropdown
+                      _buildManagementSkillsSelector(),
                       const SizedBox(height: 15),
-                      _buildSoftSkillsSelector(), // Soft Skills Dropdown
+                      _buildSoftSkillsSelector(),
                       const SizedBox(height: 15),
-                      _buildTechnicalSkillsSelector(), // Technical Skills Dropdown
+                      _buildTechnicalSkillsSelector(),
 
                       const SizedBox(height: 30),
 
                       _isLoading
                           ? CircularProgressIndicator()
-                          : // Sign Up button with separate skills validation
-                          ElevatedButton(
+                          : ElevatedButton(
                               onPressed: () {
                                 setState(() {
                                   _hasAttemptedSubmit = true;
 
-                                  // Manually validate skills selection
                                   _isSkillsSelected = _selectedTechnicalSkills
                                           .isNotEmpty ||
                                       _selectedManagementSkills.isNotEmpty ||
@@ -1077,7 +1069,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                                 }
                                 if (_formKey.currentState!.validate() &&
                                     _isSkillsSelected) {
-                                  _signUp(); // Proceed if form and skills validation pass
+                                  _signUp();
                                 }
                               },
                               style: kMainButtonStyle,
@@ -1204,7 +1196,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
 
   void _showMajorDialog() {
     setState(() {
-      _filteredMajors = _majors; // Initialize with all majors
+      _filteredMajors = _majors;
     });
 
     showDialog(
@@ -1261,8 +1253,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                             _selectedMajor); // Update skills based on major
                       });
                     }
-                    Navigator.of(context)
-                        .pop(); // Close dialog when OK is pressed
+                    Navigator.of(context).pop();
                   },
                   child: Text('OK'),
                 ),
@@ -1289,7 +1280,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                 ),
               );
             } else {
-              // Ensure the dialog opens for Technical Skills
               _showSkillsDialog(
                 "Select Technical Skills",
                 _currentTechnicalSkills,
@@ -1299,7 +1289,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
           },
           child: AbsorbPointer(
             child: TextFormField(
-              enabled: _isMajorSelected, // Enable only if a major is selected
+              enabled: _isMajorSelected,
               decoration: InputDecoration(
                 labelText: 'Select Technical Skills',
                 suffixIcon: const Icon(Icons.arrow_drop_down),
@@ -1307,15 +1297,12 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                     OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
               controller: TextEditingController(
-                text: _selectedTechnicalSkills
-                    .join(', '), // Display selected skills
+                text: _selectedTechnicalSkills.join(', '),
               ),
             ),
           ),
         ),
         const SizedBox(height: 8),
-
-        // Display selected skills as Chips
         Wrap(
           spacing: 6.0,
           runSpacing: 6.0,
@@ -1324,8 +1311,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
               label: Text(skill),
               onDeleted: () {
                 setState(() {
-                  _selectedTechnicalSkills
-                      .remove(skill); // Remove skill from list
+                  _selectedTechnicalSkills.remove(skill);
                 });
               },
             );
@@ -1342,7 +1328,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
         GestureDetector(
           onTap: () {
             if (!_isMajorSelected) {
-              // Show snackbar warning if no major is selected
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('Please choose your major first.'),
@@ -1350,7 +1335,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                 ),
               );
             } else {
-              // Ensure the dialog opens for Management Skills
               _showSkillsDialog(
                 "Select Management Skills",
                 _currentManagementSkills,
@@ -1410,14 +1394,13 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                 ),
               );
             } else {
-              // Use the dynamic soft skills list (_currentSoftSkills)
               _showSkillsDialog("Select Soft Skills", _currentSoftSkills,
                   _selectedSoftSkills);
             }
           },
           child: AbsorbPointer(
             child: TextFormField(
-              enabled: _isMajorSelected, // Enable only if a major is selected
+              enabled: _isMajorSelected,
               decoration: InputDecoration(
                 labelText: 'Select Soft Skills',
                 suffixIcon: const Icon(Icons.arrow_drop_down),
@@ -1431,8 +1414,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
           ),
         ),
         const SizedBox(height: 8),
-
-        // Display selected skills as Chips
         Wrap(
           spacing: 6.0,
           runSpacing: 6.0,
@@ -1441,7 +1422,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
               label: Text(skill),
               onDeleted: () {
                 setState(() {
-                  _selectedSoftSkills.remove(skill); // Remove skill from list
+                  _selectedSoftSkills.remove(skill);
                 });
               },
             );
@@ -1505,8 +1486,8 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
               actions: [
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
-                    setState(() {}); // Update parent state
+                    Navigator.of(context).pop();
+                    setState(() {});
                   },
                   child: Text('OK'),
                 ),
@@ -1516,7 +1497,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
         );
       },
     ).then((_) {
-      // Ensure the main screen reflects selected skills
       setState(() {});
     });
   }
@@ -1538,9 +1518,8 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              controller: TextEditingController(
-                  text: _selectedLocations
-                      .join(', ')), // Update field with selected locations
+              controller:
+                  TextEditingController(text: _selectedLocations.join(', ')),
               validator: (value) {
                 if (_selectedLocations.isEmpty) {
                   return 'Please select at least one location';
@@ -1551,8 +1530,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
           ),
         ),
         const SizedBox(height: 8),
-
-        // Display selected locations as Chips
         Wrap(
           spacing: 6.0,
           runSpacing: 6.0,
@@ -1561,8 +1538,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
               label: Text(location),
               onDeleted: () {
                 setState(() {
-                  _selectedLocations
-                      .remove(location); // Remove location from list
+                  _selectedLocations.remove(location);
                 });
               },
             );
@@ -1573,7 +1549,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   }
 
   void _showLocationDialog() {
-    _filteredCities = _cities; // Reset the filtered cities list
+    _filteredCities = _cities;
 
     showDialog(
       context: context,
@@ -1592,11 +1568,9 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                     ),
                     onChanged: (value) {
                       setState(() {
-                        // If search field is empty, reset the filtered list to show all cities
                         if (value.isEmpty) {
                           _filteredCities = _cities;
                         } else {
-                          // Filter cities starting with the typed letter(s)
                           _filteredCities = _cities
                               .where((city) => city
                                   .toLowerCase()
@@ -1631,8 +1605,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                 ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pop();
-                    setState(
-                        () {}); // Refresh the main widget state to reflect changes
+                    setState(() {});
                   },
                   child: Text('OK'),
                 ),
@@ -1643,8 +1616,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
       },
     ).then((_) {
       setState(() {
-        _locationController.text = _selectedLocations
-            .join(', '); // Ensure field text is updated after dialog
+        _locationController.text = _selectedLocations.join(', ');
       });
     });
   }
@@ -1740,8 +1712,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
 
   @override
   void dispose() {
-    _emailController
-        .dispose(); // Dispose of the controller when the widget is removed
+    _emailController.dispose();
     super.dispose();
   }
 
@@ -1767,17 +1738,16 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
 
     setState(() {
       _isLoading = true;
-      _emailError = null; // Reset the email error before sign-up attempt
+      _emailError = null;
     });
 
     try {
-      // Set a timeout of 15 seconds for Firebase sign-up operation
       UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(
             email: _emailController.text.trim(),
             password: _passwordController.text,
           )
-          .timeout(Duration(seconds: 15)); // Timeout for Firebase Auth
+          .timeout(Duration(seconds: 15));
 
       User? user = userCredential.user;
 
@@ -1814,20 +1784,18 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
           'nationality': _selectedNationality,
           'uid': user.uid,
           'role': 'student', // Store the user role as 'student'
-          'profilePic': avatarUrl, // Add profilePic URL
+          'profilePic': avatarUrl,
         });
 
         ProviderScope.containerOf(context).read(uidProvider.notifier).state =
             user.uid;
 
-        // Navigate to Student Home Page after successful sign-up
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => StudentHomePage()),
         );
       }
     } on TimeoutException {
-      // Handle timeout error
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -1843,7 +1811,6 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
         setState(() {
           _emailError = 'This email is already in use. Please log in.';
         });
-        // Re-run form validation to display the error immediately
         _formKey.currentState!.validate();
       } else {
         // Show general Firebase error

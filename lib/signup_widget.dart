@@ -12,7 +12,7 @@ class SignupWidget extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: IconThemeData(
-          color: Colors.white, // Set the arrow (back button) color to white
+          color: Colors.white,
         ),
       ),
       extendBodyBehindAppBar: true,

@@ -32,8 +32,6 @@ class Post {
     required this.awards,
   });
 
-  // ... keep existing copyWith, toMap, fromMap methods ...
-
   bool get hasImage => imageUrls != null && imageUrls!.isNotEmpty;
   bool get hasDescription => description != null && description!.isNotEmpty;
 
@@ -79,14 +77,13 @@ class Post {
       'imageUrls': imageUrls != null ? List<dynamic>.from(imageUrls!) : null,
       'communityName': communityName,
       'communityProfilePic': communityProfilePic,
-      'upvotes': List<dynamic>.from(upvotes), // ✅ Fix for List<String>
-      'downvotes': List<dynamic>.from(downvotes), // ✅ Fix for List<String>
+      'upvotes': List<dynamic>.from(upvotes),
+      'downvotes': List<dynamic>.from(downvotes),
       'commentCount': commentCount,
       'username': username,
       'uid': uid,
-      'createdAt':
-          Timestamp.fromDate(createdAt), // ✅ Fix Firestore DateTime issue
-      'awards': List<dynamic>.from(awards), // ✅ Fix for List<String>
+      'createdAt': Timestamp.fromDate(createdAt),
+      'awards': List<dynamic>.from(awards),
     };
   }
 
@@ -99,10 +96,8 @@ class Post {
           map['imageUrls'] != null ? List<String>.from(map['imageUrls']) : null,
       communityName: map['communityName'] ?? '',
       communityProfilePic: map['communityProfilePic'] ?? '',
-      upvotes: List<String>.from(
-          map['upvotes'] ?? []), // ✅ Convert List<dynamic> to List<String>
-      downvotes: List<String>.from(
-          map['downvotes'] ?? []), // ✅ Convert List<dynamic> to List<String>
+      upvotes: List<String>.from(map['upvotes'] ?? []),
+      downvotes: List<String>.from(map['downvotes'] ?? []),
       commentCount: map['commentCount'] ?? 0,
       username: map['username'] ?? '',
       uid: map['uid'] ?? '',
@@ -112,9 +107,8 @@ class Post {
               ? DateTime.parse(map['createdAt'])
               : map['createdAt'] is DateTime
                   ? map['createdAt']
-                  : DateTime.now(), // ✅ Convert Firestore Timestamp to DateTime
-      awards: List<String>.from(
-          map['awards'] ?? []), // ✅ Convert List<dynamic> to List<String>
+                  : DateTime.now(),
+      awards: List<String>.from(map['awards'] ?? []),
     );
   }
 

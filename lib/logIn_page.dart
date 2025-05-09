@@ -58,12 +58,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final bool isPasswordVisible = ref.watch(isPasswordVisibleProvider);
     final String? errorMessage = ref.watch(errorMessageProvider);
     final String? successMessage = ref.watch(successMessageProvider);
-    
 
     if (isLoading && backFromForget) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref.read(isLoadingProvider.notifier).state = false;
-        backFromForget=false;
+        backFromForget = false;
       });
     }
 
@@ -170,9 +169,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         const Text(
                           'Login',
                           style: TextStyle(
-                            fontSize: kFontSizeLarge, // ✅ حجم خط موحد
+                            fontSize: kFontSizeLarge,
                             fontWeight: FontWeight.bold,
-                            color: mainColor, // ✅
+                            color: mainColor,
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -189,11 +188,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 MaterialPageRoute(
                                   builder: (context) => ForgetPasswordPage(),
                                 ),
-                              ).then((_){
+                              ).then((_) {
                                 setState(() {
-                                  backFromForget=true;
+                                  backFromForget = true;
                                 });
-                                
                               });
                             },
                             child: const Text(
@@ -244,7 +242,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ? const CircularProgressIndicator()
                             : ElevatedButton(
                                 onPressed: _login,
-                                style: kMainButtonStyle, 
+                                style: kMainButtonStyle,
                                 child: const Text(
                                   'Login',
                                   style: TextStyle(

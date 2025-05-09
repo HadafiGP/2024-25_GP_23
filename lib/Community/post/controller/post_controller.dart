@@ -214,22 +214,11 @@ class PostController extends StateNotifier<bool> {
             showSnackBar(context, 'Post deleted succesfully!', success: true));
   }
 
-//   void upvote(Post post) async {
-//   final user = _ref.read(userProvider);
-
-//   if (user == null) {
-//     print("User is not logged in!"); // Debugging message
-//     return; // Exit function if user is not logged in
-//   }
-
-//   _postRepository.upvote(post, user.uid);
-// }
-
   void upvote(Post post) async {
     final userId = _ref.read(userProvider);
 
     if (userId == null) {
-      print("User is not logged in!"); // Debugging message (only in logs)
+      print("User is not logged in!");
       return;
     }
 
@@ -237,16 +226,16 @@ class PostController extends StateNotifier<bool> {
 
     userDataAsync.when(
       data: (userData) async {
-        if (userData == null) return; // No error shown to user
+        if (userData == null) return;
 
         String userUid = userData['uid'] ?? '';
         _postRepository.upvote(post, userUid);
       },
       error: (error, stackTrace) {
-        print("Error retrieving user data: $error"); // Only logs error
+        print("Error retrieving user data: $error");
       },
       loading: () {
-        print('Loading user data for upvote...'); // Logs loading state
+        print('Loading user data for upvote...');
       },
     );
   }
@@ -255,7 +244,7 @@ class PostController extends StateNotifier<bool> {
     final userId = _ref.read(userProvider);
 
     if (userId == null) {
-      print("User is not logged in!"); // Debugging message (only in logs)
+      print("User is not logged in!");
       return;
     }
 
@@ -263,16 +252,16 @@ class PostController extends StateNotifier<bool> {
 
     userDataAsync.when(
       data: (userData) async {
-        if (userData == null) return; // No error shown to user
+        if (userData == null) return;
 
         String userUid = userData['uid'] ?? '';
         _postRepository.downvote(post, userUid);
       },
       error: (error, stackTrace) {
-        print("Error retrieving user data: $error"); // Only logs error
+        print("Error retrieving user data: $error");
       },
       loading: () {
-        print('Loading user data for upvote...'); // Logs loading state
+        print('Loading user data for upvote...');
       },
     );
   }
@@ -289,7 +278,7 @@ class PostController extends StateNotifier<bool> {
     final userId = _ref.read(userProvider);
 
     if (userId == null) {
-      print("User is not logged in!"); // Debugging message (only in logs)
+      print("User is not logged in!");
       return;
     }
 
@@ -336,13 +325,12 @@ class PostController extends StateNotifier<bool> {
     return _postRepository.getCommentsOfPost(postId);
   }
 
-  // Add this method to PostController class
   Future<void> sharedPost({
     required BuildContext context,
     required String title,
     required Community selectedCommunity,
     required String description,
-    List<File>? imageFiles, // Changed from single File to List<File>
+    List<File>? imageFiles,
   }) async {
     state = true;
     String postId = const Uuid().v1();

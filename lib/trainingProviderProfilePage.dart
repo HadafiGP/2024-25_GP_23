@@ -123,7 +123,7 @@ class _TrainingProviderProfilePageState
     final email = _emailController.text.trim();
     final currentEmail = _auth.currentUser?.email;
 
-    // 1. Check email format with regex
+    //Check email format with regex
     final emailRegex =
         RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
     if (!emailRegex.hasMatch(email)) {
@@ -133,7 +133,7 @@ class _TrainingProviderProfilePageState
       return;
     }
 
-    // 2. Check if email is in exception list or has trusted domain
+    //Check if email is in exception list or has trusted domain
     String domain = email.split('@').last;
     if (!exceptionEmails.contains(email) && !trustedDomains.contains(domain)) {
       setState(() {
@@ -143,7 +143,7 @@ class _TrainingProviderProfilePageState
       return;
     }
 
-    // 3. Check if email has changed and is already in use
+    //Check if email has changed and is already in use
     if (email != currentEmail) {
       bool isEmailInUse = await checkEmailInUse(email);
       if (isEmailInUse) {
@@ -282,8 +282,7 @@ class _TrainingProviderProfilePageState
                                   'Success ',
                                   style: TextStyle(color: Color(0xFF113F67)),
                                 ),
-                                Icon(Icons.check_circle,
-                                    color: Colors.green), // Check icon
+                                Icon(Icons.check_circle, color: Colors.green),
                                 SizedBox(width: 10),
                               ],
                             ),
@@ -306,7 +305,6 @@ class _TrainingProviderProfilePageState
                         },
                       );
                     } catch (e) {
-                      // Show error message in a popup dialog
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {

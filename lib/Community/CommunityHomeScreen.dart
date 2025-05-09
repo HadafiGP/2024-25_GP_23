@@ -10,7 +10,6 @@ import 'package:hadafi_application/Community/model/community_model.dart';
 import 'package:hadafi_application/Community/post/screens/communityHeader.dart';
 import 'package:hadafi_application/StudentHomePage.dart';
 import 'package:hadafi_application/Community/CommunityProfile.dart';
-import 'package:hadafi_application/Community/user_profile/screens/user_profile_screen.dart';
 import 'package:hadafi_application/Community/post/screens/add_post_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hadafi_application/Community/post/screens/feed_screen.dart';
@@ -161,8 +160,7 @@ class _CommunityhomescreenState extends ConsumerState<Communityhomescreen> {
         );
       },
       onTapCancel: () => setState(() => _scale = 1.0),
-      child: 
-          AnimatedScale(
+      child: AnimatedScale(
         scale: _scale,
         duration: const Duration(milliseconds: 100),
         child: Container(

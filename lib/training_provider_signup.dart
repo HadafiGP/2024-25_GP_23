@@ -26,7 +26,7 @@ class _TrainingProviderSignupScreenState
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
 
-  String? _emailError; // To hold the "email already in use" error
+  String? _emailError;
   final List<String> _selectedLocations = [];
   List<String> _filteredCities = [];
   bool _isLoading = false;
@@ -109,7 +109,6 @@ class _TrainingProviderSignupScreenState
     super.initState();
     _filteredCities = _cities;
 
-    // Add a listener to clear email error when the user changes the email input
     _emailController.addListener(() {
       if (_emailError != null) {
         setState(() {
@@ -153,9 +152,9 @@ class _TrainingProviderSignupScreenState
                       Text(
                         'Training Provider Sign Up',
                         style: TextStyle(
-                          fontSize: kFontSizeLarge, // ✅ حجم خط موحد للعناوين
+                          fontSize: kFontSizeLarge,
                           fontWeight: FontWeight.bold,
-                          color: mainColor, // ✅ لون موحد من ملف التنسيق
+                          color: mainColor,
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -173,13 +172,12 @@ class _TrainingProviderSignupScreenState
                       ),
                       const SizedBox(height: 15),
 
-                      // Company email field with both domain and exception email validation
                       _buildTextField(
                         'Company Email (required)',
                         _emailController,
                         validator: (value) {
                           if (_emailError != null) {
-                            return _emailError; // Display the email aleardy in use error
+                            return _emailError;
                           }
                           if (value == null || value.isEmpty) {
                             return 'Please enter your company email';
@@ -191,7 +189,6 @@ class _TrainingProviderSignupScreenState
                             return 'Please enter a valid email address';
                           }
 
-                          // Extract the domain from the email
                           String domain = value.split('@').last;
 
                           // Check if the email is in the exception list or if the domain is trusted
@@ -229,8 +226,7 @@ class _TrainingProviderSignupScreenState
 
                           return null;
                         },
-                        onChanged: (value) =>
-                            _validatePassword(value), // Call validation method
+                        onChanged: (value) => _validatePassword(value),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _isPasswordVisible
@@ -246,7 +242,7 @@ class _TrainingProviderSignupScreenState
                         ),
                       ),
                       const SizedBox(height: 10),
-                      _buildPasswordGuidance(), // Display password guidance here
+                      _buildPasswordGuidance(), //password guidance here
                       const SizedBox(height: 15),
                       // location selector
                       _buildLocationSelector(),
@@ -282,19 +278,19 @@ class _TrainingProviderSignupScreenState
     bool isPassword = false,
     bool enabled = true,
     String? Function(String?)? validator,
-    Function(String)? onChanged, // Add onChanged parameter
-    Widget? suffixIcon, // New parameter for suffix icon
+    Function(String)? onChanged,
+    Widget? suffixIcon,
   }) {
     return TextFormField(
       controller: controller,
-      obscureText: isPassword && !_isPasswordVisible, // Toggle visibility
+      obscureText: isPassword && !_isPasswordVisible,
       validator: validator,
       onChanged: onChanged,
       enabled: enabled,
       decoration: InputDecoration(
         labelText: label,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        suffixIcon: suffixIcon, //suffix icon
+        suffixIcon: suffixIcon,
       ),
     );
   }
@@ -322,14 +318,14 @@ class _TrainingProviderSignupScreenState
     IconData icon;
 
     if (isValid) {
-      color = Colors.green; // Met criteria: Green
-      icon = Icons.check_circle; // Check icon
+      color = Colors.green;
+      icon = Icons.check_circle;
     } else if (_hasAttemptedSubmit) {
-      color = Colors.red; // Unmet criteria after submit attempt: Red
-      icon = Icons.cancel; // Cancel icon
+      color = Colors.red;
+      icon = Icons.cancel;
     } else {
-      color = Colors.grey; // Unmet criteria before submit: Grey
-      icon = Icons.radio_button_unchecked; // Neutral icon
+      color = Colors.grey;
+      icon = Icons.radio_button_unchecked;
     }
 
     return Row(
@@ -367,9 +363,8 @@ class _TrainingProviderSignupScreenState
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              controller: TextEditingController(
-                  text: _selectedLocations
-                      .join(', ')), // Update field with selected locations
+              controller:
+                  TextEditingController(text: _selectedLocations.join(', ')),
               validator: (value) {
                 if (_selectedLocations.isEmpty) {
                   return 'Please select at least one location';
@@ -379,9 +374,7 @@ class _TrainingProviderSignupScreenState
             ),
           ),
         ),
-        const SizedBox(height: 8), // Space between TextFormField and Chips
-
-        // Display selected locations as Chips
+        const SizedBox(height: 8),
         Wrap(
           spacing: 6.0,
           runSpacing: 6.0,
@@ -390,8 +383,7 @@ class _TrainingProviderSignupScreenState
               label: Text(location),
               onDeleted: () {
                 setState(() {
-                  _selectedLocations
-                      .remove(location); // Remove location from list
+                  _selectedLocations.remove(location);
                 });
               },
             );
@@ -402,7 +394,7 @@ class _TrainingProviderSignupScreenState
   }
 
   void _showLocationDialog() {
-    _filteredCities = _cities; // Reset the filtered cities list
+    _filteredCities = _cities;
 
     showDialog(
       context: context,
@@ -421,11 +413,9 @@ class _TrainingProviderSignupScreenState
                     ),
                     onChanged: (value) {
                       setState(() {
-                        // If search field is empty, reset the filtered list to show all cities
                         if (value.isEmpty) {
                           _filteredCities = _cities;
                         } else {
-                          // Filter cities starting with the typed letter(s)
                           _filteredCities = _cities
                               .where((city) => city
                                   .toLowerCase()
@@ -459,9 +449,8 @@ class _TrainingProviderSignupScreenState
               actions: [
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Close dialog
-                    setState(
-                        () {}); // Refresh the main widget state to reflect changes
+                    Navigator.of(context).pop();
+                    setState(() {});
                   },
                   child: Text('OK'),
                 ),
@@ -472,16 +461,14 @@ class _TrainingProviderSignupScreenState
       },
     ).then((_) {
       setState(() {
-        _locationController.text = _selectedLocations
-            .join(', '); // Ensure field text is updated after dialog
+        _locationController.text = _selectedLocations.join(', ');
       });
     });
   }
 
   @override
   void dispose() {
-    _emailController
-        .dispose(); // Dispose of the controller when the widget is removed
+    _emailController.dispose();
     super.dispose();
   }
 
@@ -495,26 +482,25 @@ class _TrainingProviderSignupScreenState
 // Store training provider data in Firestore and Firebase Authentication
   Future<void> _signUp() async {
     setState(() {
-      _hasAttemptedSubmit = true; // Track that the user attempted to submit
+      _hasAttemptedSubmit = true;
       _isLoading = true;
-      _emailError = null; // Reset the email error before sign-up attempt
+      _emailError = null;
     });
 
     if (!_formKey.currentState!.validate()) {
       setState(() {
-        _isLoading = false; // Stop loading if validation fails
+        _isLoading = false;
       });
       return; // If the form is not valid, return and show errors
     }
 
     try {
-      // Set a timeout of 15 seconds for Firebase sign-up operation
       UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(
             email: _emailController.text.trim(),
             password: _passwordController.text,
           )
-          .timeout(Duration(seconds: 15)); // Timeout for Firebase Auth
+          .timeout(Duration(seconds: 15));
 
       User? user = userCredential.user;
 
@@ -526,10 +512,10 @@ class _TrainingProviderSignupScreenState
         await _firestore.collection('TrainingProvider').doc(user.uid).set({
           'company_name': _companyNameController.text.trim(),
           'email': _emailController.text.trim(),
-          'password': encryptedPassword, // Store encrypted password
-          'location': _selectedLocations, // Store selected locations
+          'password': encryptedPassword,
+          'location': _selectedLocations,
           'uid': user.uid,
-          'role': 'training_provider', // Storing the user role
+          'role': 'training_provider',
         });
 
         // Navigate to Training Provider Home Page after successful sign-up
@@ -539,7 +525,6 @@ class _TrainingProviderSignupScreenState
         );
       }
     } on TimeoutException {
-      // Handle timeout error
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -555,10 +540,8 @@ class _TrainingProviderSignupScreenState
         setState(() {
           _emailError = 'This email is already in use. Please log in.';
         });
-        // Re-run form validation to display the error immediately
         _formKey.currentState!.validate();
       } else {
-        // Show general Firebase error
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(

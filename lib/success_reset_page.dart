@@ -121,8 +121,7 @@ class ResetSuccessPage extends StatelessWidget {
                               actions: [
                                 TextButton(
                                   onPressed: () {
-                                    Navigator.of(context)
-                                        .pop(); // Close the popup
+                                    Navigator.of(context).pop();
                                   },
                                   child: Text(
                                     'OK',

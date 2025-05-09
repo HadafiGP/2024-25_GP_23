@@ -22,13 +22,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
   Future<void> _changePassword() async {
     if (_formKey.currentState!.validate()) {
-      // تغيير كلمة المرور باستخدام Firebase أو أي نظام آخر.
-      // إذا كنت تستخدم Firebase، سيكون هنا الكود لتغيير كلمة المرور
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Password has been changed successfully'),
-                                                   duration: Duration(seconds: 2),
+        duration: Duration(seconds: 2),
         backgroundColor: Colors.green,
-
       ));
     }
   }
@@ -65,8 +62,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 onPressed: _changePassword,
                 child: Text('Change Password'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(
-                      0xFF113F67), // Corrected from 'primary' to 'backgroundColor'
+                  backgroundColor: Color(0xFF113F67),
                 ),
               )
             ],
