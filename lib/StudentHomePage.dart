@@ -70,7 +70,7 @@ class HadafiDrawer extends StatelessWidget {
               leading: const Icon(Icons.contact_mail, color: Color(0xFF113F67)),
               title: const Text('Contact us'),
               onTap: () {
-                _launchEmail();
+                _launchEmail(context);
               },
             ),
             const Divider(),
@@ -105,34 +105,48 @@ class HadafiDrawer extends StatelessWidget {
     );
   }
 
-  void _launchEmail() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
+void _launchEmail(BuildContext context) async {
+  final user = FirebaseAuth.instance.currentUser;
 
-      if (user == null) {
-        print("User is not logged in.");
-        return;
-      }
+  if (user == null) {
+    print("User is not logged in.");
+    return;
+  }
 
-      final String userId = user.uid;
+  final String userId = user.uid;
 
-      final String email = 'Hadafi.GP@gmail.com';
-      final String subject =
-          Uri.encodeComponent('App Support - User ID: $userId');
-      final String body = Uri.encodeComponent(
-          'Dear Admin, I encountered the following issues:');
+  final String email = 'Hadafi.GP@gmail.com';
+  final String subject =
+      Uri.encodeComponent('App Support - User ID: $userId');
+  final String body = Uri.encodeComponent(
+      'Dear Admin, I encountered the following issues:');
 
-      final String emailUrl = 'mailto:$email?subject=$subject&body=$body';
+  final Uri emailUri = Uri.parse('mailto:$email?subject=$subject&body=$body');
 
-      if (await canLaunchUrl(Uri.parse(emailUrl))) {
-        await launchUrl(Uri.parse(emailUrl));
-      } else {
-        throw 'Could not launch email client';
-      }
-    } catch (e) {
-      print("An error occurred while launching the email: $e");
+  try {
+    final bool launched = await launchUrl(
+      emailUri,
+      mode: LaunchMode.externalApplication, // <<< fix for Android
+    );
+
+    if (!launched && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not open email app.'),
+        ),
+      );
+    }
+  } catch (e) {
+    print("Error launching email: $e");
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('An error occurred while trying to open email app.'),
+        ),
+      );
     }
   }
+}
 
   Future<void> _logout(BuildContext context) async {
     try {

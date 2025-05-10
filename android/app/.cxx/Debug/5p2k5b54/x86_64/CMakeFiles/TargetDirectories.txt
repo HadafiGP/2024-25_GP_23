@@ -1,0 +1,2 @@
+/Users/duna/Desktop/hadafi_application/android/app/.cxx/Debug/5p2k5b54/x86_64/CMakeFiles/edit_cache.dir
+/Users/duna/Desktop/hadafi_application/android/app/.cxx/Debug/5p2k5b54/x86_64/CMakeFiles/rebuild_cache.dir
